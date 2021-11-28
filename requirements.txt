@@ -1,0 +1,7 @@
+pyrogram
+tgcrypto
+httpx
+pillow
+cashews
+coloredlogs
+qrcode

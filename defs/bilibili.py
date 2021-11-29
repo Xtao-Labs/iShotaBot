@@ -76,7 +76,7 @@ async def b23_extract(text):
         url = f"https://b23.tv/{b23[1]}"
     except AssertionError:
         raise ContinuePropagation
-    resp = httpx.get(url)
+    resp = httpx.head(url, follow_redirects=True)
     r = str(resp.url)
     return r
 

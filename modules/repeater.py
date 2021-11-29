@@ -24,14 +24,14 @@ async def repeater_handler(client: Client, message: Message):
         last_repeat_msg[group_id] = ""
 
     msg = t_msg = message.text
-
+    if not msg:
+        raise ContinuePropagation
     if re.match(r"^/", msg) or re.match(r"^!", msg):
-        return
+        raise ContinuePropagation
 
     if msg != last_msg[group_id] or msg == last_repeat_msg[group_id]:
         last_msg[group_id] = msg
         repeat_count[group_id] = 0
-        return
     else:
         repeat_count[group_id] += 1
         last_repeat_msg[group_id] = ""
@@ -40,4 +40,4 @@ async def repeater_handler(client: Client, message: Message):
             repeat_count[group_id] = 0
             last_msg[group_id] = ""
             last_repeat_msg[group_id] = msg
-    return ContinuePropagation
+    raise ContinuePropagation

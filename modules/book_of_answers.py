@@ -15,7 +15,7 @@ with open(f"resources{sep}text{sep}book_of_answers.json", "r", encoding="utf-8")
 
 @Client.on_message(filters.incoming & ~filters.edited &
                    filters.regex(r"^答案之书$"))
-async def bili_resolve(client: Client, message: Message):
+async def book_of_answer(client: Client, message: Message):
     await message.reply_text(
         f"{choice(book_of_answers)}",
         quote=True

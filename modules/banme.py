@@ -4,7 +4,7 @@ from time import time
 
 from pyrogram import Client, filters
 from pyrogram.types import Message, ChatPermissions
-from main import user_me
+from init import user_me
 
 
 @Client.on_message(filters.incoming & ~filters.edited & filters.group &

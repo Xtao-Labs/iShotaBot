@@ -1,7 +1,7 @@
 import re
 import secrets
 from typing import List
-from main import bot
+from init import bot
 
 
 async def how_many(message: str) -> str:

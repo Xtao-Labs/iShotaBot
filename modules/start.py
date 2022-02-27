@@ -10,6 +10,7 @@ des = """本机器人特性：
 ★ 鲁迅说过
 ★ 我有个朋友
 ★ 简易版问与答
+★ 网易云音乐
 """
 
 
@@ -22,4 +23,4 @@ async def start_command(client: Client, message: Message):
     await message.reply(des,
                         quote=True,
                         reply_markup=gen_button(
-                            [Button(0, "Github", "https://github.com/Xtao-Labs/iShotaBot")]))
+                            [Button(0, "Github", "https://github.com/XtaoLabs/iShotaBot")]))

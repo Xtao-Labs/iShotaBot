@@ -13,6 +13,15 @@ from pyncm.utils.helper import TrackHelper
 from pyrogram.types import Message
 
 
+def download_by_url(url, dest):
+    # Downloads generic content
+    response = GetCurrentSession().get(url, stream=True)
+    with open(dest, 'wb') as f:
+        for chunk in response.iter_content(1024 * 2 ** 10):
+            f.write(chunk)  # write every 1MB read
+    return dest
+
+
 def gen_author(song_info: dict) -> str:
     data = []
     for i in song_info["songs"][0]["ar"]:
@@ -42,23 +51,27 @@ def get_music_id(url: str) -> int:
         return 0
 
 
-async def netease_down(track_info: dict, song_info: dict, song, song_id: int) -> str:
+async def netease_down(song_info: dict, song, song_id: int) -> str:
     for i in listdir('data'):
         if splitext(i)[1] == ".lrc":
-            remove(i)
+            remove(f"data{sep}{i}")
             continue
-        if song_info["songs"][0]["name"] in splitext(i)[0]:
-            return i
-    # Download
+        if song_info["songs"][0]["name"] in splitext(i)[0] and (not splitext(i)[1] == ".jpg"):
+            return f"data{sep}{i}"
+    # Download audio
     await execute(f"{executable} -m pyncm http://music.163.com/song?id={song_id} "
                   f"--output data --load data/session.ncm --lyric-no lrc --lyric-no tlyric --lyric-no romalrc")
+    # Download cover
+    if not isfile(f'data{sep}{song_info["songs"][0]["name"]}.jpg'):
+        download_by_url(song.AlbumCover,
+                        f'data{sep}{song_info["songs"][0]["name"]}.jpg')
     for i in listdir('data'):
         if splitext(i)[1] == ".lrc":
-            remove(i)
+            remove(f"data{sep}{i}")
             continue
-        if song_info["songs"][0]["name"] in splitext(i)[0]:
+        if song_info["songs"][0]["name"] in splitext(i)[0] and (not splitext(i)[1] == ".jpg"):
             name = f'data{sep}{song_info["songs"][0]["name"]}{splitext(i)[1]}'
-            rename(i, name)
+            rename(f"data{sep}{i}", name)
             return name
     return ""
 
@@ -87,7 +100,7 @@ async def start_download(context: Message, message: Message, song_id: int, flac_
     for char in song_info["songs"][0]["name"]:
         if char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
             song_info["songs"][0]["name"] = song_info["songs"][0]["name"].replace(char, '')
-    path = await netease_down(track_info, song_info, song, song_id)
+    path = await netease_down(song_info, song, song_id)
     if path:
         await context.edit("正在上传歌曲。。。")
     else:

@@ -1,28 +1,16 @@
 # -*- coding: utf-8 -*-
 
-import base64
 from re import findall
-from asyncio import sleep
-from os import sep, remove, listdir
-from os.path import isfile, exists, getsize
+from asyncio import create_subprocess_shell, sleep
+from asyncio.subprocess import PIPE
+from sys import executable
+from os import sep, remove, listdir, rename
+from os.path import isfile, getsize, splitext
 
-from mutagen.mp3 import EasyMP3
-from mutagen.id3 import ID3, APIC
-from mutagen.flac import FLAC, Picture
-from mutagen.oggvorbis import OggVorbis
 from pyncm import GetCurrentSession, apis, SetCurrentSession, LoadSessionFromString
 from pyncm.utils.helper import TrackHelper
 
 from pyrogram.types import Message
-
-
-def download_by_url(url, dest):
-    # Downloads generic content
-    response = GetCurrentSession().get(url, stream=True)
-    with open(dest, 'wb') as f:
-        for chunk in response.iter_content(1024 * 2 ** 10):
-            f.write(chunk)  # write every 1MB read
-    return dest
 
 
 def gen_author(song_info: dict) -> str:
@@ -54,67 +42,25 @@ def get_music_id(url: str) -> int:
         return 0
 
 
-def tag_audio(track, file: str, cover_img: str = ''):
-    def write_keys(song):
-        # Write trackdatas
-        song['title'] = track.TrackName
-        song['artist'] = track.Artists
-        song['album'] = track.AlbumName
-        song['tracknumber'] = str(track.TrackNumber)
-        song['date'] = str(track.TrackPublishTime)
-        song.save()
-
-    def mp3():
-        song = EasyMP3(file)
-        write_keys(song)
-        if exists(cover_img):
-            song = ID3(file)
-            song.update_to_v23()  # better compatibility over v2.4
-            song.add(APIC(encoding=3, mime='image/jpeg', type=3, desc='',
-                          data=open(cover_img, 'rb').read()))
-            song.save(v2_version=3)
-
-    def flac():
-        song = FLAC(file)
-        write_keys(song)
-        if exists(cover_img):
-            pic = Picture()
-            pic.data = open(cover_img, 'rb').read()
-            pic.mime = 'image/jpeg'
-            song.add_picture(pic)
-            song.save()
-
-    def ogg():
-        song = OggVorbis(file)
-        write_keys(song)
-        if exists(cover_img):
-            pic = Picture()
-            pic.data = open(cover_img, 'rb').read()
-            pic.mime = 'image/jpeg'
-            song["metadata_block_picture"] = [base64.b64encode(pic.write()).decode('ascii')]
-            song.save()
-
-    format_ = file.split('.')[-1].upper()
-    for ext, method in [({'MP3'}, mp3), ({'FLAC'}, flac), ({'OGG', 'OGV'}, ogg)]:
-        if format_ in ext:
-            return method() or True
-    return False
-
-
-async def netease_down(track_info: dict, song_info: dict, song) -> str:
-    if not isfile(f'data{sep}{song_info["songs"][0]["name"]}.{track_info["data"][0]["type"]}'):
-        # Downloding source audio
-        download_by_url(track_info["data"][0]["url"],
-                        f'data{sep}{song_info["songs"][0]["name"]}.{track_info["data"][0]["type"]}')
-        # Downloading cover
-        if not isfile(f'data{sep}{song_info["songs"][0]["name"]}.jpg'):
-            download_by_url(song.AlbumCover,
-                            f'data{sep}{song_info["songs"][0]["name"]}.jpg')
-        # 设置标签
-        tag_audio(song, f'data{sep}{song_info["songs"][0]["name"]}.{track_info["data"][0]["type"]}',
-                  f'data{sep}{song_info["songs"][0]["name"]}.jpg')
-    # 返回
-    return f'data{sep}{song_info["songs"][0]["name"]}.{track_info["data"][0]["type"]}'
+async def netease_down(track_info: dict, song_info: dict, song, song_id: int) -> str:
+    for i in listdir('data'):
+        if splitext(i)[1] == ".lrc":
+            remove(i)
+            continue
+        if song_info["songs"][0]["name"] in splitext(i)[0]:
+            return i
+    # Download
+    await execute(f"{executable} -m pyncm http://music.163.com/song?id={song_id} "
+                  f"--output data --load data/session.ncm --lyric-no lrc --lyric-no tlyric --lyric-no romalrc")
+    for i in listdir('data'):
+        if splitext(i)[1] == ".lrc":
+            remove(i)
+            continue
+        if song_info["songs"][0]["name"] in splitext(i)[0]:
+            name = f'data{sep}{song_info["songs"][0]["name"]}{splitext(i)[1]}'
+            rename(i, name)
+            return name
+    return ""
 
 
 async def start_download(context: Message, message: Message, song_id: int, flac_mode):
@@ -141,8 +87,14 @@ async def start_download(context: Message, message: Message, song_id: int, flac_
     for char in song_info["songs"][0]["name"]:
         if char in ['/', '\\', ':', '*', '?', '"', '<', '>', '|']:
             song_info["songs"][0]["name"] = song_info["songs"][0]["name"].replace(char, '')
-    path = await netease_down(track_info, song_info, song)
-    await context.edit("正在上传歌曲。。。")
+    path = await netease_down(track_info, song_info, song, song_id)
+    if path:
+        await context.edit("正在上传歌曲。。。")
+    else:
+        msg = await message.edit(f"**没有找到歌曲**，请检查歌曲id是否正确。")
+        await sleep(5)
+        await msg.delete()
+        return
     # 上传歌曲
     cap_ = ""
     # 提醒登录VIP账号
@@ -168,3 +120,28 @@ async def start_download(context: Message, message: Message, song_id: int, flac_
         for i in listdir("data"):
             if i.find(".mp3") != -1 or i.find(".jpg") != -1 or i.find(".flac") != -1 or i.find(".ogg") != -1:
                 remove(f"data{sep}{i}")
+
+
+async def execute(command, pass_error=True):
+    """ Executes command and returns output, with the option of enabling stderr. """
+    executor = await create_subprocess_shell(
+        command,
+        stdout=PIPE,
+        stderr=PIPE,
+        stdin=PIPE
+    )
+
+    stdout, stderr = await executor.communicate()
+    if pass_error:
+        try:
+            result = str(stdout.decode().strip()) \
+                     + str(stderr.decode().strip())
+        except UnicodeDecodeError:
+            result = str(stdout.decode('gbk').strip()) \
+                     + str(stderr.decode('gbk').strip())
+    else:
+        try:
+            result = str(stdout.decode().strip())
+        except UnicodeDecodeError:
+            result = str(stdout.decode('gbk').strip())
+    return result

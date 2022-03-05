@@ -10,6 +10,8 @@ from defs.ask import how_many, what_time, how_long, hif, handle_pers, who
                    filters.regex(r"^问"))
 async def ask(client: Client, message: Message):
     msg = message
+    if not message.text:
+        raise ContinuePropagation
     message = message.text.strip()[1:]
     handled = False
     if re.findall("几|多少", message):

@@ -1,7 +1,4 @@
 import logging
-
-from pyrogram.types import User
-
 from defs.glover import ipv6
 from pyrogram import Client
 from logging import getLogger, INFO, ERROR, StreamHandler, basicConfig

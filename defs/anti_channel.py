@@ -1,10 +1,12 @@
 import pickle
-from os import sep
+from os import sep, mkdir
 from os.path import exists
 
 
 def init() -> None:
     data = {}
+    if not exists("data"):
+        mkdir("data")
     if not exists(f"data{sep}anti_channel.pkl"):
         with open(f"data{sep}anti_channel.pkl", "wb") as f:
             pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)

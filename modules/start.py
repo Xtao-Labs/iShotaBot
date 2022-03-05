@@ -24,4 +24,4 @@ async def start_command(client: Client, message: Message):
     await message.reply(des,
                         quote=True,
                         reply_markup=gen_button(
-                            [Button(0, "Github", "https://github.com/XtaoLabs/iShotaBot")]))
+                            [Button(0, "Gitlab", "https://gitlab.com/Xtao-Labs/iShotaBot")]))

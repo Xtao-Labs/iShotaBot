@@ -7,7 +7,7 @@ async def guess_str(key):
     if key == '':
         return ''
     text = {'text': key}
-    guess_json = (await request.post("https://lab.magiconch.com/api/nbnhhsh/guess", data=text, verify=False)).json()
+    guess_json = (await request.post("https://lab.magiconch.com/api/nbnhhsh/guess", data=text)).json()
     if len(guess_json) == 0:
         return ""
     guess_res = []

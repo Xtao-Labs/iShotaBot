@@ -19,8 +19,12 @@ basicConfig(level=INFO)
 logs.setLevel(INFO)
 logger = logging.getLogger("iShotaBot")
 # Init client
-bot = Client("bot", ipv6=ipv6, plugins=dict(root="plugins"))
-bot.start()
-user_me = bot.get_me()
-bot.stop()
-bot = Client("bot", ipv6=ipv6)
+
+
+class UserMe:
+    username = "iShotaBot"
+    id = 2144128213
+
+
+user_me = UserMe()
+bot = Client("bot", ipv6=ipv6, plugins=dict(root="modules"))

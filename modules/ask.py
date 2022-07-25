@@ -6,9 +6,9 @@ from pyrogram.types import Message
 from defs.ask import how_many, what_time, how_long, hif, handle_pers, who
 
 
-@Client.on_message(filters.incoming & ~filters.edited &
+@Client.on_message(filters.incoming &
                    filters.regex(r"^问"))
-async def ask(client: Client, message: Message):
+async def ask(_: Client, message: Message):
     msg = message
     if not message.text:
         raise ContinuePropagation

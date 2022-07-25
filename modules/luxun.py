@@ -1,14 +1,12 @@
-from os import sep
-
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.types import Message
 
 from defs.luxun import process_pic
 
 
-@Client.on_message(filters.incoming & ~filters.edited &
+@Client.on_message(filters.incoming &
                    filters.regex(r"^鲁迅说过"))
-async def luxun_say(client: Client, message: Message):
+async def luxun_say(_: Client, message: Message):
     args = message.text[4:]
     if not args:
         await message.reply("烦了，不说了", quote=True)

@@ -6,8 +6,8 @@ from init import bot
 
 async def how_many(message: str) -> str:
     while re.findall("几|多少", message):
-        message = message.replace("几", str(secrets.choice(range(0, 99))), 1)
-        message = message.replace("多少", str(secrets.choice(range(0, 99))), 1)
+        message = message.replace("几", str(secrets.choice(range(99))), 1)
+        message = message.replace("多少", str(secrets.choice(range(99))), 1)
     return message
 
 
@@ -22,12 +22,8 @@ async def what_time(message: str) -> str:
 async def how_long(message: str) -> str:
     unit = ["秒", "小时", "天", "周", "月", "年", "世纪"]
     while re.findall("多久|多长时间", message):
-        message = message.replace(
-            "多久", str(secrets.choice(range(0, 99))) + secrets.choice(unit), 1
-        )
-        message = message.replace(
-            "多长时间", str(secrets.choice(range(0, 99))) + secrets.choice(unit), 1
-        )
+        message = message.replace("多久", str(secrets.choice(range(99))) + secrets.choice(unit), 1)
+        message = message.replace("多长时间", str(secrets.choice(range(99))) + secrets.choice(unit), 1)
     return message
 
 
@@ -44,18 +40,16 @@ async def hif(message: str) -> str:
 
 async def who(message: str, group_id: int) -> str:
     group_member_list = await bot.get_chat_member(group_id)
-    member_list: List[str] = []
-    for n in group_member_list:
-        member_list += [n.first_name]
+    member_list: List[str] = [n.first_name for n in group_member_list]
     while "谁" in message:
-        member_name = member_list[secrets.choice(range(0, len(member_list) - 1))]
+        member_name = member_list[secrets.choice(range(len(member_list) - 1))]
         message = message.replace("谁", member_name, 1)
     return message
 
 
 async def handle_pers(message: str) -> str:
     message_list = list(message)
-    for i in range(0, len(message_list)):
+    for i in range(len(message_list)):
         if message_list[i] == "我":
             message_list[i] = "你"
             continue

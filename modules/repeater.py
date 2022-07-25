@@ -8,7 +8,7 @@ last_repeat_msg = {}
 repeat_count = {}
 
 
-@Client.on_message(filters.incoming & ~filters.edited & filters.group)
+@Client.on_message(filters.incoming & filters.group)
 async def repeater_handler(client: Client, message: Message):
     global last_msg, last_repeat_msg, repeat_count
 

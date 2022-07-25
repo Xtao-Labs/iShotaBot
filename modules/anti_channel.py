@@ -1,3 +1,4 @@
+import contextlib
 from pyrogram import Client, filters, ContinuePropagation, errors
 from pyrogram.types import Message
 from pyrogram.raw import types, functions
@@ -12,7 +13,7 @@ init()
 
 
 @Client.on_raw_update(filters.incoming & filters.group)
-async def anti_channel_msg(client: Client, update: Update, _, chats: dict):
+async def anti_channel_msg(client: Client, update: Update, _, __: dict):
     while True:
         try:
             # Check for message that are from channel
@@ -41,7 +42,7 @@ async def anti_channel_msg(client: Client, update: Update, _, chats: dict):
                 raise ContinuePropagation
 
             # Delete the message sent by channel and ban it.
-            await client.send(
+            await client.invoke(
                 functions.channels.EditBanned(
                     channel=await client.resolve_peer(chat_id),
                     participant=await client.resolve_peer(channel_id),
@@ -61,22 +62,17 @@ async def anti_channel_msg(client: Client, update: Update, _, chats: dict):
             add(chat_id, channel_id)
             raise ContinuePropagation
         except errors.FloodWait as e:
-            logs.debug(f"{e}, retry after {e.x} seconds...")
-            await sleep(e.x)
-        except errors.ChatAdminRequired:
-            try:
+            logs.debug(f"{e}, retry after {e.value} seconds...")
+            await sleep(e.value)
+        except errors.ChatAdminRequired as e:
+            with contextlib.suppress(NameError):
                 clean(chat_id)  # noqa
-            except NameError:
-                pass
-            raise ContinuePropagation
-        except ContinuePropagation:
-            raise ContinuePropagation
-        except:  # noqa
-            logs.exception("An exception occurred in message_handler")
-            raise ContinuePropagation
+            raise ContinuePropagation from e
+        except ContinuePropagation as e:
+            raise ContinuePropagation from e
 
 
-@Client.on_message(filters.incoming & ~filters.edited & filters.group &
+@Client.on_message(filters.incoming & filters.group &
                    filters.command(["anti_channel_msg", f"anti_channel_msg@{user_me.username}"]))
 async def switch_anti_channel_msg(client: Client, message: Message):
     # Check user
@@ -90,19 +86,8 @@ async def switch_anti_channel_msg(client: Client, message: Message):
     if data.status not in ["creator", "administrator"]:
         await message.reply("I'm not an admin of this chat.")
         raise ContinuePropagation
-    # Check if switch
-    switch = False
-    if len(message.text.split(" ")) > 1:
-        switch = True
-    if not get_status(message.chat.id):
-        if switch:
-            add(message.chat.id, message.chat.id)
-            await message.reply("Anti-channel is now enabled.")
-        else:
-            await message.reply("Anti-channel is already disabled.\n"
-                                "\n"
-                                "Tips: Use `/anti_channel_msg true` to enable or disable it.")
-    else:
+    switch = len(message.text.split(" ")) > 1
+    if get_status(message.chat.id):
         if switch:
             clean(message.chat.id)
             await message.reply("Anti-channel is now disabled.")
@@ -110,4 +95,11 @@ async def switch_anti_channel_msg(client: Client, message: Message):
             await message.reply("Anti-channel is already enabled.\n"
                                 "\n"
                                 "Tips: Use `/anti_channel_msg true` to enable or disable it.")
+    elif switch:
+        add(message.chat.id, message.chat.id)
+        await message.reply("Anti-channel is now enabled.")
+    else:
+        await message.reply("Anti-channel is already disabled.\n"
+                            "\n"
+                            "Tips: Use `/anti_channel_msg true` to enable or disable it.")
     raise ContinuePropagation

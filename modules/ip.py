@@ -1,12 +1,10 @@
 from urllib.parse import urlparse
 
-from httpx import get
-
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from defs.ip import ip_info
-from init import user_me
+from init import user_me, request
 
 
 @Client.on_message(filters.incoming & filters.group &
@@ -26,10 +24,10 @@ async def ip_command(_: Client, message: Message):
                         url = url.hostname
                     else:
                         url = url.path
-                    ipinfo_json = get(
+                    ipinfo_json = (await request.get(
                         "http://ip-api.com/json/" + url + "?fields=status,message,country,regionName,city,"
                                                           "lat,lon,isp,"
-                                                          "org,as,mobile,proxy,hosting,query").json()
+                                                          "org,as,mobile,proxy,hosting,query")).json()
                     if ipinfo_json['status'] == 'fail':
                         pass
                     elif ipinfo_json['status'] == 'success':
@@ -45,10 +43,10 @@ async def ip_command(_: Client, message: Message):
                     url = url.hostname
                 else:
                     url = url.path
-                ipinfo_json = get(
+                ipinfo_json = (await request.get(
                     "http://ip-api.com/json/" + url + "?fields=status,message,country,regionName,city,lat,"
                                                       "lon,isp,"
-                                                      "org,as,mobile,proxy,hosting,query").json()
+                                                      "org,as,mobile,proxy,hosting,query")).json()
                 if ipinfo_json['status'] == 'fail':
                     pass
                 elif ipinfo_json['status'] == 'success':
@@ -56,10 +54,10 @@ async def ip_command(_: Client, message: Message):
         if text == '':
             url = message.text[4:]
             if not url == '':
-                ipinfo_json = get(
+                ipinfo_json = (await request.get(
                     "http://ip-api.com/json/" + url + "?fields=status,message,country,regionName,city,lat,"
                                                       "lon,isp,"
-                                                      "org,as,mobile,proxy,hosting,query").json()
+                                                      "org,as,mobile,proxy,hosting,query")).json()
                 if ipinfo_json['status'] == 'fail':
                     pass
                 elif ipinfo_json['status'] == 'success':

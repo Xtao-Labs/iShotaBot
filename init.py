@@ -1,4 +1,7 @@
 import logging
+
+import httpx
+
 from defs.glover import ipv6
 from pyrogram import Client
 from logging import getLogger, INFO, ERROR, StreamHandler, basicConfig
@@ -28,3 +31,7 @@ class UserMe:
 
 user_me = UserMe()
 bot = Client("bot", ipv6=ipv6, plugins=dict(root="modules"))
+headers = {
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.72 Safari/537.36"
+}
+request = httpx.AsyncClient(timeout=10.0, headers=headers)

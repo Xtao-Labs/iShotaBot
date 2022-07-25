@@ -1,5 +1,6 @@
 import contextlib
 from pyrogram import Client, filters, ContinuePropagation, errors
+from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import Message
 from pyrogram.raw import types, functions
 from pyrogram.raw.base import Update
@@ -78,12 +79,12 @@ async def switch_anti_channel_msg(client: Client, message: Message):
     # Check user
     if message.from_user:
         data = await client.get_chat_member(message.chat.id, message.from_user.id)
-        if data.status not in ["creator", "administrator"]:
+        if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
             await message.reply("You are not an admin of this chat.")
             raise ContinuePropagation
     # Check self
     data = await client.get_chat_member(message.chat.id, user_me.id)
-    if data.status not in ["creator", "administrator"]:
+    if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
         await message.reply("I'm not an admin of this chat.")
         raise ContinuePropagation
     switch = len(message.text.split(" ")) > 1

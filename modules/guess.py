@@ -17,8 +17,8 @@ async def guess_command(_: Client, message: Message):
     else:
         rep_text = ''
         if reply := message.reply_to_message:
-            rep_text += guess_str(reply.text)
-        text = guess_str(message.text[7:])
+            rep_text += await guess_str(reply.text)
+        text = await guess_str(message.text[7:])
         if not rep_text and not text:
             await msg.edit('没有匹配到拼音首字母缩写')
         elif not rep_text:

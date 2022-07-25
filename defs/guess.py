@@ -3,7 +3,7 @@ import json
 from init import request
 
 
-def guess_str(key):
+async def guess_str(key):
     if key == '':
         return ''
     text = {'text': key}

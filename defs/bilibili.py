@@ -60,6 +60,8 @@ def cut_text(old_str, cut):
     i = 0
     non_wrap_str = []
     for p in str_list:
+        if not p:
+            continue
         if p[-1] == "\n":
             p = p[:-1]
         non_wrap_str.append(p)

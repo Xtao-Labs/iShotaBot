@@ -10,6 +10,8 @@ from qrcode.image.pil import PilImage
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
+from defs.browser import get_browser
+
 
 def cut_text(old_str, cut):
     """
@@ -338,3 +340,44 @@ def binfo_image_create(video_info: dict):
     picture.name = "bilibili.png"
 
     return picture
+
+
+async def get_dynamic_screenshot_pc(dynamic_id):
+    """电脑端动态截图"""
+    url = f"https://t.bilibili.com/{dynamic_id}"
+    browser = await get_browser()
+    context = await browser.new_context(
+        viewport={"width": 2560, "height": 1080},
+        device_scale_factor=2,
+    )
+    await context.add_cookies(
+        [
+            {
+                "name": "hit-dyn-v2",
+                "value": "1",
+                "domain": ".bilibili.com",
+                "path": "/",
+            }
+        ]
+    )
+    page = await context.new_page()
+    try:
+        await page.goto(url, wait_until="networkidle", timeout=10000)
+        # 动态被删除或者进审核了
+        if page.url == "https://www.bilibili.com/404":
+            return None
+        card = await page.query_selector(".card")
+        assert card
+        clip = await card.bounding_box()
+        assert clip
+        bar = await page.query_selector(".bili-dyn-action__icon")
+        assert bar
+        bar_bound = await bar.bounding_box()
+        assert bar_bound
+        clip["height"] = bar_bound["y"] - clip["y"]
+        return await page.screenshot(clip=clip, full_page=True)
+    except Exception:
+        print(f"截取动态时发生错误：{url}")
+        return await page.screenshot(full_page=True)
+    finally:
+        await context.close()

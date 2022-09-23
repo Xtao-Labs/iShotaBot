@@ -3,7 +3,7 @@ import re
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.types import Message
 
-from defs.bilibili import b23_extract, video_info_get, binfo_image_create
+from defs.bilibili import b23_extract, video_info_get, binfo_image_create, get_dynamic_screenshot_pc
 from defs.button import gen_button, Button
 
 
@@ -22,8 +22,27 @@ async def bili_resolve(_: Client, message: Message):
     video_info = await video_info_get(video_number) if video_number else None
     if video_info and video_info["code"] == 0:
         image = binfo_image_create(video_info)
-        await message.reply_photo(image,
-                                  quote=True,
-                                  reply_markup=gen_button(
-                                      [Button(0, "Link", "https://b23.tv/" + video_info["data"]["bvid"])]))
+        await message.reply_photo(
+            image,
+            quote=True,
+            reply_markup=gen_button([Button(0, "Link", "https://b23.tv/" + video_info["data"]["bvid"])])
+        )
+    raise ContinuePropagation
+
+
+@Client.on_message(filters.incoming &
+                   filters.regex(r"t.bilibili.com/([0-9]*)"))
+async def bili_dynamic(_: Client, message: Message):
+    # sourcery skip: use-named-expression
+    p = re.compile(r"t.bilibili.com/([0-9]*)")
+    dynamic_number = p.search(message.text)
+    if dynamic_number:
+        dynamic_id = dynamic_number[1]
+        image = await get_dynamic_screenshot_pc(dynamic_id)
+        if image:
+            await message.reply_photo(
+                image,
+                quote=True,
+                reply_markup=gen_button([Button(0, "Link", f"https://t.bilibili.com/{dynamic_id}")])
+            )
     raise ContinuePropagation

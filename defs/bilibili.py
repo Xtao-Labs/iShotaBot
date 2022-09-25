@@ -11,6 +11,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 from defs.browser import get_browser
+from headers import headers
 
 
 def cut_text(old_str, cut):
@@ -188,8 +189,6 @@ def binfo_image_create(video_info: dict):
     # UP主
     # 等级 0-4 \uE6CB-F 5-6\uE6D0-1
     # UP \uE723
-    headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'}
-
     if "staff" in video_info["data"]:
         up_list = []
         for up in video_info["data"]["staff"]:

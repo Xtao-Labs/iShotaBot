@@ -13,3 +13,5 @@ jinja2
 apscheduler
 pytz
 python-twitter
+beautifulsoup4
+lxml

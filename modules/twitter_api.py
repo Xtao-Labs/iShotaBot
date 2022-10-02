@@ -26,7 +26,7 @@ async def twitter_share(client: Client, message: Message):
             url = urlparse(url)
             if url.hostname and url.hostname == "twitter.com":
                 if url.path.find('status') >= 0:
-                    status_id = url.path[url.path.find('status') + 7:].split("/")[0]
+                    status_id = (url.path[url.path.find('status') + 7:].split("/")[0]).split("?")[0]
                     url_json = twitter_api.GetStatus(status_id, include_entities=True)
                     text, user_text, media_model, media_list, quoted_status = get_twitter_status(url_json)
                     text = f'<b>Twitter Status Info</b>\n\n{text}\n\n{user_text}'

@@ -119,7 +119,10 @@ def get_twitter_status(url_json):
                 media_list.append(i.video_info['variants'][0]['url'])
             else:
                 media_model.append('video')
-                media_list.append(i.video_info['variants'][1]['url'])
+                for f in i.video_info['variants']:
+                    if f['content_type'] == 'video/mp4':
+                        media_list.append(f['url'])
+                        break
             try:
                 media_alt_list.append(i.ext_alt_text)
             except:

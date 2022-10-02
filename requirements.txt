@@ -12,3 +12,4 @@ uvicorn
 jinja2
 apscheduler
 pytz
+python-twitter

@@ -10,3 +10,5 @@ mutagen
 playwright
 uvicorn
 jinja2
+apscheduler
+pytz

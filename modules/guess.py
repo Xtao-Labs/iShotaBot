@@ -5,7 +5,7 @@ from defs.guess import guess_str
 from init import user_me
 
 
-@Client.on_message(filters.incoming & filters.group &
+@Client.on_message(filters.incoming &
                    filters.command(["guess", f"guess@{user_me.username}"]))
 async def guess_command(_: Client, message: Message):
     msg = await message.reply('正在查询中...')

@@ -70,7 +70,10 @@ async def get_loft(url: str) -> List[LofterItem]:
     res = await request.get(url)
     assert res.status_code == 200
     username, avatar, name, bio, soup = parse_loft_user(url, res.text)
-    title = soup.findAll("div", {"class": "text"})[-1].getText().strip()
+    try:
+        title = soup.findAll("div", {"class": "text"})[-1].getText().strip()
+    except IndexError:
+        title = ""
     links = soup.findAll("a", {"class": "imgclasstag"})
     audio_link = None
     audio = soup.find("div", {"class": "img"})

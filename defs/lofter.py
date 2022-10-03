@@ -90,11 +90,17 @@ async def get_loft(url: str) -> List[LofterItem]:
 def parse_loft_user(url: str, content: str):
     username = urlparse(url).hostname.split(".")[0]
     soup = BeautifulSoup(content, "lxml")
-    user = soup.find("div", {"class": "selfinfo"})
-    avatar = user.find("img").get("src").split("?")[0]
-    name = user.find("h1").getText()
-    bio = user.find("div", {"class": "text"}).getText()
-    return username, avatar, name, bio, soup
+    if user := soup.find("div", {"class": "selfinfo"}):
+        avatar = user.find("img").get("src").split("?")[0]
+        name = user.find("h1").getText()
+        bio = user.find("div", {"class": "text"}).getText()
+        return username, avatar, name, bio, soup
+    if user := soup.find("div", {"class": "g-hdc box"}):
+        avatar = user.find("img").get("src").split("?")[0]
+        name = user.find("h1").getText()
+        bio = user.find("p", {"class": "cont"}).getText()
+        return username, avatar, name, bio, soup
+    return username, None, "未知用户", "", soup
 
 
 async def get_loft_user(url: str):

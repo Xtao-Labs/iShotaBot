@@ -30,13 +30,20 @@ async def lofter_share(_: Client, message: Message):
                     await message.reply_media_group(media=await input_media(img[:9], static), quote=True)
             else:
                 text, avatar, username, status_link = await get_loft_user(url)
-                await message.reply_photo(
-                    avatar,
-                    caption=text,
-                    quote=True,
-                    reply_markup=lofter_user_link(username, status_link)
-                )
+                if avatar:
+                    await message.reply_photo(
+                        avatar,
+                        caption=text,
+                        quote=True,
+                        reply_markup=lofter_user_link(username, status_link)
+                    )
+                else:
+                    await message.reply_text(
+                        text,
+                        quote=True,
+                        disable_web_page_preview=True,
+                        reply_markup=lofter_user_link(username, status_link)
+                    )
     except Exception as e:
         print(e)
-        breakpoint()
     raise ContinuePropagation

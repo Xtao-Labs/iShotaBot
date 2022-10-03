@@ -1,3 +1,4 @@
+import contextlib
 import os
 import re
 
@@ -90,17 +91,22 @@ async def get_loft(url: str) -> List[LofterItem]:
 def parse_loft_user(url: str, content: str):
     username = urlparse(url).hostname.split(".")[0]
     soup = BeautifulSoup(content, "lxml")
+    name, bio, avatar = "未知用户", "", None  # noqa
+    with contextlib.suppress(Exception):
+        name = soup.find("title").getText().split("-")[-1].strip()
+    with contextlib.suppress(Exception):
+        bio = " - ".join(soup.find("meta", {"name": "Description"}).get("content").split(" - ")[1:])
+    with contextlib.suppress(Exception):
+        avatar = soup.find("link", {"rel": "shortcut icon"}).get("href").split("?")[0]
     if user := soup.find("div", {"class": "selfinfo"}):
-        avatar = user.find("img").get("src").split("?")[0]
         name = user.find("h1").getText()
         bio = user.find("div", {"class": "text"}).getText()
         return username, avatar, name, bio, soup
     if user := soup.find("div", {"class": "g-hdc box"}):
-        avatar = user.find("img").get("src").split("?")[0]
         name = user.find("h1").getText()
         bio = user.find("p", {"class": "cont"}).getText()
         return username, avatar, name, bio, soup
-    return username, None, "未知用户", "", soup
+    return username, avatar, name, bio, soup
 
 
 async def get_loft_user(url: str):

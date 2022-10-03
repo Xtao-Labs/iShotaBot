@@ -1,5 +1,6 @@
-import contextlib
+import asyncio
 from urllib.parse import urlparse
+from concurrent.futures import ThreadPoolExecutor
 
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.enums import MessageEntityType, ParseMode
@@ -14,8 +15,9 @@ from defs.twitter_api import twitter_api, get_twitter_status, twitter_link, twit
 async def twitter_share(client: Client, message: Message):
     if not message.text:
         return
-    with contextlib.suppress(Exception):
-        for num in range(0, len(message.entities)):
+    static = "static" in message.text
+    try:
+        for num in range(len(message.entities)):
             entity = message.entities[num]
             if entity.type == MessageEntityType.URL:
                 url = message.text[entity.offset:entity.offset + entity.length]
@@ -24,10 +26,16 @@ async def twitter_share(client: Client, message: Message):
             else:
                 continue
             url = urlparse(url)
-            if url.hostname and url.hostname == "twitter.com":
+            if url.hostname and url.hostname in ["twitter.com", "vxtwitter.com"]:
                 if url.path.find('status') >= 0:
-                    status_id = (url.path[url.path.find('status') + 7:].split("/")[0]).split("?")[0]
-                    url_json = twitter_api.GetStatus(status_id, include_entities=True)
+                    status_id = str(url.path[url.path.find('status') + 7:].split("/")[0]).split("?")[0]
+                    with ThreadPoolExecutor() as executor:
+                        try:
+                            future = client.loop.run_in_executor(executor, twitter_api.GetStatus, status_id)
+                            url_json = await asyncio.wait_for(future, timeout=30, loop=client.loop)
+                        except Exception as e:
+                            print(e)
+                            return
                     text, user_text, media_model, media_list, quoted_status = get_twitter_status(url_json)
                     text = f'<b>Twitter Status Info</b>\n\n{text}\n\n{user_text}'
                     if len(media_model) == 0:
@@ -39,45 +47,60 @@ async def twitter_share(client: Client, message: Message):
                             reply_markup=twitter_link(url_json.id, quoted_status, url_json.user.screen_name)
                         )
                     elif len(media_model) == 1:
-                        if media_model[0] == 'photo':
-                            await client.send_photo(
-                                message.chat.id, media_list[0],
+                        if static:
+                            await message.reply_document(
+                                media_list[0],
+                                caption=text,
+                                quote=True,
+                                parse_mode=ParseMode.HTML,
+                                reply_markup=twitter_link(url_json.id, quoted_status, url_json.user.screen_name)
+                            )
+                        elif media_model[0] == 'photo':
+                            await message.reply_photo(
+                                media_list[0],
                                 caption=text,
                                 parse_mode=ParseMode.HTML,
-                                reply_to_message_id=message.id,
+                                quote=True,
                                 reply_markup=twitter_link(url_json.id, quoted_status, url_json.user.screen_name)
                             )
                         elif media_model[0] == 'gif':
-                            await client.send_animation(
-                                message.chat.id, media_list[0],
+                            await message.reply_animation(
+                                media_list[0],
                                 caption=text,
                                 parse_mode=ParseMode.HTML,
-                                reply_to_message_id=message.id,
+                                quote=True,
                                 reply_markup=twitter_link(url_json.id, quoted_status, url_json.user.screen_name)
                             )
                         else:
-                            await client.send_video(
-                                message.chat.id, media_list[0],
+                            await message.reply_video(
+                                media_list[0],
                                 caption=text,
                                 parse_mode=ParseMode.HTML,
-                                reply_to_message_id=message.id,
+                                quote=True,
                                 reply_markup=twitter_link(url_json.id, quoted_status, url_json.user.screen_name)
                             )
                     else:
                         await client.send_media_group(message.chat.id,
-                                                      media=twitter_media(text, media_model, media_list))
+                                                      media=twitter_media(text, media_model, media_list, static))
                 elif url.path == '/':
                     return
                 else:
                     # 解析用户
                     uid = url.path.replace('/', '')
-                    url_json = twitter_api.GetUser(screen_name=uid, include_entities=True)
+                    with ThreadPoolExecutor() as executor:
+                        try:
+                            future = client.loop.run_in_executor(executor, twitter_api.GetUser, None, uid)
+                            url_json = await asyncio.wait_for(future, timeout=30, loop=client.loop)
+                        except Exception as e:
+                            print(e)
+                            return
                     text, user_username, status_link = get_twitter_user(url_json)
-                    await client.send_photo(
-                        message.chat.id,
+                    await message.reply_photo(
                         url_json.profile_image_url_https.replace('_normal', ''),
                         caption=text,
-                        reply_to_message_id=message.id,
+                        quote=True,
                         reply_markup=twitter_user_link(user_username, status_link)
                     )
+    except Exception as e:
+        print(e)
     raise ContinuePropagation

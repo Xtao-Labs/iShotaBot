@@ -7,7 +7,7 @@ from defs.ip import ip_info
 from init import user_me, request
 
 
-@Client.on_message(filters.incoming & filters.group &
+@Client.on_message(filters.incoming &
                    filters.command(["ip", f"ip@{user_me.username}"]))
 async def ip_command(_: Client, message: Message):
     msg = await message.reply('正在查询中...')

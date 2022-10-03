@@ -27,7 +27,7 @@ def get_dc(message: Message):
     return dc, mention
 
 
-@Client.on_message(filters.incoming & filters.group &
+@Client.on_message(filters.incoming &
                    filters.command(["dc", f"dc@{user_me.username}"]))
 async def dc_command(_: Client, message: Message):
     geo_dic = {'1': '美国-佛罗里达州-迈阿密', '2': '荷兰-阿姆斯特丹', '3': '美国-佛罗里达州-迈阿密',

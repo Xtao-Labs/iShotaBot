@@ -116,6 +116,9 @@ def get_twitter_status(url_json):
     with contextlib.suppress(Exception):
         media_info = url_json.media
         for i in media_info:
+            media_url = i.url if hasattr(i, 'url') else None
+            if media_url:
+                text = text.replace(media_url, '')
             if i.type == 'photo':
                 media_model.append('photo')
                 media_list.append(i.media_url_https)
@@ -155,6 +158,9 @@ def get_twitter_status(url_json):
         with contextlib.suppress(Exception):
             quoted_media_info = quoted.media
             for i in quoted_media_info:
+                media_url = i.url if hasattr(i, 'url') else None
+                if media_url:
+                    text = text.replace(media_url, '')
                 if i.type == 'photo':
                     media_model.append('photo')
                     media_list.append(i.media_url_https)

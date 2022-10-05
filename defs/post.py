@@ -4,6 +4,7 @@ import os
 import re
 from asyncio import sleep
 from io import BytesIO
+from typing import List, Dict
 
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
@@ -66,7 +67,7 @@ class LofterPost:
                 await self.upload(file)
 
     @staticmethod
-    def parse_data(data: list[dict]) -> list[Item]:
+    def parse_data(data: List[Dict]) -> List[Item]:
         datas = []
         for i in data:
             if post_data := i.get("postData"):
@@ -103,8 +104,8 @@ class LofterPost:
                                     ))
         return datas
 
-    async def get_items(self) -> list[Item]:
-        datas: list[LofterPost.Item] = []
+    async def get_items(self) -> List[Item]:
+        datas: List[LofterPost.Item] = []
         while True:
             data = await self.get_data()
             if not data:

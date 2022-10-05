@@ -106,40 +106,36 @@ class LofterPost:
 
     async def get_items(self) -> List[Item]:
         datas: List[LofterPost.Item] = []
-        while True:
-            data = await self.get_data()
-            if not data:
-                break
+        data = await self.get_data()
+        if data:
             data = data.get("data", {})
-            if not data:
-                break
+        if data:
             self.offset = data.get("offset", 0)
-            posts = data.get("posts", [])
-            if not posts:
-                break
-            datas.extend(self.parse_data(posts))
-            if self.offset == -1:
-                break
+            if posts := data.get("posts", []):
+                datas = self.parse_data(posts)
         return datas
 
     async def upload(self, message: Message):
-        msg = await message.reply_text("正在获取数据...")
-        try:
-            items = await self.get_items()
-        except Exception as e:
-            await msg.edit_text(f"获取数据失败: {e}")
-            return
-        await msg.edit(f"获取到{len(items)}条数据，正在上传...")
-        success, error, final = 0, 0, len(items)
-        for item in items:
+        msg = await message.reply_text("正在上传中...")
+        success, error = 0, 0
+        while True:
             try:
-                file = await item.init()
-                await item.upload(file)
-                success += 1
-                await sleep(1)
+                items = await self.get_items()
+                if not items:
+                    break
+                for item in items:
+                    try:
+                        file = await item.init()
+                        await item.upload(file)
+                        success += 1
+                        await sleep(1)
+                    except Exception:
+                        error += 1
+                    if (success + error) % 10 == 0:
+                        with contextlib.suppress(Exception):
+                            await msg.edit(f"已成功上传{success}条，失败{error}条，第 {success + error} 条")
+                if self.offset == -1:
+                    break
             except Exception:
-                error += 1
-            if (success + error) % 10 == 0:
-                with contextlib.suppress(Exception):
-                    await msg.edit(f"已成功上传{success}条，失败{error}条，剩余{final - success - error}条")
+                continue
         await msg.edit(f"上传完成，成功{success}条，失败{error}条")

@@ -2,6 +2,7 @@ import asyncio
 import contextlib
 import os
 import re
+import time
 from asyncio import sleep
 from io import BytesIO
 from typing import List, Dict
@@ -11,9 +12,11 @@ from pyrogram.types import Message
 
 from defs.glover import lofter_channel
 from defs.lofter import lofter_link
+from models.lofter import LofterPost as LofterPostModel
+from models.models.lofter import Lofter as LofterModel
 from init import request, bot
 
-pattern = re.compile(r'<[^>]+>',re.S)
+pattern = re.compile(r'<[^>]+>', re.S)
 
 
 class LofterPost:
@@ -36,10 +39,13 @@ class LofterPost:
         return res.json()
 
     class Item:
-        def __init__(self, url, origin_url, title, username, name, tags, comment, static):
+        def __init__(self, url, origin_url, title, user_id, username, name, tags, comment, post_id, first, static):
             self.url = url.split('?')[0]
             self.origin_url = origin_url
+            self.user_id = str(user_id)
             self.username = username
+            self.post_id = post_id
+            self.first = first
             self.static = static
             title = pattern.sub('\n', title).strip()[:500]
             self.text = f"<b>Lofter Status Info</b>\n\n" \
@@ -47,6 +53,18 @@ class LofterPost:
                         f"✍️ <a href=\"https://{username}.lofter.com/\">{name}</a>\n" \
                         f"{tags}\n" \
                         f"{comment}"
+
+        async def check_exists(self):
+            return await LofterPostModel.get_by_post_and_user_id(self.user_id, self.post_id)
+
+        async def add_to_db(self):
+            post = LofterModel(
+                user_id=self.user_id,
+                username=self.username,
+                post_id=self.post_id,
+                timestamp=int(time.time())
+            )
+            await LofterPostModel.add_post(post)
 
         async def init(self):
             file = await request.get(self.url, timeout=30)
@@ -71,8 +89,9 @@ class LofterPost:
         datas = []
         for i in data:
             if post_data := i.get("postData"):
-                username, name, comment = "", "", ""
+                user_id, username, name, comment = 0, "", "", ""
                 if blog_info := post_data.get("blogInfo"):
+                    user_id = blog_info.get("blogId", 0)
                     username = blog_info.get("blogName", "")
                     name = blog_info.get("blogNickName", "")
                 if post_count_view := post_data.get("postCountView"):
@@ -87,6 +106,7 @@ class LofterPost:
                     tags = "".join(f"#{i} " for i in post_view.get("tagList", []))
                     if photo_post_view := post_view.get("photoPostView"):
                         if photo_links := photo_post_view.get("photoLinks"):
+                            first = True
                             for photo in photo_links:
                                 if url := photo.get("orign"):
                                     width = photo.get("ow", 0)
@@ -96,12 +116,16 @@ class LofterPost:
                                         url,
                                         origin_url,
                                         title,
+                                        user_id,
                                         username,
                                         name,
                                         tags,
                                         comment,
+                                        permalink,
+                                        first,
                                         static
                                     ))
+                                    first = False
         return datas
 
     async def get_items(self) -> List[Item]:
@@ -117,7 +141,8 @@ class LofterPost:
 
     async def upload(self, message: Message):
         msg = await message.reply_text("正在上传中...")
-        success, error = 0, 0
+        success, error, skip = 0, 0, 0
+        temp_skip = False
         while True:
             try:
                 items = await self.get_items()
@@ -125,17 +150,32 @@ class LofterPost:
                     break
                 for item in items:
                     try:
+                        if item.first:
+                            if await item.check_exists():
+                                temp_skip = True
+                                skip += 1
+                                await sleep(0.5)
+                                continue
+                            else:
+                                temp_skip = False
+                        elif temp_skip:
+                            skip += 1
+                            continue
                         file = await item.init()
                         await item.upload(file)
+                        if item.first:
+                            await item.add_to_db()
                         success += 1
-                        await sleep(1)
-                    except Exception:
+                        await sleep(0.5)
+                    except Exception as e:
+                        print(f"Error uploading file: {e}")
                         error += 1
                     if (success + error) % 10 == 0:
                         with contextlib.suppress(Exception):
-                            await msg.edit(f"已成功上传{success}条，失败{error}条，第 {success + error} 条")
+                            await msg.edit(f"已成功上传{success}条，失败{error}条，跳过 {skip} 条，第 {success + error + skip} 条")
                 if self.offset == -1:
                     break
-            except Exception:
+            except Exception as e:
+                print(f"Error uploading file: {e}")
                 continue
-        await msg.edit(f"上传完成，成功{success}条，失败{error}条")
+        await msg.edit(f"上传完成，成功{success}条，失败{error}条，跳过 {skip} 条，总共 {success + error + skip} 条")

@@ -15,3 +15,6 @@ pytz
 python-twitter
 beautifulsoup4
 lxml
+sqlalchemy
+sqlmodel
+aiosqlite

@@ -28,6 +28,8 @@ async def lofter_share(_: Client, message: Message):
                     await img[0].reply_to(message, static=static)
                 else:
                     await message.reply_media_group(media=await input_media(img[:9], static), quote=True)
+            elif "front/blog" in url:
+                pass
             else:
                 text, avatar, username, status_link = await get_loft_user(url)
                 if avatar:

@@ -15,6 +15,7 @@ access_token_secret: str = ""
 # [post]
 admin: int = 0
 lofter_channel: int = 0
+lofter_channel_username: str = ""
 
 config = RawConfigParser()
 config.read("config.ini")
@@ -27,6 +28,7 @@ access_token_key = config.get("twitter", "access_token_key", fallback=access_tok
 access_token_secret = config.get("twitter", "access_token_secret", fallback=access_token_secret)
 admin = config.getint("post", "admin", fallback=admin)
 lofter_channel = config.getint("post", "lofter_channel", fallback=lofter_channel)
+lofter_channel_username = config.get("post", "lofter_channel_username", fallback=lofter_channel_username)
 try:
     ipv6 = strtobool(ipv6)
 except ValueError:

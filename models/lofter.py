@@ -24,6 +24,10 @@ class LofterPost:
                 return None
 
     @staticmethod
+    async def get_by_post_id(post_id: str) -> Optional[Lofter]:
+        return await LofterPost.get_by_post_and_user_id("0", post_id)
+
+    @staticmethod
     async def add_post(post: Lofter):
         async with sqlite.Session() as session:
             session = cast(AsyncSession, session)

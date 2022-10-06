@@ -10,6 +10,8 @@ from bs4 import BeautifulSoup
 from pyrogram.types import InputMediaPhoto, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaDocument, \
     InputMediaAnimation, Message
 
+from defs.glover import lofter_channel_username
+from models.lofter import LofterPost as LofterPostModel
 from init import request
 
 
@@ -20,6 +22,7 @@ class LofterItem:
         self.only_text = url is None
         self.file = None
         self.origin_url = origin_url
+        self.post_id = origin_url.split("/post/")[1].split("?")[0]
         self.username = username
         self.text = f"<b>Lofter Status Info</b>\n\n" \
                     f"<code>{title.strip()}</code>\n\n" \
@@ -27,7 +30,12 @@ class LofterItem:
                     f"{tags}\n" \
                     f"{comment}"
 
+    async def check_exists(self):
+        if await LofterPostModel.get_by_post_id(self.post_id):
+            self.text += f"\n📄 此图集已被<a href=\"https://t.me/{lofter_channel_username}\">此频道</a>收录"
+
     async def init(self):
+        await self.check_exists()
         if self.only_text:
             return
         file = await request.get(self.url, timeout=30)

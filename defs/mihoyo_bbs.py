@@ -9,11 +9,11 @@ async def get_mihoyo_screenshot(url):
     )
     page = await context.new_page()
     try:
-        await page.goto(url, wait_until="networkidle", timeout=60000)
+        await page.goto(url, wait_until="networkidle", timeout=180000)
         # 被删除或者进审核了
         if page.url == "https://bbs.mihoyo.com/ys/404":
             return None
-        card = await page.query_selector(".mhy-article-page__main")
+        card = await page.wait_for_selector(".mhy-article-page__main", timeout=180000, state='visible')
         assert card
         clip = await card.bounding_box()
         assert clip

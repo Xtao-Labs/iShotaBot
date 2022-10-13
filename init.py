@@ -40,4 +40,4 @@ bot = Client("bot", api_id=api_id, api_hash=api_hash, ipv6=ipv6, plugins=dict(ro
 headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.72 Safari/537.36"
 }
-request = httpx.AsyncClient(timeout=10.0, headers=headers)
+request = httpx.AsyncClient(timeout=60.0, headers=headers)

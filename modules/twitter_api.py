@@ -29,13 +29,19 @@ async def twitter_share(client: Client, message: Message):
             if url.hostname and url.hostname in ["twitter.com", "vxtwitter.com"]:
                 if url.path.find('status') >= 0:
                     status_id = str(url.path[url.path.find('status') + 7:].split("/")[0]).split("?")[0]
+                    url_json = None
                     with ThreadPoolExecutor() as executor:
-                        try:
-                            future = client.loop.run_in_executor(executor, twitter_api.GetStatus, status_id)
-                            url_json = await asyncio.wait_for(future, timeout=30, loop=client.loop)
-                        except Exception as e:
-                            print(e)
-                            return
+                        for _ in range(3):
+                            try:
+                                future = client.loop.run_in_executor(executor, twitter_api.GetStatus, status_id)
+                                url_json = await asyncio.wait_for(future, timeout=30, loop=client.loop)
+                            except Exception as e:
+                                print(e)
+                                return
+                            if url_json:
+                                break
+                    if not url_json:
+                        return
                     text, user_text, media_model, media_list, quoted_status = get_twitter_status(url_json)
                     text = f'<b>Twitter Status Info</b>\n\n{text}\n\n{user_text}'
                     if len(media_model) == 0:
@@ -87,13 +93,19 @@ async def twitter_share(client: Client, message: Message):
                 else:
                     # 解析用户
                     uid = url.path.replace('/', '')
+                    url_json = None
                     with ThreadPoolExecutor() as executor:
-                        try:
-                            future = client.loop.run_in_executor(executor, twitter_api.GetUser, None, uid)
-                            url_json = await asyncio.wait_for(future, timeout=30, loop=client.loop)
-                        except Exception as e:
-                            print(e)
-                            return
+                        for _ in range(3):
+                            try:
+                                future = client.loop.run_in_executor(executor, twitter_api.GetUser, None, uid)
+                                url_json = await asyncio.wait_for(future, timeout=30, loop=client.loop)
+                            except Exception as e:
+                                print(e)
+                                return
+                            if url_json:
+                                break
+                    if not url_json:
+                        return
                     text, user_username, status_link = get_twitter_user(url_json)
                     await message.reply_photo(
                         url_json.profile_image_url_https.replace('_normal', ''),

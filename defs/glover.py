@@ -16,6 +16,8 @@ access_token_secret: str = ""
 admin: int = 0
 lofter_channel: int = 0
 lofter_channel_username: str = ""
+# [api]
+amap_key: str = ""
 
 config = RawConfigParser()
 config.read("config.ini")
@@ -29,6 +31,7 @@ access_token_secret = config.get("twitter", "access_token_secret", fallback=acce
 admin = config.getint("post", "admin", fallback=admin)
 lofter_channel = config.getint("post", "lofter_channel", fallback=lofter_channel)
 lofter_channel_username = config.get("post", "lofter_channel_username", fallback=lofter_channel_username)
+amap_key = config.get("api", "amap_key", fallback=amap_key)
 try:
     ipv6 = strtobool(ipv6)
 except ValueError:

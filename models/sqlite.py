@@ -1,8 +1,9 @@
 from sqlmodel import SQLModel
 
 from models.models.lofter import Lofter
+from models.models.fragment import Fragment
 
-__all__ = ["Lofter"]
+__all__ = ["Lofter", "Fragment"]
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker

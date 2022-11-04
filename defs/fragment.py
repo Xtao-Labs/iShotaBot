@@ -1,10 +1,11 @@
 import contextlib
 import re
 from datetime import datetime
+from typing import Optional
 
 from bs4 import BeautifulSoup
 from init import request
-from models.fragment import AuctionStatus, UserName, TON_TO_USD_RATE, Price
+from models.fragment import AuctionStatus, UserName, TON_TO_USD_RATE, Price, FragmentSubText, FragmentSub
 
 
 class NotAvailable(Exception):
@@ -83,3 +84,22 @@ async def parse_fragment(username: str) -> UserName:
     except AssertionError:
         html = await search_fragment_html(username)
         return search_user(username, html)
+
+
+async def parse_sub(status: FragmentSubText, user: Optional[UserName], cid: int) -> str:
+    if status == FragmentSubText.Subscribe:
+        if user.status == [AuctionStatus.Sold, AuctionStatus.Unavailable]:
+            return "用户名已被卖出或者已被注册，无法订阅"
+        if await FragmentSub.get_by_cid_and_username(cid, user.name):
+            return "已经订阅过了这个用户名"
+        await FragmentSub.subscribe(cid, user.name)
+        return "订阅成功"
+    elif status == FragmentSubText.Unsubscribe:
+        if data := (await FragmentSub.get_by_cid_and_username(cid, user.name)):
+            await FragmentSub.unsubscribe(data)
+            return "取消订阅成功"
+        return "当前没有订阅这个用户名"
+    elif status == FragmentSubText.List:
+        if data := (await FragmentSub.get_by_cid(cid)):
+            return "目前已订阅：\n\n" + "\n".join([f"{i+1}. @{d.username}" for i, d in enumerate(data)])
+        return "还没有订阅任何用户名"

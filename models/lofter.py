@@ -18,10 +18,7 @@ class LofterPost:
                 check = Lofter.post_id == post_id
             statement = select(Lofter).where(check)
             results = await session.exec(statement)
-            if post := results.first():
-                return post[0]
-            else:
-                return None
+            return post[0] if (post := results.first()) else None
 
     @staticmethod
     async def get_by_post_id(post_id: str) -> Optional[Lofter]:

@@ -1,8 +1,12 @@
 from datetime import datetime, timezone, timedelta
 from enum import Enum
-from typing import Optional
-
+from typing import Optional, cast, List
 from pydantic import BaseModel
+from sqlalchemy import select
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from init import sqlite
+from models.models.fragment import Fragment
 
 TON_TO_USD_RATE = {"rate": 1.61}
 
@@ -85,3 +89,50 @@ class UserName(BaseModel):
             text += f"售价：{self.now_price.text}\n" \
                     f"距离出售结束：{self.end_human_time}\n"
         return text
+
+
+class FragmentSubText(Enum):
+    Subscribe = "订阅"
+    Unsubscribe = "退订"
+    List = "订阅列表"
+
+
+class FragmentSub:
+    @staticmethod
+    async def subscribe(cid: int, username: str):
+        async with sqlite.Session() as session:
+            session = cast(AsyncSession, session)
+            data = Fragment(cid=cid, username=username)
+            session.add(data)
+            await session.commit()
+
+    @staticmethod
+    async def unsubscribe(data: Fragment):
+        async with sqlite.Session() as session:
+            session = cast(AsyncSession, session)
+            await session.delete(data)
+            await session.commit()
+
+    @staticmethod
+    async def get_by_cid_and_username(cid: int, username: str) -> Optional[Fragment]:
+        async with sqlite.Session() as session:
+            session = cast(AsyncSession, session)
+            statement = select(Fragment).where(Fragment.cid == cid and Fragment.username == username)
+            results = await session.exec(statement)
+            return post[0] if (post := results.first()) else None
+
+    @staticmethod
+    async def get_by_cid(cid: int) -> List[Fragment]:
+        async with sqlite.Session() as session:
+            session = cast(AsyncSession, session)
+            statement = select(Fragment).where(Fragment.cid == cid)
+            results = await session.exec(statement)
+            return [item[0] for item in results.all()]
+
+    @staticmethod
+    async def get_all() -> List[Fragment]:
+        async with sqlite.Session() as session:
+            session = cast(AsyncSession, session)
+            statement = select(Fragment)
+            results = await session.exec(statement)
+            return [item[0] for item in results.all()]

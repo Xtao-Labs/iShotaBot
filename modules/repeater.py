@@ -1,5 +1,3 @@
-import re
-
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.types import Message
 
@@ -26,7 +24,7 @@ async def repeater_handler(client: Client, message: Message):
     msg = t_msg = message.text
     if not msg:
         raise ContinuePropagation
-    if re.match(r"^/", msg) or re.match(r"^!", msg):
+    if msg.startswith("/") or msg.startswith("!") or msg.startswith(",") or msg.startswith("，"):
         raise ContinuePropagation
 
     if msg != last_msg[group_id] or msg == last_repeat_msg[group_id]:

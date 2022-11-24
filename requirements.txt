@@ -1,5 +1,5 @@
-pyrogram==2.0.59
-tgcrypto==1.2.4
+pyrogram==2.0.62
+tgcrypto==1.2.5
 httpx
 pillow
 cashews

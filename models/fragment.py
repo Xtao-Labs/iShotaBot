@@ -117,7 +117,7 @@ class FragmentSub:
     async def get_by_cid_and_username(cid: int, username: str) -> Optional[Fragment]:
         async with sqlite.Session() as session:
             session = cast(AsyncSession, session)
-            statement = select(Fragment).where(Fragment.cid == cid and Fragment.username == username)
+            statement = select(Fragment).where(Fragment.cid == cid).where(Fragment.username == username)
             results = await session.exec(statement)
             return post[0] if (post := results.first()) else None
 

@@ -41,7 +41,7 @@ def parse_user(username: str, html: str) -> UserName:
             user.now_price = Price(ton=int(soup.find(
                 "div", {"class": "table-cell-value tm-value icon-before icon-ton"}
             ).getText().replace(",", "")))
-        elif user.status == [AuctionStatus.OnAuction, AuctionStatus.Sale]:
+        elif user.status in [AuctionStatus.OnAuction, AuctionStatus.Sale]:
             info = soup.find("div", {"class": "tm-section-box tm-section-bid-info"})
             user.now_price = Price(ton=int(info.find(
                 "div", {"class": "table-cell-value tm-value icon-before icon-ton"}

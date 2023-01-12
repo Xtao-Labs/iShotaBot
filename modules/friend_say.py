@@ -8,8 +8,7 @@ from pyrogram.types import Message
 from defs.friend_say import ImageUtil
 
 
-@Client.on_message(filters.incoming & filters.group &
-                   filters.regex(r"^我有个朋友"))
+@Client.on_message(filters.incoming & filters.group & filters.regex(r"^我有个朋友"))
 async def friend_say(client: Client, message: Message):
     if not message.reply_to_message:
         raise ContinuePropagation
@@ -20,13 +19,14 @@ async def friend_say(client: Client, message: Message):
     # Get Gravatar
     avatar = None
     if message.reply_to_message.from_user.photo:
-        avatar = await client.download_media(message.reply_to_message.from_user.photo.big_file_id,
-                                             file_name="avatar.jpg")
+        avatar = await client.download_media(
+            message.reply_to_message.from_user.photo.big_file_id, file_name="avatar.jpg"
+        )
     # Get Name
     user_name = message.reply_to_message.from_user.first_name
     # Create image
     if avatar:
-        with open(avatar, 'rb') as fh:
+        with open(avatar, "rb") as fh:
             buf = BytesIO(fh.read())
         ava = ImageUtil(100, 100, background=buf)
     else:

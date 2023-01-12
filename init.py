@@ -37,7 +37,9 @@ class UserMe:
 
 user_me = UserMe()
 sqlite = Sqlite()
-bot = pyrogram.Client("bot", api_id=api_id, api_hash=api_hash, ipv6=ipv6, plugins=dict(root="modules"))
+bot = pyrogram.Client(
+    "bot", api_id=api_id, api_hash=api_hash, ipv6=ipv6, plugins=dict(root="modules")
+)
 # temp fix topics group
 setattr(pyrogram.types.Message, "old_parse", getattr(pyrogram.types.Message, "_parse"))
 setattr(pyrogram.types.Message, "_parse", temp_fix)

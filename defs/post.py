@@ -16,7 +16,7 @@ from models.lofter import LofterPost as LofterPostModel
 from models.models.lofter import Lofter as LofterModel
 from init import request, bot
 
-pattern = re.compile(r'<[^>]+>', re.S)
+pattern = re.compile(r"<[^>]+>", re.S)
 
 
 class LofterPost:
@@ -24,7 +24,7 @@ class LofterPost:
         try:
             self.grainId = int(url)
         except ValueError:
-            self.grainId = int(url[url.find('grainId=') + 8:].split("&")[0])
+            self.grainId = int(url[url.find("grainId=") + 8 :].split("&")[0])
         try:
             self.offset = int(offset)
         except ValueError:
@@ -39,30 +39,47 @@ class LofterPost:
         return res.json()
 
     class Item:
-        def __init__(self, url, origin_url, title, user_id, username, name, tags, comment, post_id, first, static):
-            self.url = url.split('?')[0]
+        def __init__(
+            self,
+            url,
+            origin_url,
+            title,
+            user_id,
+            username,
+            name,
+            tags,
+            comment,
+            post_id,
+            first,
+            static,
+        ):
+            self.url = url.split("?")[0]
             self.origin_url = origin_url
             self.user_id = str(user_id)
             self.username = username
             self.post_id = post_id
             self.first = first
             self.static = static
-            title = pattern.sub('\n', title).strip()[:500]
-            self.text = f"<b>Lofter Status Info</b>\n\n" \
-                        f"<code>{title}</code>\n\n" \
-                        f"✍️ <a href=\"https://{username}.lofter.com/\">{name}</a>\n" \
-                        f"{tags}\n" \
-                        f"{comment}"
+            title = pattern.sub("\n", title).strip()[:500]
+            self.text = (
+                f"<b>Lofter Status Info</b>\n\n"
+                f"<code>{title}</code>\n\n"
+                f'✍️ <a href="https://{username}.lofter.com/">{name}</a>\n'
+                f"{tags}\n"
+                f"{comment}"
+            )
 
         async def check_exists(self):
-            return await LofterPostModel.get_by_post_and_user_id(self.user_id, self.post_id)
+            return await LofterPostModel.get_by_post_and_user_id(
+                self.user_id, self.post_id
+            )
 
         async def add_to_db(self):
             post = LofterModel(
                 user_id=self.user_id,
                 username=self.username,
                 post_id=self.post_id,
-                timestamp=int(time.time())
+                timestamp=int(time.time()),
             )
             await LofterPostModel.add_post(post)
 
@@ -75,11 +92,25 @@ class LofterPost:
         async def upload(self, file):
             try:
                 if self.static:
-                    await bot.send_document(lofter_channel, file, caption=self.text, disable_notification=True,
-                                            reply_markup=lofter_link(self.url, self.origin_url, self.username))
+                    await bot.send_document(
+                        lofter_channel,
+                        file,
+                        caption=self.text,
+                        disable_notification=True,
+                        reply_markup=lofter_link(
+                            self.url, self.origin_url, self.username
+                        ),
+                    )
                 else:
-                    await bot.send_photo(lofter_channel, file, caption=self.text, disable_notification=True,
-                                         reply_markup=lofter_link(self.url, self.origin_url, self.username))
+                    await bot.send_photo(
+                        lofter_channel,
+                        file,
+                        caption=self.text,
+                        disable_notification=True,
+                        reply_markup=lofter_link(
+                            self.url, self.origin_url, self.username
+                        ),
+                    )
             except FloodWait as e:
                 await asyncio.sleep(e.value + 0.5)
                 await self.upload(file)
@@ -112,19 +143,21 @@ class LofterPost:
                                     width = photo.get("ow", 0)
                                     height = photo.get("oh", 0)
                                     static = abs(height - width) > 1300
-                                    datas.append(LofterPost.Item(
-                                        url,
-                                        origin_url,
-                                        title,
-                                        user_id,
-                                        username,
-                                        name,
-                                        tags,
-                                        comment,
-                                        permalink,
-                                        first,
-                                        static
-                                    ))
+                                    datas.append(
+                                        LofterPost.Item(
+                                            url,
+                                            origin_url,
+                                            title,
+                                            user_id,
+                                            username,
+                                            name,
+                                            tags,
+                                            comment,
+                                            permalink,
+                                            first,
+                                            static,
+                                        )
+                                    )
                                     first = False
         return datas
 
@@ -172,10 +205,14 @@ class LofterPost:
                         error += 1
                     if (success + error) % 10 == 0:
                         with contextlib.suppress(Exception):
-                            await msg.edit(f"已成功上传{success}条，失败{error}条，跳过 {skip} 条，第 {success + error + skip} 条")
+                            await msg.edit(
+                                f"已成功上传{success}条，失败{error}条，跳过 {skip} 条，第 {success + error + skip} 条"
+                            )
                 if self.offset == -1:
                     break
             except Exception as e:
                 print(f"Error uploading file: {e}")
                 continue
-        await msg.edit(f"上传完成，成功{success}条，失败{error}条，跳过 {skip} 条，总共 {success + error + skip} 条")
+        await msg.edit(
+            f"上传完成，成功{success}条，失败{error}条，跳过 {skip} 条，总共 {success + error + skip} 条"
+        )

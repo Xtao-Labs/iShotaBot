@@ -18,8 +18,9 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
     while True:
         try:
             # Check for message that are from channel
-            if (not isinstance(update, types.UpdateNewChannelMessage) or
-                    not isinstance(update.message.from_id, types.PeerChannel)):
+            if not isinstance(update, types.UpdateNewChannelMessage) or not isinstance(
+                update.message.from_id, types.PeerChannel
+            ):
                 raise ContinuePropagation
 
             # Basic data
@@ -33,9 +34,12 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
             channel_id = int(f"-100{message.from_id.channel_id}")
 
             # Check for linked channel
-            if ((message.fwd_from and
-                 message.fwd_from.saved_from_peer == message.fwd_from.from_id == message.from_id) or
-                    channel_id == chat_id):
+            if (
+                message.fwd_from
+                and message.fwd_from.saved_from_peer
+                == message.fwd_from.from_id
+                == message.from_id
+            ) or channel_id == chat_id:
                 raise ContinuePropagation
 
             # Check if blocked
@@ -56,7 +60,7 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
                         send_gifs=True,
                         send_games=True,
                         send_polls=True,
-                    )
+                    ),
                 )
             )
             await client.delete_messages(chat_id, message.id)
@@ -73,8 +77,11 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
             raise ContinuePropagation from e
 
 
-@Client.on_message(filters.incoming & filters.group &
-                   filters.command(["anti_channel_msg", f"anti_channel_msg@{user_me.username}"]))
+@Client.on_message(
+    filters.incoming
+    & filters.group
+    & filters.command(["anti_channel_msg", f"anti_channel_msg@{user_me.username}"])
+)
 async def switch_anti_channel_msg(client: Client, message: Message):
     # Check user
     if message.from_user:
@@ -93,14 +100,18 @@ async def switch_anti_channel_msg(client: Client, message: Message):
             clean(message.chat.id)
             await message.reply("Anti-channel is now disabled.")
         else:
-            await message.reply("Anti-channel is already enabled.\n"
-                                "\n"
-                                "Tips: Use `/anti_channel_msg true` to enable or disable it.")
+            await message.reply(
+                "Anti-channel is already enabled.\n"
+                "\n"
+                "Tips: Use `/anti_channel_msg true` to enable or disable it."
+            )
     elif switch:
         add(message.chat.id, message.chat.id)
         await message.reply("Anti-channel is now enabled.")
     else:
-        await message.reply("Anti-channel is already disabled.\n"
-                            "\n"
-                            "Tips: Use `/anti_channel_msg true` to enable or disable it.")
+        await message.reply(
+            "Anti-channel is already disabled.\n"
+            "\n"
+            "Tips: Use `/anti_channel_msg true` to enable or disable it."
+        )
     raise ContinuePropagation

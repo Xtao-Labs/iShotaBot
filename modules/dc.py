@@ -5,7 +5,11 @@ from init import user_me
 
 
 def mention_chat(chat: Chat) -> str:
-    return f'<a href="https://t.me/{chat.username}">{chat.title}</a>' if chat.username else chat.title
+    return (
+        f'<a href="https://t.me/{chat.username}">{chat.title}</a>'
+        if chat.username
+        else chat.title
+    )
 
 
 def get_dc(message: Message):
@@ -27,15 +31,18 @@ def get_dc(message: Message):
     return dc, mention
 
 
-@Client.on_message(filters.incoming &
-                   filters.command(["dc", f"dc@{user_me.username}"]))
+@Client.on_message(filters.incoming & filters.command(["dc", f"dc@{user_me.username}"]))
 async def dc_command(_: Client, message: Message):
-    geo_dic = {'1': '美国-佛罗里达州-迈阿密', '2': '荷兰-阿姆斯特丹', '3': '美国-佛罗里达州-迈阿密',
-               '4': '荷兰-阿姆斯特丹', '5': '新加坡'}
+    geo_dic = {
+        "1": "美国-佛罗里达州-迈阿密",
+        "2": "荷兰-阿姆斯特丹",
+        "3": "美国-佛罗里达州-迈阿密",
+        "4": "荷兰-阿姆斯特丹",
+        "5": "新加坡",
+    }
     dc, mention = get_dc(message)
     if dc:
-        text = f"{mention}所在数据中心为: <b>DC{dc}</b>\n" \
-               f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
+        text = f"{mention}所在数据中心为: <b>DC{dc}</b>\n" f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
     else:
         text = f"{mention}需要先<b>设置头像并且对我可见。</b>"
     await message.reply(text)

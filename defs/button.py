@@ -22,5 +22,7 @@ def gen_button(data: List) -> InlineKeyboardMarkup:
         if button.type == 0:
             buttons_url.append(InlineKeyboardButton(text=button.name, url=button.data))
         elif button.type == 1:
-            buttons_callback.append(InlineKeyboardButton(text=button.name, callback_data=button.data))
+            buttons_callback.append(
+                InlineKeyboardButton(text=button.name, callback_data=button.data)
+            )
     return InlineKeyboardMarkup(inline_keyboard=[buttons_callback, buttons_url])

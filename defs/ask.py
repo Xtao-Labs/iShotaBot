@@ -22,8 +22,12 @@ async def what_time(message: str) -> str:
 async def how_long(message: str) -> str:
     unit = ["秒", "小时", "天", "周", "月", "年", "世纪"]
     while re.findall("多久|多长时间", message):
-        message = message.replace("多久", str(secrets.choice(range(99))) + secrets.choice(unit), 1)
-        message = message.replace("多长时间", str(secrets.choice(range(99))) + secrets.choice(unit), 1)
+        message = message.replace(
+            "多久", str(secrets.choice(range(99))) + secrets.choice(unit), 1
+        )
+        message = message.replace(
+            "多长时间", str(secrets.choice(range(99))) + secrets.choice(unit), 1
+        )
     return message
 
 

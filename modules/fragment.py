@@ -3,8 +3,14 @@ import re
 
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, \
-    InlineKeyboardButton, Message
+from pyrogram.types import (
+    InlineQuery,
+    InlineQueryResultArticle,
+    InputTextMessageContent,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    Message,
+)
 
 from models.fragment import FragmentSubText, FragmentSub, AuctionStatus
 from defs.fragment import parse_fragment, NotAvailable, parse_sub
@@ -14,7 +20,9 @@ from scheduler import scheduler, add_delete_message_job
 QUERY_PATTERN = re.compile(r"^@\w[a-zA-Z0-9_]{3,32}$")
 
 
-@Client.on_message(filters.incoming & filters.command(["username", f"username@{user_me.username}"]))
+@Client.on_message(
+    filters.incoming & filters.command(["username", f"username@{user_me.username}"])
+)
 async def fragment_command(client: Client, message: Message):
     status = None
     user = None
@@ -70,8 +78,7 @@ async def fragment_inline(_, inline_query: InlineQuery):
         user = await parse_fragment(username)
         text = user.text
     except NotAvailable:
-        text = f"用户名：@{username}\n" \
-               f"状态：暂未开放购买\n"
+        text = f"用户名：@{username}\n" f"状态：暂未开放购买\n"
     except Exception:
         text = ""
     if not text:
@@ -89,19 +96,20 @@ async def fragment_inline(_, inline_query: InlineQuery):
             description="点击发送详情",
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton(
-                        "Open",
-                        url=f"https://fragment.com/username/{username}"
-                    )]
+                    [
+                        InlineKeyboardButton(
+                            "Open", url=f"https://fragment.com/username/{username}"
+                        )
+                    ]
                 ]
-            )
+            ),
         ),
     ]
     await inline_query.answer(
         results=results,
         switch_pm_text="查询成功",
         switch_pm_parameter="start",
-        cache_time=0
+        cache_time=0,
     )
 
 

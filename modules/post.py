@@ -5,11 +5,15 @@ from pyrogram.types import Message
 from defs.post import LofterPost
 
 
-@Client.on_message(filters.incoming & filters.private & filters.user(admin) &
-                   filters.command(["lofter_post"]))
+@Client.on_message(
+    filters.incoming
+    & filters.private
+    & filters.user(admin)
+    & filters.command(["lofter_post"])
+)
 async def lofter_post_command(client: Client, message: Message):
     """
-        抓取 lofter 粮单
+    抓取 lofter 粮单
     """
     data = message.text.split(" ")
     offset = 0

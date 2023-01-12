@@ -16,14 +16,18 @@ des = """本机器人特性：
 """
 
 
-@Client.on_message(filters.incoming & filters.private &
-                   filters.command(["start"]))
+@Client.on_message(filters.incoming & filters.private & filters.command(["start"]))
 async def start_command(_: Client, message: Message):
     """
-        回应机器人信息
+    回应机器人信息
     """
-    await message.reply(des,
-                        quote=True,
-                        reply_markup=gen_button(
-                            [Button(0, "Gitlab", "https://gitlab.com/Xtao-Labs/iShotaBot"),
-                             Button(0, "Github", "https://github.com/Xtao-Labs/iShotaBot")]))
+    await message.reply(
+        des,
+        quote=True,
+        reply_markup=gen_button(
+            [
+                Button(0, "Gitlab", "https://gitlab.com/Xtao-Labs/iShotaBot"),
+                Button(0, "Github", "https://github.com/Xtao-Labs/iShotaBot"),
+            ]
+        ),
+    )

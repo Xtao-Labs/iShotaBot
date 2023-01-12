@@ -39,7 +39,7 @@ def cut_text(old_str, cut):
             next_str = next_str[1:]
         elif s == "\n":
             str_list.append(next_str[: i - 1])
-            next_str = next_str[i - 1:]
+            next_str = next_str[i - 1 :]
             si = 0
             i = 0
             continue
@@ -93,7 +93,9 @@ async def video_info_get(cid):
         )
         video_info = video_info.json()
     elif cid[:2] == "BV":
-        video_info = httpx.get(f"http://api.bilibili.com/x/web-interface/view?bvid={cid}")
+        video_info = httpx.get(
+            f"http://api.bilibili.com/x/web-interface/view?bvid={cid}"
+        )
         video_info = video_info.json()
     else:
         return
@@ -126,7 +128,9 @@ def binfo_image_create(video_info: dict):
     minutes, seconds = divmod(video_info["data"]["duration"], 60)
     hours, minutes = divmod(minutes, 60)
     video_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-    tiem_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 30)
+    tiem_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 30
+    )
     draw = ImageDraw.Draw(pic)
     draw.text((10, 305), video_time, "white", tiem_font)
 
@@ -137,7 +141,9 @@ def binfo_image_create(video_info: dict):
 
     # 标题
     title = video_info["data"]["title"]
-    title_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 25)
+    title_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 25
+    )
     title_cut_str = "\n".join(cut_text(title, 40))
     _, title_text_y = title_font.getsize_multiline(title_cut_str)
     title_bg = Image.new("RGB", (560, title_text_y + 23), "#F5F5F7")
@@ -150,7 +156,9 @@ def binfo_image_create(video_info: dict):
     dynamic = (
         "该视频没有简介" if video_info["data"]["desc"] == "" else video_info["data"]["desc"]
     )
-    dynamic_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 18)
+    dynamic_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 18
+    )
     dynamic_cut_str = "\n".join(cut_text(dynamic, 58))
     _, dynamic_text_y = dynamic_font.getsize_multiline(dynamic_cut_str)
     dynamic_bg = Image.new("RGB", (560, dynamic_text_y + 24), "#F5F5F7")
@@ -163,7 +171,9 @@ def binfo_image_create(video_info: dict):
     # 视频数据
     icon_font = ImageFont.truetype(f"resources{sep}font{sep}vanfont.ttf", 46)
     icon_color = (247, 145, 185)
-    info_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 26)
+    info_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 26
+    )
 
     view = numf(video_info["data"]["stat"]["view"])  # 播放 \uE6E6
     danmaku = numf(video_info["data"]["stat"]["danmaku"])  # 弹幕 \uE6E7
@@ -240,9 +250,15 @@ def binfo_image_create(video_info: dict):
     mask_draw.ellipse(
         (0, 0, face_size[0], face_size[1]), fill=(0, 0, 0, 255)  # type: ignore
     )
-    name_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 24)
-    up_title_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 20)
-    follower_font = ImageFont.truetype(f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 22)
+    name_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 24
+    )
+    up_title_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 20
+    )
+    follower_font = ImageFont.truetype(
+        f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 22
+    )
 
     i = 0
     for up in up_list:

@@ -74,20 +74,19 @@ class UserName(BaseModel):
 
     @property
     def text(self) -> str:
-        text = f"用户名：@{self.name}\n" \
-               f"状态：{self.status.text}\n"
+        text = f"用户名：@{self.name}\n" f"状态：{self.status.text}\n"
         if self.status == AuctionStatus.Available:
             text += f"最低出价：{self.now_price.text}\n"
         elif self.status == AuctionStatus.OnAuction:
-            text += f"目前最高出价：{self.now_price.text}\n" \
-                    f"距离拍卖结束：{self.end_human_time}\n"
+            text += f"目前最高出价：{self.now_price.text}\n" f"距离拍卖结束：{self.end_human_time}\n"
         elif self.status == AuctionStatus.Sold:
-            text += f"售出价格：{self.now_price.text}\n" \
-                    f"最终买家：<a href='https://tonapi.io/account/{self.purchaser}'>{self.purchaser[:12]}...</a>\n" \
-                    f"售出时间：{self.strf_end_time}\n"
+            text += (
+                f"售出价格：{self.now_price.text}\n"
+                f"最终买家：<a href='https://tonapi.io/account/{self.purchaser}'>{self.purchaser[:12]}...</a>\n"
+                f"售出时间：{self.strf_end_time}\n"
+            )
         elif self.status == AuctionStatus.Sale:
-            text += f"售价：{self.now_price.text}\n" \
-                    f"距离出售结束：{self.end_human_time}\n"
+            text += f"售价：{self.now_price.text}\n" f"距离出售结束：{self.end_human_time}\n"
         return text
 
 
@@ -117,7 +116,11 @@ class FragmentSub:
     async def get_by_cid_and_username(cid: int, username: str) -> Optional[Fragment]:
         async with sqlite.Session() as session:
             session = cast(AsyncSession, session)
-            statement = select(Fragment).where(Fragment.cid == cid).where(Fragment.username == username)
+            statement = (
+                select(Fragment)
+                .where(Fragment.cid == cid)
+                .where(Fragment.username == username)
+            )
             results = await session.exec(statement)
             return post[0] if (post := results.first()) else None
 

@@ -24,7 +24,12 @@ async def repeater_handler(client: Client, message: Message):
     msg = t_msg = message.text
     if not msg:
         raise ContinuePropagation
-    if msg.startswith("/") or msg.startswith("!") or msg.startswith(",") or msg.startswith("，"):
+    if (
+        msg.startswith("/")
+        or msg.startswith("!")
+        or msg.startswith(",")
+        or msg.startswith("，")
+    ):
         raise ContinuePropagation
 
     if msg != last_msg[group_id] or msg == last_repeat_msg[group_id]:

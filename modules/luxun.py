@@ -4,8 +4,7 @@ from pyrogram.types import Message
 from defs.luxun import process_pic
 
 
-@Client.on_message(filters.incoming &
-                   filters.regex(r"^鲁迅说过"))
+@Client.on_message(filters.incoming & filters.regex(r"^鲁迅说过"))
 async def luxun_say(_: Client, message: Message):
     args = message.text[4:]
     if not args:

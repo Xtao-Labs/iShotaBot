@@ -69,8 +69,9 @@ def compare(origin: str, dest: str, sensitive: int):
                 if matrix[index] >= sensitive:
                     cache_array.append(new_cache(index_y, matrix[index]))
                 if matrix[index] > sensitive:
-                    cache_array = remove(cache_array, new_cache(
-                        index_y - 1, matrix[pre_index]))
+                    cache_array = remove(
+                        cache_array, new_cache(index_y - 1, matrix[pre_index])
+                    )
     return merge(cache_array)
 
 
@@ -83,12 +84,12 @@ def render(s: str, flag: List[cache], tag: str):
     """
     arr = list(s)
     for i in flag:
-        arr.insert(i.end, f'</{tag}>')
-        arr.insert(i.start, f'<{tag}>')
-    return ''.join(arr)
+        arr.insert(i.end, f"</{tag}>")
+        arr.insert(i.start, f"<{tag}>")
+    return "".join(arr)
 
 
-def diff_text(origin: str, dest: str, sensitive=4, tag='strong'):
+def diff_text(origin: str, dest: str, sensitive=4, tag="strong"):
     """对文本重复对比，给重复部分加tag
     :param origin: 待查重文本
     :param dest: 服务器返回的文本

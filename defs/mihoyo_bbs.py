@@ -11,9 +11,11 @@ async def get_mihoyo_screenshot(url):
     try:
         await page.goto(url, wait_until="networkidle", timeout=180000)
         # 被删除或者进审核了
-        if page.url == "https://bbs.mihoyo.com/ys/404":
+        if page.url == "https://www.miyoushe.com/ys/404":
             return None
-        card = await page.wait_for_selector(".mhy-article-page__main", timeout=180000, state='visible')
+        card = await page.wait_for_selector(
+            ".mhy-article-page__main", timeout=180000, state="visible"
+        )
         assert card
         clip = await card.bounding_box()
         assert clip

@@ -90,7 +90,8 @@ async def parse_fanbox_post(url: str, message: Message):
     if post.coverImageUrl:
         group = message.chat.type == ChatType.SUPERGROUP
         await bot.send_photo(
-            post.coverImageUrl,
+            chat_id=message.chat.id,
+            photo=post.coverImageUrl,
             caption=post.text,
             parse_mode=ParseMode.HTML,
             reply_markup=await gen_post_button(post),
@@ -118,7 +119,8 @@ async def parse_fanbox_user(url: str, message: Message) -> None:
     if user.coverImageUrl:
         group = message.chat.type == ChatType.SUPERGROUP
         await bot.send_photo(
-            user.coverImageUrl,
+            chat_id=message.chat.id,
+            photo=user.coverImageUrl,
             caption=user.text,
             parse_mode=ParseMode.HTML,
             reply_markup=await gen_user_button(user),

@@ -79,5 +79,5 @@ class Post(BaseModel):
             f"<b>Fanbox Post Info</b>\n\n"
             f"<code>{self.excerpt.strip()}</code>\n\n"
             f'<a href="{self.user_url}">{self.user.name}</a> 发表于 {self.create_time}\n'
-            f"❤️ {self.likeCount}"
+            f"❤️ {self.likeCount}・{self.feeRequired} 日元"
         )

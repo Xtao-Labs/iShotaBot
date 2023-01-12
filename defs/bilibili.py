@@ -11,7 +11,7 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 from defs.browser import get_browser
-from headers import headers
+from headers import bili_headers
 
 
 def cut_text(old_str, cut):
@@ -205,7 +205,7 @@ def binfo_image_create(video_info: dict):
             up_mid = up["mid"]
             up_data = httpx.get(
                 f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}",
-                headers=headers,
+                headers=bili_headers,
             ).json()
             up_list.append(
                 {
@@ -223,11 +223,11 @@ def binfo_image_create(video_info: dict):
         up_mid = video_info["data"]["owner"]["mid"]
         up_data = httpx.get(
             f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}",
-            headers=headers,
+            headers=bili_headers,
         ).json()
         up_stat = httpx.get(
             f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}",
-            headers=headers,
+            headers=bili_headers,
         ).json()
         up_list = [
             {

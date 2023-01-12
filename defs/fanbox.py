@@ -1,13 +1,13 @@
 import re
 from typing import Tuple, Optional, Union
 
-from pyrogram.enums import ParseMode
+from pyrogram.enums import ParseMode, ChatType
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 from headers import FANBOX_HEADERS
 from models.apis.fanbox import User as FanboxUser, Post as FanboxPost
 
-from init import request
+from init import request, bot
 
 
 FANBOX_USER_API = "https://api.fanbox.cc/creator.get"
@@ -88,12 +88,14 @@ async def parse_fanbox_post(url: str, message: Message):
     except AssertionError:
         return
     if post.coverImageUrl:
-        await message.reply_photo(
+        group = message.chat.type == ChatType.SUPERGROUP
+        await bot.send_photo(
             post.coverImageUrl,
             caption=post.text,
             parse_mode=ParseMode.HTML,
             reply_markup=await gen_post_button(post),
-            quote=True,
+            reply_to_message_id=message.id,
+            has_spoiler=group,
         )
     else:
         await message.reply_text(
@@ -114,12 +116,14 @@ async def parse_fanbox_user(url: str, message: Message) -> None:
     except AssertionError:
         return
     if user.coverImageUrl:
-        await message.reply_photo(
+        group = message.chat.type == ChatType.SUPERGROUP
+        await bot.send_photo(
             user.coverImageUrl,
             caption=user.text,
             parse_mode=ParseMode.HTML,
             reply_markup=await gen_user_button(user),
-            quote=True,
+            reply_to_message_id=message.id,
+            has_spoiler=group and user.hasAdultContent,
         )
     else:
         await message.reply_text(

@@ -30,7 +30,7 @@ async def bili_resolve(_: Client, message: Message):
         video_number = video_number[0]
     video_info = await video_info_get(video_number) if video_number else None
     if video_info and video_info["code"] == 0:
-        image = binfo_image_create(video_info)
+        image = await binfo_image_create(video_info)
         await message.reply_photo(
             image,
             quote=True,

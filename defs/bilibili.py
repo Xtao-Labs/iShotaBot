@@ -1,7 +1,6 @@
 import re
 from os import sep
 
-import httpx
 import qrcode
 import string
 
@@ -12,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from defs.browser import get_browser
 from headers import bili_headers
+from init import request
 
 
 def cut_text(old_str, cut):
@@ -81,20 +81,20 @@ async def b23_extract(text):
         url = f"https://b23.tv/{b23[1]}"
     except AssertionError:
         raise ContinuePropagation
-    resp = httpx.head(url, follow_redirects=True)
+    resp = await request.head(url, follow_redirects=True)
     r = str(resp.url)
     return r
 
 
 async def video_info_get(cid):
     if cid[:2] == "av":
-        video_info = httpx.get(
-            f"http://api.bilibili.com/x/web-interface/view?aid={cid[2:]}"
+        video_info = await request.get(
+            f"https://api.bilibili.com/x/web-interface/view?aid={cid[2:]}"
         )
         video_info = video_info.json()
     elif cid[:2] == "BV":
-        video_info = httpx.get(
-            f"http://api.bilibili.com/x/web-interface/view?bvid={cid}"
+        video_info = await request.get(
+            f"https://api.bilibili.com/x/web-interface/view?bvid={cid}"
         )
         video_info = video_info.json()
     else:
@@ -112,11 +112,11 @@ def numf(num: int):
     return view
 
 
-def binfo_image_create(video_info: dict):
+async def binfo_image_create(video_info: dict):
     bg_y = 0
     # 封面
     pic_url = video_info["data"]["pic"]
-    pic_get = httpx.get(pic_url).content
+    pic_get = (await request.get(pic_url)).content
     pic_bio = BytesIO(pic_get)
     pic = Image.open(pic_bio)
     pic = pic.resize((560, 350))
@@ -203,10 +203,10 @@ def binfo_image_create(video_info: dict):
         up_list = []
         for up in video_info["data"]["staff"]:
             up_mid = up["mid"]
-            up_data = httpx.get(
+            up_data = (await request.get(
                 f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}",
                 headers=bili_headers,
-            ).json()
+            )).json()
             up_list.append(
                 {
                     "name": up["name"],
@@ -221,14 +221,14 @@ def binfo_image_create(video_info: dict):
             )
     else:
         up_mid = video_info["data"]["owner"]["mid"]
-        up_data = httpx.get(
+        up_data = (await request.get(
             f"https://api.bilibili.com/x/space/wbi/acc/info?mid={up_mid}",
             headers=bili_headers,
-        ).json()
-        up_stat = httpx.get(
+        )).json()
+        up_stat = (await request.get(
             f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}",
             headers=bili_headers,
-        ).json()
+        )).json()
         up_list = [
             {
                 "name": up_data["data"]["name"],
@@ -286,7 +286,7 @@ def binfo_image_create(video_info: dict):
 
         # 头像
         face_url = up["face"]
-        face_get = httpx.get(face_url).content
+        face_get = (await request.get(face_url)).content
         face_bio = BytesIO(face_get)
         face = Image.open(face_bio)
         face.convert("RGB")

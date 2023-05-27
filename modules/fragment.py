@@ -78,7 +78,7 @@ async def fragment_inline(_, inline_query: InlineQuery):
         user = await parse_fragment(username)
         text = user.text
     except NotAvailable:
-        text = f"用户名：@{username}\n" f"状态：暂未开放购买\n"
+        text = f"用户名：@{username}\n状态：暂未开放购买\n"
     except Exception:
         text = ""
     if not text:

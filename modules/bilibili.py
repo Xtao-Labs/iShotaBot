@@ -29,13 +29,13 @@ async def bili_resolve(_: Client, message: Message):
     if video_number:
         video_number = video_number[0]
     video_info = await video_info_get(video_number) if video_number else None
-    if video_info and video_info["code"] == 0:
+    if video_info:
         image = await binfo_image_create(video_info)
         await message.reply_photo(
             image,
             quote=True,
             reply_markup=gen_button(
-                [Button(0, "Link", "https://b23.tv/" + video_info["data"]["bvid"])]
+                [Button(0, "Link", "https://b23.tv/" + video_info["bvid"])]
             ),
         )
     raise ContinuePropagation

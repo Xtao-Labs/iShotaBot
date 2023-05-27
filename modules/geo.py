@@ -52,4 +52,4 @@ async def geo_command(_: Client, message: Message):
     msg = await message.reply_location(
         longitude=float(lat), latitude=float(lon), quote=True
     )
-    await msg.reply(f"坐标：`{lat},{lon}`\n" f"地址：<b>{formatted_address}</b>", quote=True)
+    await msg.reply(f"坐标：`{lat},{lon}`\n地址：<b>{formatted_address}</b>", quote=True)

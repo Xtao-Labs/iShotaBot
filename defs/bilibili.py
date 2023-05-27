@@ -1,17 +1,42 @@
 import re
 from os import sep
+from typing import Optional
 
 import qrcode
 import string
 
+from bilibili_api import Credential
+from bilibili_api.video import Video
+from bilibili_api.user import User
 from pyrogram import ContinuePropagation
 from qrcode.image.pil import PilImage
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
+from defs.cookie import get_bili_cookie, get_bili_browser_cookie
 from defs.browser import get_browser
-from headers import bili_headers
 from init import request
+
+
+def from_cookie_get_credential() -> Optional[Credential]:
+    """
+    从 cookie 中获取 Credential 对象。
+
+    Returns:
+        Credential: Credential 对象。
+    """
+    cookie = get_bili_cookie()
+    try:
+        sessdata = cookie["SESSDATA"]
+        bili_jct = cookie["bili_jct"]
+        buvid3 = cookie["buvid3"]
+        dedeuserid = cookie["DedeUserID"]
+    except KeyError:
+        return None
+    return Credential(sessdata, bili_jct, buvid3, dedeuserid)
+
+
+credential = from_cookie_get_credential()
 
 
 def cut_text(old_str, cut):
@@ -39,7 +64,7 @@ def cut_text(old_str, cut):
             next_str = next_str[1:]
         elif s == "\n":
             str_list.append(next_str[: i - 1])
-            next_str = next_str[i - 1 :]
+            next_str = next_str[i - 1:]
             si = 0
             i = 0
             continue
@@ -88,17 +113,12 @@ async def b23_extract(text):
 
 async def video_info_get(cid):
     if cid[:2] == "av":
-        video_info = await request.get(
-            f"https://api.bilibili.com/x/web-interface/view?aid={cid[2:]}"
-        )
-        video_info = video_info.json()
+        v = Video(aid=cid[2:], credential=credential)
     elif cid[:2] == "BV":
-        video_info = await request.get(
-            f"https://api.bilibili.com/x/web-interface/view?bvid={cid}"
-        )
-        video_info = video_info.json()
+        v = Video(bvid=cid, credential=credential)
     else:
         return
+    video_info = await v.get_info()
     return video_info
 
 
@@ -115,7 +135,7 @@ def numf(num: int):
 async def binfo_image_create(video_info: dict):
     bg_y = 0
     # 封面
-    pic_url = video_info["data"]["pic"]
+    pic_url = video_info["pic"]
     pic_get = (await request.get(pic_url)).content
     pic_bio = BytesIO(pic_get)
     pic = Image.open(pic_bio)
@@ -125,7 +145,7 @@ async def binfo_image_create(video_info: dict):
     bg_y += 350 + 20
 
     # 时长
-    minutes, seconds = divmod(video_info["data"]["duration"], 60)
+    minutes, seconds = divmod(video_info["duration"], 60)
     hours, minutes = divmod(minutes, 60)
     video_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
     tiem_font = ImageFont.truetype(
@@ -135,12 +155,12 @@ async def binfo_image_create(video_info: dict):
     draw.text((10, 305), video_time, "white", tiem_font)
 
     # 分区
-    tname = video_info["data"]["tname"]
+    tname = video_info["tname"]
     tname_x, _ = tiem_font.getsize(tname)
     draw.text((560 - tname_x - 10, 305), tname, "white", tiem_font)
 
     # 标题
-    title = video_info["data"]["title"]
+    title = video_info["title"]
     title_font = ImageFont.truetype(
         f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 25
     )
@@ -154,7 +174,7 @@ async def binfo_image_create(video_info: dict):
 
     # 简介
     dynamic = (
-        "该视频没有简介" if video_info["data"]["desc"] == "" else video_info["data"]["desc"]
+        "该视频没有简介" if video_info["desc"] == "" else video_info["desc"]
     )
     dynamic_font = ImageFont.truetype(
         f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 18
@@ -175,11 +195,11 @@ async def binfo_image_create(video_info: dict):
         f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 26
     )
 
-    view = numf(video_info["data"]["stat"]["view"])  # 播放 \uE6E6
-    danmaku = numf(video_info["data"]["stat"]["danmaku"])  # 弹幕 \uE6E7
-    favorite = numf(video_info["data"]["stat"]["favorite"])  # 收藏 \uE6E1
-    coin = numf(video_info["data"]["stat"]["coin"])  # 投币 \uE6E4
-    like = numf(video_info["data"]["stat"]["like"])  # 点赞 \uE6E0
+    view = numf(video_info["stat"]["view"])  # 播放 \uE6E6
+    danmaku = numf(video_info["stat"]["danmaku"])  # 弹幕 \uE6E7
+    favorite = numf(video_info["stat"]["favorite"])  # 收藏 \uE6E1
+    coin = numf(video_info["stat"]["coin"])  # 投币 \uE6E4
+    like = numf(video_info["stat"]["like"])  # 点赞 \uE6E0
 
     info_bg = Image.new("RGB", (560, 170), "#F5F5F7")
     draw = ImageDraw.Draw(info_bg)
@@ -199,46 +219,39 @@ async def binfo_image_create(video_info: dict):
     # UP主
     # 等级 0-4 \uE6CB-F 5-6\uE6D0-1
     # UP \uE723
-    if "staff" in video_info["data"]:
+    if "staff" in video_info:
         up_list = []
-        for up in video_info["data"]["staff"]:
+        for up in video_info["staff"]:
             up_mid = up["mid"]
-            up_data = (await request.get(
-                f"https://api.bilibili.com/x/space/acc/info?mid={up_mid}",
-                headers=bili_headers,
-            )).json()
+            u = User(up_mid, credential=credential)
+            up_data = await u.get_user_info()
             up_list.append(
                 {
                     "name": up["name"],
                     "up_title": up["title"],
                     "face": up["face"],
-                    "color": up_data["data"]["vip"]["nickname_color"]
-                    if up_data["data"]["vip"]["nickname_color"] != ""
+                    "color": up_data["vip"]["nickname_color"]
+                    if up_data["vip"]["nickname_color"] != ""
                     else "black",
                     "follower": up["follower"],
-                    "level": up_data["data"]["level"],
+                    "level": up_data["level"],
                 }
             )
     else:
-        up_mid = video_info["data"]["owner"]["mid"]
-        up_data = (await request.get(
-            f"https://api.bilibili.com/x/space/wbi/acc/info?mid={up_mid}",
-            headers=bili_headers,
-        )).json()
-        up_stat = (await request.get(
-            f"https://api.bilibili.com/x/relation/stat?vmid={up_mid}",
-            headers=bili_headers,
-        )).json()
+        up_mid = video_info["owner"]["mid"]
+        u = User(up_mid, credential=credential)
+        up_data = await u.get_user_info()
+        up_stat = await u.get_relation_info()
         up_list = [
             {
-                "name": up_data["data"]["name"],
+                "name": up_data["name"],
                 "up_title": "UP主",
-                "face": up_data["data"]["face"],
-                "color": up_data["data"]["vip"]["nickname_color"]
-                if up_data["data"]["vip"]["nickname_color"] != ""
+                "face": up_data["face"],
+                "color": up_data["vip"]["nickname_color"]
+                if up_data["vip"]["nickname_color"] != ""
                 else "black",
-                "follower": up_stat["data"]["follower"],
-                "level": up_data["data"]["level"],
+                "follower": up_stat["follower"],
+                "level": up_data["level"],
             }
         ]
     up_num = len(up_list)
@@ -330,7 +343,7 @@ async def binfo_image_create(video_info: dict):
     draw = ImageDraw.Draw(baner_bg)
     # 二维码
     qr = qrcode.QRCode(border=1)
-    qr.add_data("https://b23.tv/" + video_info["data"]["bvid"])
+    qr.add_data("https://b23.tv/" + video_info["bvid"])
     qr_image = qr.make_image(PilImage, fill_color=icon_color, back_color="#F5F5F7")
     qr_image = qr_image.resize((140, 140))
     baner_bg.paste(qr_image, (50, 10))
@@ -365,16 +378,7 @@ async def get_dynamic_screenshot_pc(dynamic_id):
         viewport={"width": 2560, "height": 1080},
         device_scale_factor=2,
     )
-    await context.add_cookies(
-        [
-            {
-                "name": "hit-dyn-v2",
-                "value": "1",
-                "domain": ".bilibili.com",
-                "path": "/",
-            }
-        ]
-    )
+    await context.add_cookies(get_bili_browser_cookie())
     page = await context.new_page()
     try:
         await page.goto(url, wait_until="networkidle", timeout=10000)

@@ -34,9 +34,7 @@ async def ip_command(_: Client, message: Message):
                             "org,as,mobile,proxy,hosting,query"
                         )
                     ).json()
-                    if ipinfo_json["status"] == "fail":
-                        pass
-                    elif ipinfo_json["status"] == "success":
+                    if ipinfo_json["status"] == "success":
                         rep_text = ip_info(url, ipinfo_json)
     text = ""
     if message.entities:
@@ -60,13 +58,11 @@ async def ip_command(_: Client, message: Message):
                         "org,as,mobile,proxy,hosting,query"
                     )
                 ).json()
-                if ipinfo_json["status"] == "fail":
-                    pass
-                elif ipinfo_json["status"] == "success":
+                if ipinfo_json["status"] == "success":
                     text = ip_info(url, ipinfo_json)
         if text == "":
             url = message.text[4:]
-            if not url == "":
+            if url != "":
                 ipinfo_json = (
                     await request.get(
                         "http://ip-api.com/json/"
@@ -76,13 +72,11 @@ async def ip_command(_: Client, message: Message):
                         "org,as,mobile,proxy,hosting,query"
                     )
                 ).json()
-                if ipinfo_json["status"] == "fail":
-                    pass
-                elif ipinfo_json["status"] == "success":
+                if ipinfo_json["status"] == "success":
                     text = ip_info(url, ipinfo_json)
     if rep_text == "" and text == "":
         await msg.edit("没有找到要查询的 ip/域名 ...")
-    elif not rep_text == "" and not text == "":
+    elif rep_text != "" and text != "":
         await msg.edit(f"{rep_text}\n================\n{text}")
     else:
         await msg.edit(f"{rep_text}{text}")

@@ -5,7 +5,6 @@ from defs.button import gen_button, Button
 des = """本机器人特性：
 
 ★ 解析 bilibili 视频、动态
-★ 解析 twitter 推文、用户
 ★ 解析 lofter 日志、用户
 ★ 解析 fanbox 发帖、用户
 ★ 汇率查询

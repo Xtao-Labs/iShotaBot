@@ -42,7 +42,7 @@ async def dc_command(_: Client, message: Message):
     }
     dc, mention = get_dc(message)
     if dc:
-        text = f"{mention}所在数据中心为: <b>DC{dc}</b>\n" f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
+        text = f"{mention}所在数据中心为: <b>DC{dc}</b>\n该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
     else:
         text = f"{mention}需要先<b>设置头像并且对我可见。</b>"
     await message.reply(text)

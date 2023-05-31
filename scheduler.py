@@ -26,3 +26,10 @@ def add_delete_message_job(message: Message, delete_seconds: int = 60):
         + datetime.timedelta(seconds=delete_seconds),
         replace_existing=True,
     )
+
+
+async def reply_message(msg: Message, text: str, delete_origin: bool = True, *args, **kwargs):
+    reply_msg = await msg.reply(text, *args, **kwargs)
+    add_delete_message_job(reply_msg)
+    if delete_origin:
+        add_delete_message_job(msg)

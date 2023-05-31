@@ -6,6 +6,7 @@ from pyrogram import Client, filters
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import Message, ChatPermissions
 from init import user_me
+from scheduler import reply_message
 
 
 @Client.on_message(
@@ -20,6 +21,8 @@ async def ban_me_command(client: Client, message: Message):
         multiple = int(multiple_text.groups()[0])
     else:
         multiple = 1
+    if multiple > 5 or multiple < 1:
+        multiple = 1
 
     # 检查bot和用户身份
     if (
@@ -29,14 +32,14 @@ async def ban_me_command(client: Client, message: Message):
         return
     if not message.from_user:
         # 频道
-        await message.reply("你是个频道, 别来凑热闹OvO")
+        await reply_message(message, "你是个频道, 别来凑热闹OvO")
         return
 
     member = (
         await client.get_chat_member(message.chat.id, message.from_user.id)
     ).status
     if member in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-        await message.reply("你也是个管理, 别来凑热闹OvO")
+        await reply_message(message, "你也是个管理, 别来凑热闹OvO")
         return
 
     # 随机禁言时间
@@ -50,4 +53,4 @@ async def ban_me_command(client: Client, message: Message):
         ChatPermissions(),
         datetime.now() + timedelta(seconds=act_time),
     )
-    await message.reply(msg)
+    await reply_message(message, msg)

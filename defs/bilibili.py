@@ -113,7 +113,7 @@ async def b23_extract(text):
 
 async def video_info_get(cid):
     if cid[:2] == "av":
-        v = Video(aid=cid[2:], credential=credential)
+        v = Video(aid=int(cid[2:]), credential=credential)
     elif cid[:2] == "BV":
         v = Video(bvid=cid, credential=credential)
     else:

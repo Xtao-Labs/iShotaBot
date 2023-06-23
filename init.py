@@ -21,6 +21,9 @@ logging_handler.setFormatter(ColoredFormatter(logging_format))
 root_logger = getLogger()
 root_logger.setLevel(ERROR)
 root_logger.addHandler(logging_handler)
+# pyro_logger = getLogger()
+# pyro_logger.setLevel(INFO)
+# pyro_logger.addHandler(logging_handler)
 basicConfig(level=INFO)
 logs.setLevel(INFO)
 logger = logging.getLogger("iShotaBot")
@@ -29,13 +32,6 @@ if not scheduler.running:
     scheduler.start()
 # Init client
 
-
-class UserMe:
-    username = "iShotaBot"
-    id = 2144128213
-
-
-user_me = UserMe()
 sqlite = Sqlite()
 bot = pyrogram.Client(
     "bot", api_id=api_id, api_hash=api_hash, ipv6=ipv6, plugins=dict(root="modules")

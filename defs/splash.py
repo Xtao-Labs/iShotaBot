@@ -4,6 +4,7 @@ from typing import List
 
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
+from pyrogram.types import InlineQueryResultCachedPhoto
 
 from defs.glover import splash_channel
 from init import bot, request, logger
@@ -113,3 +114,18 @@ async def update_splash():
             continue
         await SplashService.add_splash(model)
     logger.info("Splash updated.")
+
+
+async def get_inline_results() -> List[InlineQueryResultCachedPhoto]:
+    splash = await SplashService.get_all_splashes()
+    splash.sort(key=lambda x: x.offline_ts, reverse=True)
+    splash = splash[:50]
+    results = []
+    for idx, i in enumerate(splash):
+        results.append(
+            InlineQueryResultCachedPhoto(
+                title=f"Splash No.{idx + 1}",
+                photo_file_id=i.file_id,
+            )
+        )
+    return results

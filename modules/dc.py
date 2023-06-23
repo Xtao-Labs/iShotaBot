@@ -1,7 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.types import Message, Chat
 
-from init import user_me
+from init import bot
 
 
 def mention_chat(chat: Chat) -> str:
@@ -31,7 +31,7 @@ def get_dc(message: Message):
     return dc, mention
 
 
-@Client.on_message(filters.incoming & filters.command(["dc", f"dc@{user_me.username}"]))
+@bot.on_message(filters.incoming & filters.command(["dc", f"dc@{bot.me.username}"]))
 async def dc_command(_: Client, message: Message):
     geo_dic = {
         "1": "美国-佛罗里达州-迈阿密",

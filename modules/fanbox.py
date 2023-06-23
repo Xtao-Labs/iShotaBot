@@ -3,9 +3,10 @@ from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
 from defs.fanbox import parse_fanbox_url
+from init import bot
 
 
-@Client.on_message(filters.incoming & filters.text & filters.regex(r"fanbox.cc"))
+@bot.on_message(filters.incoming & filters.text & filters.regex(r"fanbox.cc"))
 async def fanbox_check(_: Client, message: Message):
     if not message.text:
         return

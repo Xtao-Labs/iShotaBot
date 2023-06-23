@@ -4,10 +4,10 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from defs.ip import ip_info
-from init import user_me, request
+from init import request, bot
 
 
-@Client.on_message(filters.incoming & filters.command(["ip", f"ip@{user_me.username}"]))
+@bot.on_message(filters.incoming & filters.command(["ip", f"ip@{bot.me.username}"]))
 async def ip_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")
     rep_text = ""

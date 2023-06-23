@@ -3,9 +3,10 @@ from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
 from defs.lofter import get_loft, input_media, get_loft_user, lofter_user_link
+from init import bot
 
 
-@Client.on_message(filters.incoming & filters.text & filters.regex(r"lofter.com"))
+@bot.on_message(filters.incoming & filters.text & filters.regex(r"lofter.com"))
 async def lofter_share(_: Client, message: Message):
     if not message.text:
         return

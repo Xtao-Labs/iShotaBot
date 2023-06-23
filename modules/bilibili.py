@@ -11,9 +11,10 @@ from defs.bilibili import (
     get_dynamic_screenshot_pc,
 )
 from defs.button import gen_button, Button
+from init import bot
 
 
-@Client.on_message(
+@bot.on_message(
     filters.incoming
     & filters.text
     & filters.regex(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|b23.tv")
@@ -41,7 +42,7 @@ async def bili_resolve(_: Client, message: Message):
     raise ContinuePropagation
 
 
-@Client.on_message(
+@bot.on_message(
     filters.incoming & filters.text & filters.regex(r"t.bilibili.com/([0-9]*)")
 )
 async def bili_dynamic(_: Client, message: Message):

@@ -8,12 +8,12 @@ from pyrogram.raw.base import Update
 from asyncio import sleep
 
 from defs.anti_channel import init, add, get_status, check_status, clean
-from init import logs, user_me
+from init import logs, bot
 
 init()
 
 
-@Client.on_raw_update(filters.incoming & filters.group)
+@bot.on_raw_update(filters.incoming & filters.group)
 async def anti_channel_msg(client: Client, update: Update, _, __: dict):
     while True:
         try:
@@ -77,10 +77,10 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
             raise ContinuePropagation from e
 
 
-@Client.on_message(
+@bot.on_message(
     filters.incoming
     & filters.group
-    & filters.command(["anti_channel_msg", f"anti_channel_msg@{user_me.username}"])
+    & filters.command(["anti_channel_msg", f"anti_channel_msg@{bot.me.username}"])
 )
 async def switch_anti_channel_msg(client: Client, message: Message):
     # Check user
@@ -90,7 +90,7 @@ async def switch_anti_channel_msg(client: Client, message: Message):
             await message.reply("You are not an admin of this chat.")
             raise ContinuePropagation
     # Check self
-    data = await client.get_chat_member(message.chat.id, user_me.id)
+    data = await client.get_chat_member(message.chat.id, bot.me.id)
     if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
         await message.reply("I'm not an admin of this chat.")
         raise ContinuePropagation

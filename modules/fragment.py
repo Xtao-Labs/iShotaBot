@@ -14,14 +14,14 @@ from pyrogram.types import (
 
 from models.fragment import FragmentSubText, FragmentSub, AuctionStatus
 from defs.fragment import parse_fragment, NotAvailable, parse_sub
-from init import user_me, bot
+from init import bot
 from scheduler import scheduler, add_delete_message_job
 
 QUERY_PATTERN = re.compile(r"^@\w[a-zA-Z0-9_]{3,32}$")
 
 
-@Client.on_message(
-    filters.incoming & filters.command(["username", f"username@{user_me.username}"])
+@bot.on_message(
+    filters.incoming & filters.command(["username", f"username@{bot.me.username}"])
 )
 async def fragment_command(client: Client, message: Message):
     status = None
@@ -61,18 +61,9 @@ async def fragment_command(client: Client, message: Message):
     await message.reply(text)
 
 
-@Client.on_inline_query()
+@bot.on_inline_query(filters=filters.regex(r"^@\w[a-zA-Z0-9_]{3,32}$"))
 async def fragment_inline(_, inline_query: InlineQuery):
     username = inline_query.query
-    if not username.startswith("@"):
-        username = f"@{username}"
-    if not QUERY_PATTERN.match(username):
-        return await inline_query.answer(
-            results=[],
-            switch_pm_text="请输入 @username 来查询遗产",
-            switch_pm_parameter="start",
-            cache_time=0,
-        )
     username = username[1:]
     try:
         user = await parse_fragment(username)
@@ -82,12 +73,13 @@ async def fragment_inline(_, inline_query: InlineQuery):
     except Exception:
         text = ""
     if not text:
-        return await inline_query.answer(
+        await inline_query.answer(
             results=[],
             switch_pm_text="查询失败了 ~ 呜呜呜",
             switch_pm_parameter="start",
             cache_time=0,
         )
+        inline_query.stop_propagation()
     results = [
         InlineQueryResultArticle(
             title=username,
@@ -111,6 +103,7 @@ async def fragment_inline(_, inline_query: InlineQuery):
         switch_pm_parameter="start",
         cache_time=0,
     )
+    inline_query.stop_propagation()
 
 
 @scheduler.scheduled_job("cron", hour="8", minute="1", id="fragment.sub")

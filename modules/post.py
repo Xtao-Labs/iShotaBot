@@ -3,9 +3,10 @@ from defs.glover import admin
 from pyrogram.types import Message
 
 from defs.post import LofterPost
+from init import bot
 
 
-@Client.on_message(
+@bot.on_message(
     filters.incoming
     & filters.private
     & filters.user(admin)

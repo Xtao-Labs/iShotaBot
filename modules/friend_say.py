@@ -6,9 +6,10 @@ from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.types import Message
 
 from defs.friend_say import ImageUtil
+from init import bot
 
 
-@Client.on_message(filters.incoming & filters.group & filters.regex(r"^我有个朋友"))
+@bot.on_message(filters.incoming & filters.group & filters.regex(r"^我有个朋友"))
 async def friend_say(client: Client, message: Message):
     if not message.reply_to_message:
         raise ContinuePropagation

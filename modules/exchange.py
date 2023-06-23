@@ -4,7 +4,7 @@ from pyrogram.types import Message
 
 from defs.exchange import exchange_client
 from scheduler import scheduler
-from init import user_me
+from init import bot
 
 
 @scheduler.scheduled_job("cron", hour="8", id="exchange.refresh")
@@ -12,8 +12,8 @@ async def exchange_refresh() -> None:
     await exchange_client.refresh()
 
 
-@Client.on_message(
-    filters.incoming & filters.command(["exchange", f"exchange@{user_me.username}"])
+@bot.on_message(
+    filters.incoming & filters.command(["exchange", f"exchange@{bot.me.username}"])
 )
 async def exchange_command(_: Client, message: Message):
     if not exchange_client.inited:

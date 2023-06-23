@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from pyrogram import Client, filters
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import Message, ChatPermissions, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from init import user_me
+from init import bot
 from scheduler import reply_message
 
 
@@ -20,10 +20,10 @@ def gen_cancel_button(uid: int):
     )
 
 
-@Client.on_message(
+@bot.on_message(
     filters.incoming
     & filters.group
-    & filters.command(["banme", f"banme@{user_me.username}"])
+    & filters.command(["banme", f"banme@{bot.me.username}"])
 )
 async def ban_me_command(client: Client, message: Message):
     args = str(message.text).strip()
@@ -67,7 +67,7 @@ async def ban_me_command(client: Client, message: Message):
     await reply_message(message, msg, reply_markup=gen_cancel_button(message.from_user.id))
 
 
-@Client.on_callback_query(
+@bot.on_callback_query(
     filters.regex(r"^banme_cancel_(\d+)$")
 )
 async def ban_me_cancel(client: Client, callback_query: CallbackQuery):

@@ -1,12 +1,14 @@
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.types import Message
 
+from init import bot
+
 last_msg = {}
 last_repeat_msg = {}
 repeat_count = {}
 
 
-@Client.on_message(filters.incoming & filters.group)
+@bot.on_message(filters.incoming & filters.group)
 async def repeater_handler(client: Client, message: Message):
     global last_msg, last_repeat_msg, repeat_count
 

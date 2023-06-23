@@ -1,19 +1,17 @@
 import contextlib
-
 from urllib.parse import quote
 
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from defs.glover import amap_key
-
-from init import user_me, request
+from init import request, bot
 
 REQUEST_URL = f"https://restapi.amap.com/v3/geocode/geo?key={amap_key}&"
 
 
-@Client.on_message(
-    filters.incoming & filters.command(["geo", f"geo@{user_me.username}"])
+@bot.on_message(
+    filters.incoming & filters.command(["geo", f"geo@{bot.me.username}"])
 )
 async def geo_command(_: Client, message: Message):
     if len(message.command) <= 1:

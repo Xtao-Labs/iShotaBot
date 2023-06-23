@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import Message, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
 from defs.button import gen_button, Button
+from init import bot
 
 des = """本机器人特性：
 
@@ -16,7 +17,7 @@ des = """本机器人特性：
 """
 
 
-@Client.on_message(filters.incoming & filters.private & filters.command(["start"]))
+@bot.on_message(filters.incoming & filters.private & filters.command(["start"]))
 async def start_command(_: Client, message: Message):
     """
     回应机器人信息
@@ -30,4 +31,26 @@ async def start_command(_: Client, message: Message):
                 Button(0, "Github", "https://github.com/Xtao-Labs/iShotaBot"),
             ]
         ),
+    )
+
+
+@bot.on_inline_query(group=1)
+async def empty_inline(_, inline_query: InlineQuery):
+    results = [
+        InlineQueryResultArticle(
+            title="@username",
+            input_message_content=InputTextMessageContent("使用 @username 来查询遗产"),
+            description="使用 @username 来查询遗产",
+        ),
+        InlineQueryResultArticle(
+            title="m",
+            input_message_content=InputTextMessageContent("使用 m 来查询米游社启动图"),
+            description="使用 m 来查询米游社启动图",
+        ),
+    ]
+    return await inline_query.answer(
+        results=results,
+        switch_pm_text="使用关键词开始查询",
+        switch_pm_parameter="start",
+        cache_time=0,
     )

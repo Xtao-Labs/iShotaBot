@@ -2,11 +2,11 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 
 from defs.guess import guess_str
-from init import user_me
+from init import bot
 
 
-@Client.on_message(
-    filters.incoming & filters.command(["guess", f"guess@{user_me.username}"])
+@bot.on_message(
+    filters.incoming & filters.command(["guess", f"guess@{bot.me.username}"])
 )
 async def guess_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")

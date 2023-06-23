@@ -34,7 +34,14 @@ async def start_command(_: Client, message: Message):
     )
 
 
-@bot.on_inline_query(group=1)
+def empty():
+    async def fun(_, __, update):
+        return not bool(update.query)
+
+    return filters.create(fun)
+
+
+@bot.on_inline_query(filters=empty())
 async def empty_inline(_, inline_query: InlineQuery):
     results = [
         InlineQueryResultArticle(

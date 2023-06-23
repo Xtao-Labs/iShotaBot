@@ -6,7 +6,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
 from pyrogram.types import InlineQueryResultCachedPhoto
 
-from defs.glover import splash_channel
+from defs.glover import splash_channel, splash_channel_username
 from init import bot, request, logger
 from models.models.splash import Splash as SplashModel
 from models.apis.splash import Splash as SplashApi
@@ -126,6 +126,7 @@ async def get_inline_results() -> List[InlineQueryResultCachedPhoto]:
             InlineQueryResultCachedPhoto(
                 title=f"Splash No.{idx + 1}",
                 photo_file_id=i.file_id,
+                caption=f"#id{i.id} @{splash_channel_username}",
             )
         )
     return results

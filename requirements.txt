@@ -16,4 +16,5 @@ lxml
 sqlalchemy
 sqlmodel
 aiosqlite
+aiofiles
 pydantic

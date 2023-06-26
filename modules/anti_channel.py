@@ -13,7 +13,7 @@ from init import logs, bot
 init()
 
 
-@bot.on_raw_update(filters.incoming & filters.group)
+@bot.on_raw_update()
 async def anti_channel_msg(client: Client, update: Update, _, __: dict):
     while True:
         try:

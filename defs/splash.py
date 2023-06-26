@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+from io import BytesIO
 from typing import List
 
 from pyrogram.enums import ParseMode
@@ -7,6 +8,7 @@ from pyrogram.errors import FloodWait
 from pyrogram.types import InlineQueryResultCachedPhoto
 
 from defs.glover import splash_channel, splash_channel_username
+from defs.request import cache_file
 from init import bot, request, logger
 from models.models.splash import Splash as SplashModel
 from models.apis.splash import Splash as SplashApi
@@ -71,27 +73,28 @@ async def send_splash_text(api: SplashApi):
 
 
 @retry
-async def send_splash_photo(model: SplashModel):
+async def send_splash_photo(model: SplashModel, content: BytesIO):
     photo = await bot.send_photo(
         splash_channel,
-        model.splash_image,
+        content,
     )
     model.file_id = photo.photo.file_id
 
 
 @retry
-async def send_splash_document(model: SplashModel):
+async def send_splash_document(content: BytesIO):
     await bot.send_document(
         splash_channel,
-        model.splash_image,
+        content,
         force_document=True,
     )
 
 
 async def send_splash(api: SplashApi, model: SplashModel):
+    content = await cache_file(api.splash_image)
     await send_splash_text(api)
-    await send_splash_photo(model)
-    await send_splash_document(model)
+    await send_splash_photo(model, content)
+    await send_splash_document(content)
 
 
 async def update_splash():

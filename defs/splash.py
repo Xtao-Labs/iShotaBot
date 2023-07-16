@@ -59,6 +59,7 @@ def retry(func):
             logger.warning(f"Sleeping for {e.value}s")
             await asyncio.sleep(e.value + 1)
             return await func(*args, **kwargs)
+
     return wrapper
 
 

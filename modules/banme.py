@@ -5,18 +5,20 @@ import random
 from datetime import datetime, timedelta
 from pyrogram import Client, filters
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.types import Message, ChatPermissions, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import (
+    Message,
+    ChatPermissions,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+)
 from init import bot
 from scheduler import reply_message
 
 
 def gen_cancel_button(uid: int):
     return InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(text="别口球我！", callback_data=f"banme_cancel_{uid}")
-            ]
-        ]
+        [[InlineKeyboardButton(text="别口球我！", callback_data=f"banme_cancel_{uid}")]]
     )
 
 
@@ -37,7 +39,7 @@ async def ban_me_command(client: Client, message: Message):
 
     # 检查bot和用户身份
     if (
-            await client.get_chat_member(message.chat.id, "self")
+        await client.get_chat_member(message.chat.id, "self")
     ).status != ChatMemberStatus.ADMINISTRATOR:
         await message.reply("Bot非群管理员, 无法执行禁言操作QAQ")
         return
@@ -64,12 +66,12 @@ async def ban_me_command(client: Client, message: Message):
         ChatPermissions(),
         datetime.now() + timedelta(seconds=act_time),
     )
-    await reply_message(message, msg, reply_markup=gen_cancel_button(message.from_user.id))
+    await reply_message(
+        message, msg, reply_markup=gen_cancel_button(message.from_user.id)
+    )
 
 
-@bot.on_callback_query(
-    filters.regex(r"^banme_cancel_(\d+)$")
-)
+@bot.on_callback_query(filters.regex(r"^banme_cancel_(\d+)$"))
 async def ban_me_cancel(client: Client, callback_query: CallbackQuery):
     if not callback_query.from_user:
         return

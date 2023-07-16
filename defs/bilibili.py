@@ -64,7 +64,7 @@ def cut_text(old_str, cut):
             next_str = next_str[1:]
         elif s == "\n":
             str_list.append(next_str[: i - 1])
-            next_str = next_str[i - 1:]
+            next_str = next_str[i - 1 :]
             si = 0
             i = 0
             continue
@@ -173,9 +173,7 @@ async def binfo_image_create(video_info: dict):
     bg_y += title_bg_y
 
     # 简介
-    dynamic = (
-        "该视频没有简介" if video_info["desc"] == "" else video_info["desc"]
-    )
+    dynamic = "该视频没有简介" if video_info["desc"] == "" else video_info["desc"]
     dynamic_font = ImageFont.truetype(
         f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 18
     )

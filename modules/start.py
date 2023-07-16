@@ -1,5 +1,10 @@
 from pyrogram import Client, filters
-from pyrogram.types import Message, InlineQuery, InlineQueryResultArticle, InputTextMessageContent
+from pyrogram.types import (
+    Message,
+    InlineQuery,
+    InlineQueryResultArticle,
+    InputTextMessageContent,
+)
 from defs.button import gen_button, Button
 from init import bot
 

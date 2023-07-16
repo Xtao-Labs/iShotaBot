@@ -53,14 +53,18 @@ class Splash(BaseModel):
             return ""
         if not self.game_short_name:
             return ""
-        return f"https://www.miyoushe.com/{self.game_short_name}/article/{self.article_id}"
+        return (
+            f"https://www.miyoushe.com/{self.game_short_name}/article/{self.article_id}"
+        )
 
     @property
     def text(self) -> str:
-        return f"#id{self.id} \n" \
-               f"ID：<code>{self.id}</code>\n" \
-               f"所属分区：<code>{self.game_id} - {self.game_short_name}</code>\n" \
-               f"开始时间：<code>{self.online_time_str}</code>\n" \
-               f"结束时间：<code>{self.offline_time_str}</code>\n" \
-               f"链接： {self.splash_image}\n" \
-               f"文章链接： {self.article_url}"
+        return (
+            f"#id{self.id} \n"
+            f"ID：<code>{self.id}</code>\n"
+            f"所属分区：<code>{self.game_id} - {self.game_short_name}</code>\n"
+            f"开始时间：<code>{self.online_time_str}</code>\n"
+            f"结束时间：<code>{self.offline_time_str}</code>\n"
+            f"链接： {self.splash_image}\n"
+            f"文章链接： {self.article_url}"
+        )

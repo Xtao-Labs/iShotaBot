@@ -86,7 +86,7 @@ def cut_text(old_str, cut):
             next_str = next_str[1:]
         elif s == "\n":
             str_list.append(next_str[: i - 1])
-            next_str = next_str[i - 1 :]
+            next_str = next_str[i - 1:]
             si = 0
             i = 0
             continue
@@ -178,7 +178,7 @@ async def binfo_image_create(video_info: dict):
 
     # 分区
     tname = video_info["tname"]
-    tname_x, _ = tiem_font.getsize(tname)
+    _, _, tname_x, _ = tiem_font.getbbox(tname)
     draw.text((560 - tname_x - 10, 305), tname, "white", tiem_font)
 
     # 标题
@@ -187,7 +187,7 @@ async def binfo_image_create(video_info: dict):
         f"resources{sep}font{sep}sarasa-mono-sc-bold.ttf", 25
     )
     title_cut_str = "\n".join(cut_text(title, 40))
-    _, title_text_y = title_font.getsize_multiline(title_cut_str)
+    _, _, _, title_text_y = draw.multiline_textbbox((0, 0), title_cut_str, title_font)
     title_bg = Image.new("RGB", (560, title_text_y + 23), "#F5F5F7")
     draw = ImageDraw.Draw(title_bg)
     draw.text((15, 10), title_cut_str, "black", title_font)
@@ -200,7 +200,7 @@ async def binfo_image_create(video_info: dict):
         f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 18
     )
     dynamic_cut_str = "\n".join(cut_text(dynamic, 58))
-    _, dynamic_text_y = dynamic_font.getsize_multiline(dynamic_cut_str)
+    _, _, _, dynamic_text_y = draw.multiline_textbbox((0, 0), dynamic_cut_str, dynamic_font)
     dynamic_bg = Image.new("RGB", (560, dynamic_text_y + 24), "#F5F5F7")
     draw = ImageDraw.Draw(dynamic_bg)
     draw.rectangle((0, 0, 580, dynamic_text_y + 24), "#E1E1E5")
@@ -327,13 +327,13 @@ async def binfo_image_create(video_info: dict):
         up_bg.paste(face, (20, 20 + (i * 120)), mask)
         # 名字
         draw.text((160, 25 + (i * 120)), up["name"], up["color"], name_font)
-        name_size_x, _ = name_font.getsize(up["name"])
+        _, _, name_size_x, _ = name_font.getbbox(up["name"])
         # 等级
         draw.text(
             (160 + name_size_x + 10, 16 + (i * 120)), up_level, level_color, icon_font
         )
         # 身份
-        up_title_size_x, up_title_size_y = up_title_font.getsize(up["up_title"])
+        _, _, up_title_size_x, up_title_size_y = up_title_font.getbbox(up["up_title"])
         draw.rectangle(
             (
                 60,

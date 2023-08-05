@@ -9,9 +9,11 @@ from defs.bilibili import (
     video_info_get,
     binfo_image_create,
     get_dynamic_screenshot_pc,
+    check_and_refresh_credential,
 )
 from defs.button import gen_button, Button
 from init import bot
+from scheduler import scheduler
 
 
 @bot.on_message(
@@ -64,3 +66,8 @@ async def bili_dynamic(_: Client, message: Message):
                 ),
             )
     raise ContinuePropagation
+
+
+@scheduler.scheduled_job("interval", hours=1, id="bili_cookie_refresh")
+async def bili_cookie_refresh():
+    await check_and_refresh_credential()

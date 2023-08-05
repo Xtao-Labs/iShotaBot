@@ -13,7 +13,7 @@ from qrcode.image.pil import PilImage
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
-from defs.cookie import get_bili_cookie, get_bili_browser_cookie
+from defs.cookie import get_bili_cookie, get_bili_browser_cookie, set_bili_cookie
 from defs.browser import get_browser
 from init import request
 
@@ -33,10 +33,32 @@ def from_cookie_get_credential() -> Optional[Credential]:
         dedeuserid = cookie["DedeUserID"]
     except KeyError:
         return None
-    return Credential(sessdata, bili_jct, buvid3, dedeuserid)
+    try:
+        ac_time_value = cookie["ac_time_value"]
+    except KeyError:
+        ac_time_value = None
+    return Credential(sessdata, bili_jct, buvid3, dedeuserid, ac_time_value)
 
 
 credential = from_cookie_get_credential()
+
+
+def set_cookie_from_cred(new_cred: Credential) -> None:
+    cookie = get_bili_cookie()
+    cookie["SESSDATA"] = new_cred.sessdata
+    cookie["bili_jct"] = new_cred.bili_jct
+    cookie["buvid3"] = new_cred.buvid3
+    cookie["ac_time_value"] = new_cred.ac_time_value
+    set_bili_cookie(cookie)
+
+
+async def check_and_refresh_credential() -> None:
+    """
+    检查并刷新 Credential 对象。
+    """
+    if await credential.check_refresh():
+        await credential.refresh()
+        set_cookie_from_cred(credential)
 
 
 def cut_text(old_str, cut):

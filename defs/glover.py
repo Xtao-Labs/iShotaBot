@@ -15,7 +15,6 @@ splash_channel: int = 0
 splash_channel_username: str = ""
 # [api]
 amap_key: str = ""
-bili_cookie: str = ""
 config = RawConfigParser()
 config.read("config.ini")
 api_id = config.getint("pyrogram", "api_id", fallback=api_id)
@@ -31,8 +30,11 @@ splash_channel_username = config.get(
     "post", "splash_channel_username", fallback=splash_channel_username
 )
 amap_key = config.get("api", "amap_key", fallback=amap_key)
-bili_cookie = config.get("api", "bili_cookie", fallback=bili_cookie)
 try:
     ipv6 = bool(strtobool(ipv6))
 except ValueError:
     ipv6 = False
+
+
+def save_config():
+    config.write(open("config.ini", "w", encoding="utf-8"))

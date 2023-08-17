@@ -10,8 +10,8 @@ from bilibili_api.video import Video, VideoDownloadURLDataDetecter, VideoQuality
 from httpx import AsyncClient, Response
 from pyrogram.types import Message
 
-from init import bot, logger
 from defs.request import cache_dir
+from init import bot, logger
 
 FFMPEG_PATH = "ffmpeg"
 LOCK = Lock()
@@ -118,15 +118,19 @@ def safe_remove(path: str):
 
 
 async def message_edit(
-    length: int, total_downloaded: int, temp_downloaded: int, m: Message, t: str
+    length: int,
+    total_downloaded: int,
+    temp_downloaded: int,
+    chunk_time: float,
+    m: Message,
+    t: str,
 ):
-    chunk_time = time.time() - MESSAGE_MAP[m.id]
     speed = temp_downloaded / (chunk_time if chunk_time > 0 else 1)
     text = (
         f"{t}进度\n\n"
         f"{format_bytes(total_downloaded)} / {format_bytes(length)} "
         f"({round(total_downloaded / length * 100.0, 2)}%)\n\n"
-        f"下载区间速度：{format_bytes(speed)}/s\n"
+        f"传输区间速度：{format_bytes(speed)}/s\n"
         f"预计剩余时间：{format_seconds((length - total_downloaded) / speed)}"
     )
     await safe_edit(m, text)
@@ -135,7 +139,7 @@ async def message_edit(
 async def download_url(url: str, out: str, m: Message, start: str):
     async with AsyncClient(headers=HEADERS, timeout=60) as sess:
         async with sess.stream("GET", url) as resp:
-            logger.info(f"Downloading {url}")
+            logger.info(f"Downloading {start}")
             resp: Response
             length = resp.headers.get("content-length")
             if not length:
@@ -156,13 +160,16 @@ async def download_url(url: str, out: str, m: Message, start: str):
                     async with LOCK:
                         _should_edit = should_edit(m)
                         if _should_edit:
-                            MESSAGE_MAP[m.id] = time.time()
+                            now = time.time()
+                            chunk_time = now - MESSAGE_MAP[m.id]
+                            MESSAGE_MAP[m.id] = now
                     if _should_edit:
                         bot.loop.create_task(
                             message_edit(
                                 length,
                                 total_downloaded,
                                 temp_downloaded,
+                                chunk_time,
                                 m,
                                 f"{start}下载",
                             )
@@ -200,8 +207,11 @@ async def go_download(v: Video, p_num: int, m: Message):
             await download_url(streams[0].url, video_temp_path, m, "视频 m4s ")
             await download_url(streams[1].url, audio_temp_path, m, "音频 m4s ")
             # 混流
+            logger.info("Merging video and audio")
             _, result = await execute(
-                f"{FFMPEG_PATH} -i {video_temp_path} -i {audio_temp_path} -vcodec copy -acodec copy {video_path}"
+                f'{FFMPEG_PATH} -i "{video_temp_path}" -i "{audio_temp_path}" '
+                f"-c:v copy -c:a copy -strict experimental "
+                f'-y "{video_path}"'
             )
         if result != 0:
             raise FFmpegError
@@ -224,13 +234,15 @@ async def go_upload_progress(current: int, total: int, m: Message):
     async with LOCK:
         _should_edit = should_edit(m)
         if _should_edit:
-            MESSAGE_MAP[m.id] = time.time()
+            now = time.time()
+            chunk_time = now - MESSAGE_MAP[m.id]
+            MESSAGE_MAP[m.id] = now
     if _should_edit:
         t = UPLOAD_MESSAGE_MAP[m.id] if m.id in UPLOAD_MESSAGE_MAP else 0
         UPLOAD_MESSAGE_MAP[m.id] = current
         chunk = current - t
         chunk = chunk if chunk > 0 else 0
-        await message_edit(total, current, chunk, m, "上传")
+        await message_edit(total, current, chunk, chunk_time, m, "上传")
 
 
 async def go_upload(v: Video, p_num: int, m: Message):

@@ -20,6 +20,7 @@ from scheduler import scheduler
     filters.incoming
     & filters.text
     & filters.regex(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|b23.tv")
+    & ~filters.command(["download"])
 )
 async def bili_resolve(_: Client, message: Message):
     """

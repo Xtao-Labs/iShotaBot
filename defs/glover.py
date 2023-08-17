@@ -1,5 +1,5 @@
 from configparser import RawConfigParser
-from typing import Union
+from typing import Union, List
 from distutils.util import strtobool
 
 # [pyrogram]
@@ -15,6 +15,7 @@ splash_channel: int = 0
 splash_channel_username: str = ""
 # [api]
 amap_key: str = ""
+bili_auth_user_str: str = ""
 config = RawConfigParser()
 config.read("config.ini")
 api_id = config.getint("pyrogram", "api_id", fallback=api_id)
@@ -30,6 +31,11 @@ splash_channel_username = config.get(
     "post", "splash_channel_username", fallback=splash_channel_username
 )
 amap_key = config.get("api", "amap_key", fallback=amap_key)
+bili_auth_user_str = config.get("api", "bili_auth_user", fallback=bili_auth_user_str)
+try:
+    bili_auth_user: List[int] = list(map(int, bili_auth_user_str.split(",")))
+except ValueError:
+    bili_auth_user: List[int] = []
 try:
     ipv6 = bool(strtobool(ipv6))
 except ValueError:

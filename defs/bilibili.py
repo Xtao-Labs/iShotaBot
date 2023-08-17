@@ -86,7 +86,7 @@ def cut_text(old_str, cut):
             next_str = next_str[1:]
         elif s == "\n":
             str_list.append(next_str[: i - 1])
-            next_str = next_str[i - 1:]
+            next_str = next_str[i - 1 :]
             si = 0
             i = 0
             continue
@@ -133,13 +133,19 @@ async def b23_extract(text):
     return r
 
 
-async def video_info_get(cid):
+def create_video(cid) -> Optional[Video]:
+    v = None
     if cid[:2] == "av":
         v = Video(aid=int(cid[2:]), credential=credential)
     elif cid[:2] == "BV":
         v = Video(bvid=cid, credential=credential)
-    else:
-        return
+    return v
+
+
+async def video_info_get(cid):
+    v = create_video(cid)
+    if not v:
+        return None
     video_info = await v.get_info()
     return video_info
 
@@ -200,7 +206,9 @@ async def binfo_image_create(video_info: dict):
         f"resources{sep}font{sep}sarasa-mono-sc-semibold.ttf", 18
     )
     dynamic_cut_str = "\n".join(cut_text(dynamic, 58))
-    _, _, _, dynamic_text_y = draw.multiline_textbbox((0, 0), dynamic_cut_str, dynamic_font)
+    _, _, _, dynamic_text_y = draw.multiline_textbbox(
+        (0, 0), dynamic_cut_str, dynamic_font
+    )
     dynamic_bg = Image.new("RGB", (560, dynamic_text_y + 24), "#F5F5F7")
     draw = ImageDraw.Draw(dynamic_bg)
     draw.rectangle((0, 0, 580, dynamic_text_y + 24), "#E1E1E5")

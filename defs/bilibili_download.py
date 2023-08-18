@@ -224,7 +224,11 @@ async def audio_download(a: Audio, m: Message):
         async with AsyncClient(headers=HEADERS, timeout=60) as client:
             r = await client.get(download_url_data["cdns"][0])
             media = BytesIO(r.content)
-            media.name = None
+            ext = download_url_data["cdns"][0].split("?")[0].split(".")[-1]
+            if ext:
+                media.name = f"{info['title']}.{ext}"
+            else:
+                media.name = f"{info['title']}.mp3"
             media.seek(0)
             if info.get("cover"):
                 r_ = await client.get(info.get("cover"))

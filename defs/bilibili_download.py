@@ -15,6 +15,8 @@ from pyrogram.types import Message
 
 from defs.request import cache_dir
 from init import bot, logger, request
+from models.models.bilifav import BiliFav
+from models.services.bilifav import BiliFavAction
 
 FFMPEG_PATH = "ffmpeg"
 FFPROBE_PATH = "ffprobe"
@@ -217,6 +219,19 @@ async def take_screenshot(info: Dict) -> Optional[BytesIO]:
         return None
 
 
+def gen_audio_caption(a: Audio, info: Dict) -> str:
+    intro = info.get("intro", "")
+    if intro:
+        text = f"<b>{info['title']}</b>\n\n{intro}\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        if len(text) > 800:
+            text = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+    else:
+        text = (
+            f"<b>{info['title']}</b>\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        )
+    return text
+
+
 async def audio_download(
     a: Audio, m: Message, push_id: int = None
 ) -> Optional[Message]:
@@ -238,17 +253,11 @@ async def audio_download(
                 thumb.seek(0)
             else:
                 thumb = None
-        intro = info.get("intro", "")
-        if intro:
-            text = f"<b>{info['title']}</b>\n\n{intro}\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
-            if len(text) > 800:
-                text = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
-        else:
-            text = f"<b>{info['title']}</b>\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        caption = gen_audio_caption(a, info)
         msg = await bot.send_audio(
             chat_id=push_id or m.chat.id,
             audio=media,
-            caption=text,
+            caption=caption,
             parse_mode=ParseMode.HTML,
             reply_to_message_id=m.reply_to_message_id if not push_id else None,
             thumb=thumb,
@@ -256,6 +265,18 @@ async def audio_download(
             duration=info.get("duration"),
             performer=info.get("author"),
         )
+        if info.get("id") and (not await BiliFavAction.get_by_id(info.get("id"))):
+            audio_db = BiliFav(
+                id=info.get("id", 0),
+                bv_id=info.get("bvid").lower(),
+                type=12,
+                title=info.get("title", ""),
+                cover=info.get("cover", ""),
+                message_id=0,
+                file_id=msg.audio.file_id,
+                timestamp=int(time.time()),
+            )
+            await BiliFavAction.add_bili_fav(audio_db)
     except BilibiliDownloaderError as e:
         await fail_edit(m, e.MSG)
         return
@@ -336,6 +357,17 @@ async def go_upload_progress(current: int, total: int, m: Message):
         await message_edit(total, current, chunk, chunk_time, m, "上传")
 
 
+def gen_video_caption(v: Video, info: Dict) -> str:
+    caption = (
+        f"<b>{info['title']}</b>\n\n{info['desc']}\n\nhttps://b23.tv/{v.get_bvid()}"
+    )
+    if len(caption) > 800:
+        caption = (
+            f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://b23.tv/{v.get_bvid()}"
+        )
+    return caption
+
+
 async def go_upload(
     v: Video, p_num: int, m: Message, push_id: int = None
 ) -> Optional[Message]:
@@ -349,10 +381,9 @@ async def go_upload(
         try:
             info = await v.get_info()
             video_jpg = await take_screenshot(info)
-            caption = f"<b>{info['title']}</b>\n\n{info['desc']}\n\nhttps://b23.tv/{v.get_bvid()}"
-            if len(caption) > 800:
-                caption = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://b23.tv/{v.get_bvid()}"
+            caption = gen_video_caption(v, info)
         except Exception:
+            info = None
             video_jpg = None
             caption = f"https://b23.tv/{v.get_bvid()}"
         logger.info(f"Uploading {video_path}")
@@ -370,6 +401,22 @@ async def go_upload(
             progress_args=(m,),
             reply_to_message_id=m.reply_to_message_id if not push_id else None,
         )
+        if (
+            (not await BiliFavAction.get_by_bv_id(v.get_bvid()))
+            and info is not None
+            and info.get("aid")
+        ):
+            video_db = BiliFav(
+                id=info.get("aid", 0),
+                bv_id=info.get("bvid").lower(),
+                type=2,
+                title=info.get("title", ""),
+                cover=info.get("pic", ""),
+                message_id=0,
+                file_id=msg.video.file_id,
+                timestamp=int(time.time()),
+            )
+            await BiliFavAction.add_bili_fav(video_db)
         logger.info(f"Upload {video_path} success")
     except BilibiliDownloaderError as e:
         await fail_edit(m, e.MSG)

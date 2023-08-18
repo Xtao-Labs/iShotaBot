@@ -2,11 +2,15 @@ import re
 import time
 
 from pyrogram import filters, Client, ContinuePropagation
-from pyrogram.types import Message, CallbackQuery
+from pyrogram.types import Message
 
 from defs.bilibili import b23_extract, create_video, create_audio
 from defs.bilibili_download import go_download, go_upload, audio_download
-from defs.bilibili_fav import check_update
+from defs.bilibili_fav import (
+    check_update,
+    process_video_from_cache,
+    process_audio_from_cache,
+)
 from defs.glover import admin, bilifav_channel
 from init import bot, logger
 from models.models.bilifav import BiliFav
@@ -15,10 +19,13 @@ from models.services.bilifav import BiliFavAction
 
 async def process_audio(video_number: str, message: Message):
     id_ = int(video_number[2:])
-    if await BiliFavAction.get_by_id(id_):
+    if await BiliFavAction.get_by_id(id_, fav=True):
         await message.reply("该音频已经存在")
         raise ContinuePropagation
     audio = create_audio(video_number)
+    if audio_db := await BiliFavAction.get_by_id(id_):
+        await process_audio_from_cache(audio, audio_db)
+        return
     info = await audio.get_info()
     m = await message.reply("开始获取音频数据", quote=True)
     msg = await audio_download(audio, m, push_id=bilifav_channel)
@@ -39,9 +46,12 @@ async def process_audio(video_number: str, message: Message):
 
 async def process_video(video_number: str, p_num: int, message: Message):
     video = create_video(video_number)
-    if await BiliFavAction.get_by_bv_id(video.get_bvid()):
+    if await BiliFavAction.get_by_bv_id(video.get_bvid(), fav=True):
         await message.edit("该视频已经存在")
         raise ContinuePropagation
+    if video_db := await BiliFavAction.get_by_bv_id(video.get_bvid()):
+        await process_video_from_cache(video, video_db)
+        return
     info = await video.get_info()
     id_ = info.get("aid", 0)
     if not id_:
@@ -52,7 +62,7 @@ async def process_video(video_number: str, p_num: int, message: Message):
     msg = await go_upload(video, p_num, m, push_id=bilifav_channel)
     if not msg:
         raise ContinuePropagation
-    audio_db = BiliFav(
+    video_db = BiliFav(
         id=id_,
         bv_id=info.get("bvid", "").lower(),
         type=2,
@@ -62,7 +72,7 @@ async def process_video(video_number: str, p_num: int, message: Message):
         file_id=msg.video.file_id,
         timestamp=int(time.time()),
     )
-    await BiliFavAction.add_bili_fav(audio_db)
+    await BiliFavAction.add_bili_fav(video_db)
 
 
 @bot.on_message(

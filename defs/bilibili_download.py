@@ -2,7 +2,8 @@ import contextlib
 import os
 import time
 from asyncio import create_subprocess_shell, subprocess, Lock
-from typing import Tuple, Dict, Union
+from io import BytesIO
+from typing import Tuple, Dict, Union, Optional
 
 import aiofiles
 from bilibili_api import HEADERS
@@ -11,7 +12,7 @@ from httpx import AsyncClient, Response
 from pyrogram.types import Message
 
 from defs.request import cache_dir
-from init import bot, logger
+from init import bot, logger, request
 
 FFMPEG_PATH = "ffmpeg"
 FFPROBE_PATH = "ffprobe"
@@ -202,16 +203,17 @@ async def get_video_height_width(path: str) -> Tuple[int, int]:
     return int(video_height), int(video_width)
 
 
-async def take_screenshot(path: str, output_path: str, video_duration: float):
-    """随机一张视频截图"""
-    _, code = await execute(
-        f"{FFMPEG_PATH} -v error -i {path} -vcodec mjpeg -vframes 1 -an -f rawvideo "
-        f"-ss {int(video_duration / 2)} "
-        f"-vf scale='if(gt(iw,ih),90,trunc(oh*a/2)*2)':'if(gt(iw,ih),trunc(ow/a/2)*2,90)' "
-        f"{output_path}"
-    )
-    if code != 0:
-        raise FFmpegError("视频提取帧截图失败")
+async def take_screenshot(v: Video) -> Optional[BytesIO]:
+    """获取视频封面"""
+    try:
+        info = await v.get_info()
+        pic_get = (await request.get(info["pic"])).content
+        pic = BytesIO(pic_get)
+        pic.name = "screenshot.jpg"
+        return pic
+    except Exception:
+        logger.exception("获取视频封面失败")
+        return None
 
 
 async def go_download(v: Video, p_num: int, m: Message):
@@ -286,19 +288,18 @@ async def go_upload(v: Video, p_num: int, m: Message):
     if not video_path.exists():
         await fail_edit(m, "视频文件不存在")
         return
-    video_jpg_path = cache_dir / f"{v.get_aid()}_{p_num}.jpg"
     try:
         video_duration = await get_video_duration(video_path)
         video_height, video_width = await get_video_height_width(video_path)
-        await take_screenshot(video_path, video_jpg_path, video_duration)
+        video_jpg = await take_screenshot(v)
         logger.info(f"Uploading {video_path}")
         await bot.send_video(
             chat_id=m.chat.id,
             video=str(video_path),
-            duration=video_duration,
+            duration=int(video_duration),
             width=video_width,
             height=video_height,
-            thumb=str(video_jpg_path),
+            thumb=video_jpg,
             supports_streaming=True,
             progress=go_upload_progress,
             progress_args=(m,),
@@ -313,7 +314,6 @@ async def go_upload(v: Video, p_num: int, m: Message):
         return
     finally:
         safe_remove(video_path)
-        safe_remove(video_jpg_path)
         if m.id in MESSAGE_MAP:
             del MESSAGE_MAP[m.id]
         if m.id in UPLOAD_MESSAGE_MAP:

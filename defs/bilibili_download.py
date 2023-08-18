@@ -14,6 +14,7 @@ from defs.request import cache_dir
 from init import bot, logger
 
 FFMPEG_PATH = "ffmpeg"
+FFPROBE_PATH = "ffprobe"
 LOCK = Lock()
 EDIT_TEMP_SECONDS = 10.0
 MESSAGE_MAP: Dict[int, float] = {}
@@ -178,6 +179,41 @@ async def download_url(url: str, out: str, m: Message, start: str):
                     await f.write(chunk)
 
 
+async def get_video_duration(path: str) -> float:
+    """获取视频时长"""
+    video_duration, code = await execute(
+        f"{FFPROBE_PATH} -v error -select_streams v:0 -show_entries format=duration "
+        f"-of default=noprint_wrappers=1:nokey=1 {path}"
+    )
+    if code != 0:
+        raise FFmpegError("视频时长获取失败")
+    return round(float(video_duration))
+
+
+async def get_video_height_width(path: str) -> Tuple[int, int]:
+    """获取视频高度和宽度"""
+    result, code = await execute(
+        f"{FFPROBE_PATH} -v error -select_streams v:0 -show_entries stream=width,height "
+        f"-of csv=s=x:p=0 {path}"
+    )
+    if code != 0:
+        raise FFmpegError("视频宽高度获取失败")
+    video_width, video_height = result.split("x")
+    return int(video_height), int(video_width)
+
+
+async def take_screenshot(path: str, output_path: str, video_duration: float):
+    """随机一张视频截图"""
+    _, code = await execute(
+        f"{FFMPEG_PATH} -v error -i {path} -vcodec mjpeg -vframes 1 -an -f rawvideo "
+        f"-ss {int(video_duration / 2)} "
+        f"-vf scale='if(gt(iw,ih),90,trunc(oh*a/2)*2)':'if(gt(iw,ih),trunc(ow/a/2)*2,90)' "
+        f"{output_path}"
+    )
+    if code != 0:
+        raise FFmpegError("视频提取帧截图失败")
+
+
 async def go_download(v: Video, p_num: int, m: Message):
     video_path = cache_dir / f"{v.get_aid()}_{p_num}.mp4"
     safe_remove(video_path)
@@ -210,7 +246,7 @@ async def go_download(v: Video, p_num: int, m: Message):
             logger.info("Merging video and audio")
             _, result = await execute(
                 f'{FFMPEG_PATH} -i "{video_temp_path}" -i "{audio_temp_path}" '
-                f"-c:v copy -c:a copy -strict experimental "
+                f"-c:v copy -c:a copy -movflags +faststart "
                 f'-y "{video_path}"'
             )
         if result != 0:
@@ -250,22 +286,34 @@ async def go_upload(v: Video, p_num: int, m: Message):
     if not video_path.exists():
         await fail_edit(m, "视频文件不存在")
         return
+    video_jpg_path = cache_dir / f"{v.get_aid()}_{p_num}.jpg"
     try:
+        video_duration = await get_video_duration(video_path)
+        video_height, video_width = await get_video_height_width(video_path)
+        await take_screenshot(video_path, video_jpg_path, video_duration)
         logger.info(f"Uploading {video_path}")
         await bot.send_video(
             chat_id=m.chat.id,
             video=str(video_path),
+            duration=video_duration,
+            width=video_width,
+            height=video_height,
+            thumb=str(video_jpg_path),
             supports_streaming=True,
             progress=go_upload_progress,
             progress_args=(m,),
         )
         logger.info(f"Upload {video_path} success")
+    except BilibiliDownloaderError as e:
+        await fail_edit(m, e.MSG)
+        return
     except Exception as e:
         logger.exception("Uploading video failed")
         await fail_edit(m, f"上传失败：{e}")
         return
     finally:
         safe_remove(video_path)
+        safe_remove(video_jpg_path)
         if m.id in MESSAGE_MAP:
             del MESSAGE_MAP[m.id]
         if m.id in UPLOAD_MESSAGE_MAP:

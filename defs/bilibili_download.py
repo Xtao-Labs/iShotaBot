@@ -236,9 +236,13 @@ async def audio_download(a: Audio, m: Message):
                 thumb.seek(0)
             else:
                 thumb = None
-        text = f"<b>{info['title']}</b>\n\n{info.get('desc', '')}\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
-        if len(text) > 800:
-            text = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        intro = info.get("intro", "")
+        if intro:
+            text = f"<b>{info['title']}</b>\n\n{intro}\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+            if len(text) > 800:
+                text = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        else:
+            text = f"<b>{info['title']}</b>\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
         await bot.send_audio(
             chat_id=m.chat.id,
             audio=media,
@@ -246,6 +250,7 @@ async def audio_download(a: Audio, m: Message):
             parse_mode=ParseMode.HTML,
             reply_to_message_id=m.reply_to_message_id,
             thumb=thumb,
+            title=info.get("title"),
             duration=info.get("duration"),
             performer=info.get("author"),
         )

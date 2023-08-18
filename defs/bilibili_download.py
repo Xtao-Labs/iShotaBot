@@ -187,7 +187,7 @@ async def get_video_duration(path: str) -> float:
     )
     if code != 0:
         raise FFmpegError("视频时长获取失败")
-    return round(float(video_duration))
+    return round(float(video_duration.split("[")[0].strip()), 2)
 
 
 async def get_video_height_width(path: str) -> Tuple[int, int]:
@@ -198,7 +198,7 @@ async def get_video_height_width(path: str) -> Tuple[int, int]:
     )
     if code != 0:
         raise FFmpegError("视频宽高度获取失败")
-    video_width, video_height = result.split("x")
+    video_width, video_height = result.split("[")[0].split("x")
     return int(video_height), int(video_width)
 
 

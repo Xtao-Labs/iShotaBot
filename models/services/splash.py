@@ -10,7 +10,7 @@ from models.models.splash import Splash
 class SplashService:
     @staticmethod
     async def get_by_splash_id(splash_id: int) -> Optional[Splash]:
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             check = Splash.id == splash_id
             statement = select(Splash).where(check)
@@ -19,7 +19,7 @@ class SplashService:
 
     @staticmethod
     async def get_all_splashes() -> List[Optional[Splash]]:
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(Splash)
             results = await session.exec(statement)
@@ -27,14 +27,14 @@ class SplashService:
 
     @staticmethod
     async def add_splash(splash: Splash):
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             session.add(splash)
             await session.commit()
 
     @staticmethod
     async def update_splash(splash: Splash):
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             session.add(splash)
             await session.commit()

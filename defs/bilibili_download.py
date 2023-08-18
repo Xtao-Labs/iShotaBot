@@ -217,7 +217,9 @@ async def take_screenshot(info: Dict) -> Optional[BytesIO]:
         return None
 
 
-async def audio_download(a: Audio, m: Message):
+async def audio_download(
+    a: Audio, m: Message, push_id: int = None
+) -> Optional[Message]:
     try:
         info = await a.get_info()
         download_url_data = await a.get_download_url()
@@ -243,12 +245,12 @@ async def audio_download(a: Audio, m: Message):
                 text = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
         else:
             text = f"<b>{info['title']}</b>\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
-        await bot.send_audio(
-            chat_id=m.chat.id,
+        msg = await bot.send_audio(
+            chat_id=push_id or m.chat.id,
             audio=media,
             caption=text,
             parse_mode=ParseMode.HTML,
-            reply_to_message_id=m.reply_to_message_id,
+            reply_to_message_id=m.reply_to_message_id if not push_id else None,
             thumb=thumb,
             title=info.get("title"),
             duration=info.get("duration"),
@@ -256,12 +258,17 @@ async def audio_download(a: Audio, m: Message):
         )
     except BilibiliDownloaderError as e:
         await fail_edit(m, e.MSG)
+        return
     except Exception as e:
         logger.exception("Downloading audio failed")
         await fail_edit(m, f"下载/上传失败：{e}")
+        return
+    with contextlib.suppress(Exception):
+        await m.delete()
+    return msg
 
 
-async def go_download(v: Video, p_num: int, m: Message):
+async def go_download(v: Video, p_num: int, m: Message, task: bool = True):
     video_path = cache_dir / f"{v.get_aid()}_{p_num}.mp4"
     safe_remove(video_path)
     flv_temp_path = cache_dir / f"{v.get_aid()}_{p_num}_temp.flv"
@@ -298,7 +305,8 @@ async def go_download(v: Video, p_num: int, m: Message):
             )
         if result != 0:
             raise FFmpegError
-        bot.loop.create_task(go_upload(v, p_num, m))
+        if task:
+            bot.loop.create_task(go_upload(v, p_num, m))
     except BilibiliDownloaderError as e:
         await fail_edit(m, e.MSG)
     except Exception as e:
@@ -328,7 +336,9 @@ async def go_upload_progress(current: int, total: int, m: Message):
         await message_edit(total, current, chunk, chunk_time, m, "上传")
 
 
-async def go_upload(v: Video, p_num: int, m: Message):
+async def go_upload(
+    v: Video, p_num: int, m: Message, push_id: int = None
+) -> Optional[Message]:
     video_path = cache_dir / f"{v.get_aid()}_{p_num}.mp4"
     if not video_path.exists():
         await fail_edit(m, "视频文件不存在")
@@ -346,8 +356,8 @@ async def go_upload(v: Video, p_num: int, m: Message):
             video_jpg = None
             caption = f"https://b23.tv/{v.get_bvid()}"
         logger.info(f"Uploading {video_path}")
-        await bot.send_video(
-            chat_id=m.chat.id,
+        msg = await bot.send_video(
+            chat_id=push_id or m.chat.id,
             video=str(video_path),
             caption=caption,
             parse_mode=ParseMode.HTML,
@@ -358,7 +368,7 @@ async def go_upload(v: Video, p_num: int, m: Message):
             supports_streaming=True,
             progress=go_upload_progress,
             progress_args=(m,),
-            reply_to_message_id=m.reply_to_message_id,
+            reply_to_message_id=m.reply_to_message_id if not push_id else None,
         )
         logger.info(f"Upload {video_path} success")
     except BilibiliDownloaderError as e:
@@ -376,3 +386,4 @@ async def go_upload(v: Video, p_num: int, m: Message):
             del UPLOAD_MESSAGE_MAP[m.id]
     with contextlib.suppress(Exception):
         await m.delete()
+    return msg

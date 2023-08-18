@@ -99,7 +99,7 @@ class FragmentSubText(Enum):
 class FragmentSub:
     @staticmethod
     async def subscribe(cid: int, username: str):
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             data = Fragment(cid=cid, username=username)
             session.add(data)
@@ -107,14 +107,14 @@ class FragmentSub:
 
     @staticmethod
     async def unsubscribe(data: Fragment):
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             await session.delete(data)
             await session.commit()
 
     @staticmethod
     async def get_by_cid_and_username(cid: int, username: str) -> Optional[Fragment]:
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = (
                 select(Fragment)
@@ -126,7 +126,7 @@ class FragmentSub:
 
     @staticmethod
     async def get_by_cid(cid: int) -> List[Fragment]:
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(Fragment).where(Fragment.cid == cid)
             results = await session.exec(statement)
@@ -134,7 +134,7 @@ class FragmentSub:
 
     @staticmethod
     async def get_all() -> List[Fragment]:
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(Fragment)
             results = await session.exec(statement)

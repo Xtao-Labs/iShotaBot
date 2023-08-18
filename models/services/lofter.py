@@ -10,7 +10,7 @@ from models.models.lofter import Lofter
 class LofterPost:
     @staticmethod
     async def get_by_post_and_user_id(user_id: str, post_id: str) -> Optional[Lofter]:
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             if user_id != "0":
                 check = Lofter.post_id == post_id and Lofter.user_id == user_id
@@ -26,7 +26,7 @@ class LofterPost:
 
     @staticmethod
     async def add_post(post: Lofter):
-        async with sqlite.Session() as session:
+        async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             session.add(post)
             await session.commit()

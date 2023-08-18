@@ -17,7 +17,7 @@ from pyrogram.types import (
 )
 
 from defs.glover import lofter_channel_username
-from models.lofter import LofterPost as LofterPostModel
+from models.services.lofter import LofterPost as LofterPostModel
 from init import request
 
 

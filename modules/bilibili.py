@@ -12,7 +12,7 @@ from defs.bilibili import (
     check_and_refresh_credential,
 )
 from defs.button import gen_button, Button
-from defs.glover import bili_auth_user
+from defs.glover import bili_auth_user, bili_auth_chat
 from init import bot
 from scheduler import scheduler
 
@@ -21,7 +21,7 @@ from scheduler import scheduler
     filters.incoming
     & filters.text
     & filters.regex(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|b23.tv")
-    & ~(filters.command(["download"]) & filters.user(bili_auth_user))
+    & ~(filters.command(["download", "bilibili_fav"]) & filters.user(bili_auth_user))
 )
 async def bili_resolve(_: Client, message: Message):
     """
@@ -37,7 +37,9 @@ async def bili_resolve(_: Client, message: Message):
     if video_info:
         image = await binfo_image_create(video_info)
         buttons = [Button(0, "Link", "https://b23.tv/" + video_info["bvid"])]
-        if message.from_user and message.from_user.id in bili_auth_user:
+        if (message.from_user and message.from_user.id in bili_auth_user) or (
+            message.chat and message.chat.id in bili_auth_chat
+        ):
             buttons.append(Button(1, "Download", "download_" + video_info["bvid"]))
         await message.reply_photo(
             image,

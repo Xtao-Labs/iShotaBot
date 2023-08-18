@@ -12,7 +12,7 @@ from defs.request import cache_file
 from init import bot, request, logger
 from models.models.splash import Splash as SplashModel
 from models.apis.splash import Splash as SplashApi
-from models.splash import SplashService
+from models.services.splash import SplashService
 
 
 async def get_splash() -> List[SplashApi]:

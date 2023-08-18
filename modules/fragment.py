@@ -12,7 +12,7 @@ from pyrogram.types import (
     Message,
 )
 
-from models.fragment import FragmentSubText, FragmentSub, AuctionStatus
+from models.services.fragment import FragmentSubText, FragmentSub, AuctionStatus
 from defs.fragment import parse_fragment, NotAvailable, parse_sub
 from init import bot
 from scheduler import scheduler, add_delete_message_job

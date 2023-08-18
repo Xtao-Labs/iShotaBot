@@ -13,9 +13,13 @@ lofter_channel: int = 0
 lofter_channel_username: str = ""
 splash_channel: int = 0
 splash_channel_username: str = ""
+bilifav_id: int = 0
+bilifav_channel: int = 0
+bilifav_channel_username: str = ""
 # [api]
 amap_key: str = ""
 bili_auth_user_str: str = ""
+bili_auth_chat_str: str = ""
 config = RawConfigParser()
 config.read("config.ini")
 api_id = config.getint("pyrogram", "api_id", fallback=api_id)
@@ -30,12 +34,20 @@ splash_channel = config.getint("post", "splash_channel", fallback=splash_channel
 splash_channel_username = config.get(
     "post", "splash_channel_username", fallback=splash_channel_username
 )
+bilifav_id = config.getint("post", "bilifav_id", fallback=bilifav_id)
+bilifav_channel = config.getint("post", "bilifav_channel", fallback=bilifav_channel)
+bilifav_channel_username = config.get(
+    "post", "bilifav_channel_username", fallback=bilifav_channel_username
+)
 amap_key = config.get("api", "amap_key", fallback=amap_key)
 bili_auth_user_str = config.get("api", "bili_auth_user", fallback=bili_auth_user_str)
+bili_auth_chat_str = config.get("api", "bili_auth_chat", fallback=bili_auth_chat_str)
 try:
     bili_auth_user: List[int] = list(map(int, bili_auth_user_str.split(",")))
+    bili_auth_chat: List[int] = list(map(int, bili_auth_chat_str.split(",")))
 except ValueError:
     bili_auth_user: List[int] = []
+    bili_auth_chat: List[int] = []
 try:
     ipv6 = bool(strtobool(ipv6))
 except ValueError:

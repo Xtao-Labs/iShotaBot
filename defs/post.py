@@ -12,7 +12,7 @@ from pyrogram.types import Message
 
 from defs.glover import lofter_channel
 from defs.lofter import lofter_link
-from models.lofter import LofterPost as LofterPostModel
+from models.services.lofter import LofterPost as LofterPostModel
 from models.models.lofter import Lofter as LofterModel
 from init import request, bot
 

@@ -5,7 +5,7 @@ from typing import Optional
 
 from bs4 import BeautifulSoup
 from init import request
-from models.fragment import (
+from models.services.fragment import (
     AuctionStatus,
     UserName,
     TON_TO_USD_RATE,

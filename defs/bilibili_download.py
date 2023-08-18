@@ -272,7 +272,7 @@ async def audio_download(
                 type=12,
                 title=info.get("title", ""),
                 cover=info.get("cover", ""),
-                message_id=0,
+                message_id=msg.id if push_id else 0,
                 file_id=msg.audio.file_id,
                 timestamp=int(time.time()),
             )
@@ -412,7 +412,7 @@ async def go_upload(
                 type=2,
                 title=info.get("title", ""),
                 cover=info.get("pic", ""),
-                message_id=0,
+                message_id=msg.id if push_id else 0,
                 file_id=msg.video.file_id,
                 timestamp=int(time.time()),
             )

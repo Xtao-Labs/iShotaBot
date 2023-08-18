@@ -67,17 +67,6 @@ async def process_video(data: Media, m: Message):
     msg = await go_upload(video, 0, m, push_id=bilifav_channel)
     if not msg:
         raise BilibiliFavException
-    video_db = BiliFav(
-        id=data.id,
-        bv_id=data.bvid.lower(),
-        type=data.type.value,
-        title=data.title,
-        cover=data.cover,
-        message_id=msg.id,
-        file_id=msg.video.file_id,
-        timestamp=int(time.time()),
-    )
-    await BiliFavAction.add_bili_fav(video_db)
 
 
 async def process_audio_from_cache(audio: Audio, audio_db: BiliFav):
@@ -102,17 +91,6 @@ async def process_audio(data: Media, m: Message):
     msg = await audio_download(audio, m, push_id=bilifav_channel)
     if not msg:
         raise BilibiliFavException
-    audio_db = BiliFav(
-        id=data.id,
-        bv_id=data.bvid.lower(),
-        type=data.type.value,
-        title=data.title,
-        cover=data.cover,
-        message_id=msg.id,
-        file_id=msg.audio.file_id,
-        timestamp=int(time.time()),
-    )
-    await BiliFavAction.add_bili_fav(audio_db)
 
 
 async def check_update(m: Message):

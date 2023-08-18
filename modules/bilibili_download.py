@@ -1,9 +1,9 @@
 import re
 
 from pyrogram import filters, Client, ContinuePropagation
-from pyrogram.types import Message
+from pyrogram.types import Message, CallbackQuery
 
-from defs.bilibili import b23_extract, video_info_get, create_video
+from defs.bilibili import b23_extract, create_video
 from defs.bilibili_download import go_download
 from defs.glover import bili_auth_user
 from init import bot
@@ -11,7 +11,7 @@ from init import bot
 
 @bot.on_message(
     filters.incoming
-    & filters.private
+    & filters.text
     & filters.user(bili_auth_user)
     & filters.command(["download"])
 )
@@ -31,3 +31,18 @@ async def bili_download_resolve(_: Client, message: Message):
     video = create_video(video_number)
     m = await message.reply("开始获取视频数据", quote=True)
     bot.loop.create_task(go_download(video, p_num, m))
+
+
+@bot.on_callback_query(filters.regex(r"^download_(.*)$"))
+async def bili_download_resolve_cb(_: Client, callback_query: CallbackQuery):
+    if not callback_query.from_user:
+        await callback_query.answer("请私聊机器人")
+        return
+    if callback_query.from_user.id not in bili_auth_user:
+        await callback_query.answer("你没有权限使用此功能")
+        return
+    video_number = callback_query.matches[0].group(1)
+    video = create_video(video_number)
+    m = await callback_query.message.reply("开始获取视频数据", quote=True)
+    bot.loop.create_task(go_download(video, 0, m))
+    await callback_query.answer("开始下载")

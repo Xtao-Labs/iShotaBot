@@ -12,6 +12,7 @@ from defs.bilibili import (
     check_and_refresh_credential,
 )
 from defs.button import gen_button, Button
+from defs.glover import bili_auth_user
 from init import bot
 from scheduler import scheduler
 
@@ -35,12 +36,13 @@ async def bili_resolve(_: Client, message: Message):
     video_info = await video_info_get(video_number) if video_number else None
     if video_info:
         image = await binfo_image_create(video_info)
+        buttons = [Button(0, "Link", "https://b23.tv/" + video_info["bvid"])]
+        if message.from_user and message.from_user.id in bili_auth_user:
+            buttons.append(Button(1, "Download", "download_" + video_info["bvid"]))
         await message.reply_photo(
             image,
             quote=True,
-            reply_markup=gen_button(
-                [Button(0, "Link", "https://b23.tv/" + video_info["bvid"])]
-            ),
+            reply_markup=gen_button(buttons),
         )
     raise ContinuePropagation
 

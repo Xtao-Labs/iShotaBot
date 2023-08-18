@@ -9,6 +9,7 @@ import aiofiles
 from bilibili_api import HEADERS
 from bilibili_api.video import Video, VideoDownloadURLDataDetecter, VideoQuality
 from httpx import AsyncClient, Response
+from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
 from defs.request import cache_dir
@@ -203,10 +204,9 @@ async def get_video_height_width(path: str) -> Tuple[int, int]:
     return int(video_height), int(video_width)
 
 
-async def take_screenshot(v: Video) -> Optional[BytesIO]:
+async def take_screenshot(info: Dict) -> Optional[BytesIO]:
     """获取视频封面"""
     try:
-        info = await v.get_info()
         pic_get = (await request.get(info["pic"])).content
         pic = BytesIO(pic_get)
         pic.name = "screenshot.jpg"
@@ -291,11 +291,19 @@ async def go_upload(v: Video, p_num: int, m: Message):
     try:
         video_duration = await get_video_duration(video_path)
         video_height, video_width = await get_video_height_width(video_path)
-        video_jpg = await take_screenshot(v)
+        try:
+            info = await v.get_info()
+            video_jpg = await take_screenshot(info)
+            caption = f"<b>{info['title']}</b>\n\n{info['desc']}\n\nhttps://b23.tv/{v.get_bvid()}"
+        except Exception:
+            video_jpg = None
+            caption = f"https://b23.tv/{v.get_bvid()}"
         logger.info(f"Uploading {video_path}")
         await bot.send_video(
             chat_id=m.chat.id,
             video=str(video_path),
+            caption=caption,
+            parse_mode=ParseMode.HTML,
             duration=int(video_duration),
             width=video_width,
             height=video_height,

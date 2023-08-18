@@ -25,4 +25,4 @@ def gen_button(data: List) -> InlineKeyboardMarkup:
             buttons_callback.append(
                 InlineKeyboardButton(text=button.name, callback_data=button.data)
             )
-    return InlineKeyboardMarkup(inline_keyboard=[buttons_callback, buttons_url])
+    return InlineKeyboardMarkup(inline_keyboard=[buttons_url, buttons_callback])

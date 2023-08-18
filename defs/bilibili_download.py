@@ -7,6 +7,7 @@ from typing import Tuple, Dict, Union, Optional
 
 import aiofiles
 from bilibili_api import HEADERS
+from bilibili_api.audio import Audio
 from bilibili_api.video import Video, VideoDownloadURLDataDetecter, VideoQuality
 from httpx import AsyncClient, Response
 from pyrogram.enums import ParseMode
@@ -216,6 +217,41 @@ async def take_screenshot(info: Dict) -> Optional[BytesIO]:
         return None
 
 
+async def audio_download(a: Audio, m: Message):
+    try:
+        info = await a.get_info()
+        download_url_data = await a.get_download_url()
+        async with AsyncClient(headers=HEADERS, timeout=60) as client:
+            r = await client.get(download_url_data["cdns"][0])
+            media = BytesIO(r.content)
+            media.name = None
+            media.seek(0)
+            if info.get("cover"):
+                r_ = await client.get(info.get("cover"))
+                thumb = BytesIO(r_.content)
+                thumb.seek(0)
+            else:
+                thumb = None
+        text = f"<b>{info['title']}</b>\n\n{info.get('desc', '')}\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        if len(text) > 800:
+            text = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
+        await bot.send_audio(
+            chat_id=m.chat.id,
+            audio=media,
+            caption=text,
+            parse_mode=ParseMode.HTML,
+            reply_to_message_id=m.reply_to_message_id,
+            thumb=thumb,
+            duration=info.get("duration"),
+            performer=info.get("author"),
+        )
+    except BilibiliDownloaderError as e:
+        await fail_edit(m, e.MSG)
+    except Exception as e:
+        logger.exception("Downloading audio failed")
+        await fail_edit(m, f"下载/上传失败：{e}")
+
+
 async def go_download(v: Video, p_num: int, m: Message):
     video_path = cache_dir / f"{v.get_aid()}_{p_num}.mp4"
     safe_remove(video_path)
@@ -295,6 +331,8 @@ async def go_upload(v: Video, p_num: int, m: Message):
             info = await v.get_info()
             video_jpg = await take_screenshot(info)
             caption = f"<b>{info['title']}</b>\n\n{info['desc']}\n\nhttps://b23.tv/{v.get_bvid()}"
+            if len(caption) > 800:
+                caption = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://b23.tv/{v.get_bvid()}"
         except Exception:
             video_jpg = None
             caption = f"https://b23.tv/{v.get_bvid()}"
@@ -311,6 +349,7 @@ async def go_upload(v: Video, p_num: int, m: Message):
             supports_streaming=True,
             progress=go_upload_progress,
             progress_args=(m,),
+            reply_to_message_id=m.reply_to_message_id,
         )
         logger.info(f"Upload {video_path} success")
     except BilibiliDownloaderError as e:

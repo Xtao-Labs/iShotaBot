@@ -6,6 +6,7 @@ import qrcode
 import string
 
 from bilibili_api import Credential
+from bilibili_api.audio import Audio
 from bilibili_api.video import Video
 from bilibili_api.user import User
 from pyrogram import ContinuePropagation
@@ -140,6 +141,13 @@ def create_video(cid) -> Optional[Video]:
     elif cid[:2] == "BV":
         v = Video(bvid=cid, credential=credential)
     return v
+
+
+def create_audio(aid: str) -> Optional[Audio]:
+    a = None
+    if aid[:2] == "au":
+        a = Audio(auid=int(aid[2:]), credential=credential)
+    return a
 
 
 async def video_info_get(cid):

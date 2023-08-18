@@ -3,8 +3,8 @@ import re
 from pyrogram import filters, Client, ContinuePropagation
 from pyrogram.types import Message, CallbackQuery
 
-from defs.bilibili import b23_extract, create_video
-from defs.bilibili_download import go_download
+from defs.bilibili import b23_extract, create_video, create_audio
+from defs.bilibili_download import go_download, audio_download
 from defs.glover import bili_auth_user
 from init import bot
 
@@ -31,6 +31,19 @@ async def bili_download_resolve(_: Client, message: Message):
     video = create_video(video_number)
     m = await message.reply("开始获取视频数据", quote=True)
     bot.loop.create_task(go_download(video, p_num, m))
+
+
+@bot.on_message(filters.incoming & filters.text & filters.regex(r"audio/au(\d{1,12})"))
+async def bili_audio_download_resolve(_: Client, message: Message):
+    p = re.compile(r"au(\d{1,12})")
+    audio_number = p.search(message.text)
+    if audio_number:
+        audio_number = audio_number[0]
+    else:
+        raise ContinuePropagation
+    audio = create_audio(audio_number)
+    m = await message.reply("开始获取音频数据", quote=True)
+    bot.loop.create_task(audio_download(audio, m))
 
 
 @bot.on_callback_query(filters.regex(r"^download_(.*)$"))

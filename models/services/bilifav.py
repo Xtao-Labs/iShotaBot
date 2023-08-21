@@ -10,6 +10,8 @@ from models.models.bilifav import BiliFav
 class BiliFavAction:
     @staticmethod
     async def get_by_id(id_: int, fav: bool = False) -> Optional[BiliFav]:
+        if not id_:
+            return None
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(BiliFav).where(BiliFav.id == id_)

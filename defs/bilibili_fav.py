@@ -110,6 +110,8 @@ async def check_update(m: Message):
             continue
         if await BiliFavAction.get_by_bv_id(data.bvid, fav=True):
             continue
+        if await BiliFavAction.get_by_id(data.id, fav=True):
+            continue
         n = await m.reply(f"处理 {data.type.name} {data.bvid} 中...")
         try:
             if data.type == MediaType.video:

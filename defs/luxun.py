@@ -15,7 +15,7 @@ def process_pic(content) -> BytesIO:
     draw = ImageDraw.Draw(bk_img)
     current_h, pad = 300, 10
     for line in para:
-        w, h = draw.textsize(line, font=font)
+        _, _, w, h = font.getbbox(line)
         draw.text(((MAX_W - w) / 2, current_h), line, font=font)
         current_h += h + pad
     draw.text((320, 400), "——鲁迅", font=font2, fill=(255, 255, 255))

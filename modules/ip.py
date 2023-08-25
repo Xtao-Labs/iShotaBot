@@ -77,6 +77,8 @@ async def ip_command(_: Client, message: Message):
     if rep_text == "" and text == "":
         await msg.edit("没有找到要查询的 ip/域名 ...")
     elif rep_text != "" and text != "":
-        await msg.edit(f"{rep_text}\n================\n{text}")
+        await msg.edit(
+            f"{rep_text}\n================\n{text}", disable_web_page_preview=True
+        )
     else:
-        await msg.edit(f"{rep_text}{text}")
+        await msg.edit(f"{rep_text}{text}", disable_web_page_preview=True)

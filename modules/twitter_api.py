@@ -84,7 +84,7 @@ async def process_user(message: Message, username: str):
     )
 
 
-@Client.on_message(filters.incoming & filters.text & filters.regex(r"twitter.com/"))
+# @Client.on_message(filters.incoming & filters.text & filters.regex(r"twitter.com/"))
 async def twitter_share(_: Client, message: Message):
     if not message.text:
         return

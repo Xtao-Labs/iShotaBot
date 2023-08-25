@@ -421,15 +421,10 @@ async def get_dynamic_screenshot_pc(dynamic_id):
         # 动态被删除或者进审核了
         if page.url == "https://www.bilibili.com/404":
             return None
-        card = await page.query_selector(".card")
+        card = await page.query_selector(".bili-dyn-item__main")
         assert card
         clip = await card.bounding_box()
         assert clip
-        bar = await page.query_selector(".bili-dyn-action__icon")
-        assert bar
-        bar_bound = await bar.bounding_box()
-        assert bar_bound
-        clip["height"] = bar_bound["y"] - clip["y"]
         return await page.screenshot(clip=clip, full_page=True)
     except Exception:
         print(f"截取动态时发生错误：{url}")

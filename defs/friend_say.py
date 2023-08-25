@@ -91,7 +91,7 @@ class ImageUtil:
                     self.height = height
             else:
                 self.mark_image = Image.open(background).resize(
-                    (self.width, self.height), Image.ANTIALIAS
+                    (self.width, self.height), Image.Resampling.LANCZOS
                 )
         if is_alpha:
             array = self.mark_image.load()

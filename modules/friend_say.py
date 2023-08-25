@@ -1,3 +1,4 @@
+import aiofiles
 from io import BytesIO
 from os import sep, makedirs
 from os.path import exists
@@ -27,8 +28,8 @@ async def friend_say(client: Client, message: Message):
     user_name = message.reply_to_message.from_user.first_name
     # Create image
     if avatar:
-        with open(avatar, "rb") as fh:
-            buf = BytesIO(fh.read())
+        async with aiofiles.open(avatar, "rb") as fh:
+            buf = BytesIO(await fh.read())
         ava = ImageUtil(100, 100, background=buf)
     else:
         ava = ImageUtil(100, 100, color=(0, 0, 0))

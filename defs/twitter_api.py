@@ -117,11 +117,7 @@ def get_twitter_status(tweet: Tweet):
 
 async def fetch_tweet(tweet_id: int) -> Optional[Tweet]:
     try:
-        tweet = await twitter_client.tweet_detail(tweet_id)
-        for t in tweet:
-            if t.id_str == str(tweet_id):
-                return t
-        return tweet[0]
+        return await twitter_client.tweet_detail(tweet_id)
     except TwitterError as e:
         logs.error(f"Twitter Error: {e}")
         return None

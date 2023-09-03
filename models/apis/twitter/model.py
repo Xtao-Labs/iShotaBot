@@ -59,7 +59,7 @@ class User(BaseModel):
     """ 正在关注 """
     location: str
     name: str
-    profile_banner_url: Optional[str]
+    profile_banner_url: Optional[str] = None
     profile_image_url_https: str
     screen_name: str
     verified: bool = False
@@ -95,7 +95,7 @@ class Tweet(BaseModel):
     """ 书签次数 """
     created_at: str
     conversation_id_str: str
-    extended_entities: Optional[ExtendedEntities]
+    extended_entities: Optional[ExtendedEntities] = None
     favorite_count: int
     """ 喜欢次数 """
     full_text: str

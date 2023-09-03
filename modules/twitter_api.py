@@ -14,6 +14,7 @@ from defs.twitter_api import (
     twitter_user_link,
     twitter_medias,
 )
+from init import bot
 from models.apis.twitter.model import MediaItem
 
 
@@ -84,7 +85,7 @@ async def process_user(message: Message, username: str):
     )
 
 
-# @Client.on_message(filters.incoming & filters.text & filters.regex(r"twitter.com/"))
+@bot.on_message(filters.incoming & filters.text & filters.regex(r"twitter.com/"))
 async def twitter_share(_: Client, message: Message):
     if not message.text:
         return

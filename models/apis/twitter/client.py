@@ -1,7 +1,7 @@
 import base64
 import json
 import random
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from httpx import AsyncClient, Cookies
 
@@ -149,8 +149,7 @@ class TwitterClient:
         self,
         endpoint: str,
         variables: Dict[str, Any],
-        path: List[str],
-    ):
+    ) -> Tweet:
         _variables = self._variables.copy()
         _variables.update(variables)
         data = await self.func(
@@ -160,89 +159,32 @@ class TwitterClient:
                 "features": json.dumps(self._features["tweets"]),
             },
         )
-        if not path:
-            instructions = data.json()["data"]["user"]["result"]["timeline"][
-                "timeline"
-            ]["instructions"]
-        else:
-            instructions = data.json()["data"]
-            for key in path:
-                _instructions = instructions.get(key)
-                if _instructions is not None:
-                    instructions = _instructions
-                    break
-            instructions = instructions["instructions"]
-        for i in instructions:
-            if i["type"] == "TimelineAddEntries":
-                return i["entries"]
-
-    @staticmethod
-    def gather_legacy_from_data(entries: List[Dict], filters: str = "tweet-"):
-        tweets: List[Tweet] = []
-        filter_entries = []
-        for entry in entries:
-            entry_id: str = entry.get("entryId")
-            if entry_id:
-                if filters == "none":
-                    if entry_id.startswith("tweet-"):
-                        filter_entries.append(entry)
-                    elif entry_id.startswith(
-                        "homeConversation-"
-                    ) or entry_id.startswith("conversationthread-"):
-                        filter_entries.extend(entry["content"]["items"])
-                else:
-                    if entry_id.startswith(filters):
-                        filter_entries.append(entry)
-        for entry in filter_entries:
-            retweet = None
-            quoted = None
-            content = entry.get("content") or entry.get("item")
-            tweet = (
-                content.get("itemContent", {})
-                .get("tweet_results", {})
-                .get("result", {})
-            )
-            if tweet and tweet.get("tweet"):
-                tweet = tweet["tweet"]
-            if tweet:
-                retweet = tweet.get("retweeted_status_result", {}).get("result")
-                quoted = tweet.get("quoted_status_result", {}).get("result")
-            if (not tweet) or (not tweet.get("legacy")):
-                continue
-            if retweet and not retweet.get("legacy"):
-                retweet = None
-            if quoted and not quoted.get("legacy"):
-                quoted = None
-            tweet = Tweet(
-                **tweet["legacy"],
-                **{"user": tweet["core"]["user_results"]["result"]["legacy"]},
-            )
-            if retweet:
-                tweet.retweet = Tweet(
-                    **retweet["legacy"],
-                    **{"user": retweet["core"]["user_results"]["result"]["legacy"]},
+        result = data.json()["data"]["tweetResult"]["result"]
+        type_name = result["__typename"]
+        if type_name != "Tweet":
+            raise TwitterError(400, result.get("reason"))
+        tweet_legacy = result["legacy"]
+        user = User(**result["core"]["user_results"]["result"]["legacy"])
+        tweet = Tweet(**tweet_legacy, **{"user": user})
+        if tweet_legacy.get("quoted_status_id_str"):
+            try:
+                tweet.quoted = await self.tweet_detail(
+                    int(tweet_legacy["quoted_status_id_str"])
                 )
-            if quoted:
-                tweet.quoted = Tweet(
-                    **quoted["legacy"],
-                    **{"user": quoted["core"]["user_results"]["result"]["legacy"]},
-                )
-            tweets.append(tweet)
-        return tweets
+            except TwitterError:
+                pass
+        return tweet
 
-    async def tweet_detail(self, tid: int):
-        data = await self.pagination_tweets(
-            "/graphql/3XDB26fBve-MmjHaWTUZxA/TweetDetail",
+    async def tweet_detail(self, tid: int) -> Tweet:
+        return await self.pagination_tweets(
+            "/graphql/0hWvDhmW8YQ-S_ib3azIrw/TweetResultByRestId",
             variables={
-                "focalTweetId": tid,
-                "with_rux_injections": False,
+                "tweetId": tid,
                 "withCommunity": True,
-                "withQuickPromoteEligibilityTweetFields": True,
-                "withBirdwatchNotes": False,
+                "includePromotedContent": False,
+                "withVoice": False,
             },
-            path=["threaded_conversation_with_injections"],
         )
-        return self.gather_legacy_from_data(data, filters="none")
 
     async def user_by_screen_name(self, username: str):
         _variables = {"screen_name": username, "withHighlightedLabel": True}

@@ -116,6 +116,13 @@ async def process_url(url: str, message: Message):
 async def twitter_share(_: Client, message: Message):
     if not message.text:
         return
+    if (
+        message.sender_chat
+        and message.forward_from_chat
+        and message.sender_chat.id == message.forward_from_chat.id
+    ):
+        # 过滤绑定频道的转发
+        return
     for num in range(len(message.entities)):
         entity = message.entities[num]
         if entity.type == MessageEntityType.URL:

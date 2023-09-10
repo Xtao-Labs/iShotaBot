@@ -1,5 +1,8 @@
+import contextlib
+from typing import Optional
 from urllib.parse import urlparse
 
+from pydantic import BaseModel
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
@@ -18,38 +21,49 @@ from init import bot
 from models.apis.fxtwitter.model import FixTweetMedia
 
 
-async def send_single_tweet(message: Message, media: FixTweetMedia, text: str, button):
+class Reply(BaseModel):
+    cid: int
+    mid: Optional[int] = None
+
+
+async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, button):
     if media.type == "photo":
-        await message.reply_photo(
+        await bot.send_photo(
+            reply.cid,
             media.url,
-            quote=True,
             caption=text,
             reply_markup=button,
+            reply_to_message_id=reply.mid,
         )
     elif media.type == "video":
-        await message.reply_video(
+        await bot.send_video(
+            reply.cid,
             media.url,
-            quote=True,
             caption=text,
             reply_markup=button,
+            reply_to_message_id=reply.mid,
         )
     elif media.type == "gif":
-        await message.reply_animation(
+        await bot.send_animation(
+            reply.cid,
             media.url,
             quote=True,
             caption=text,
             reply_markup=button,
+            reply_to_message_id=reply.mid,
         )
     else:
-        await message.reply_document(
+        await bot.reply_document(
+            reply.cid,
             media.url,
             quote=True,
             caption=text,
             reply_markup=button,
+            reply_to_message_id=reply.mid,
         )
 
 
-async def process_status(message: Message, status: str):
+async def process_status(reply: Reply, status: str):
     try:
         status = int(status)
     except ValueError:
@@ -62,30 +76,40 @@ async def process_status(message: Message, status: str):
     medias = twitter_medias(tweet)
     if len(medias) == 1:
         media = medias[0]
-        await send_single_tweet(message, media, text, button)
+        await send_single_tweet(reply, media, text, button)
         return
     media_lists = twitter_media(medias, text)
     if media_lists:
-        await message.reply_media_group(media_lists, quote=True)
+        await bot.send_media_group(
+            reply.cid,
+            media_lists,
+            reply_to_message_id=reply.mid,
+        )
     else:
-        await message.reply(text, quote=True, reply_markup=button)
+        await bot.send_message(
+            reply.cid,
+            text,
+            reply_markup=button,
+            reply_to_message_id=reply.mid,
+        )
 
 
-async def process_user(message: Message, username: str):
+async def process_user(reply: Reply, username: str):
     user = await fetch_user(username)
     if not user:
         return
     text = get_twitter_user(user)
     button = twitter_user_link(user)
-    await message.reply_photo(
+    await bot.send_photo(
+        reply.cid,
         user.icon,
         caption=text,
-        quote=True,
         reply_markup=button,
+        reply_to_message_id=reply.mid,
     )
 
 
-async def process_url(url: str, message: Message):
+async def process_url(url: str, reply: Reply):
     url = urlparse(url)
     if url.hostname and url.hostname in [
         "twitter.com",
@@ -98,7 +122,7 @@ async def process_url(url: str, message: Message):
                 url.path[url.path.find("status") + 7 :].split("/")[0]
             ).split("?")[0]
             try:
-                await process_status(message, status_id)
+                await process_status(reply, status_id)
             except Exception as e:
                 print(e)
         elif url.path == "/":
@@ -107,7 +131,7 @@ async def process_url(url: str, message: Message):
             # 解析用户
             uid = url.path.replace("/", "")
             try:
-                await process_user(message, uid)
+                await process_user(reply, uid)
             except Exception as e:
                 print(e)
 
@@ -123,6 +147,12 @@ async def twitter_share(_: Client, message: Message):
     ):
         # 过滤绑定频道的转发
         return
+    mid = message.id
+    if message.text.startswith("del"):
+        with contextlib.suppress(Exception):
+            await message.delete()
+            mid = None
+    reply = Reply(cid=message.chat.id, mid=mid)
     for num in range(len(message.entities)):
         entity = message.entities[num]
         if entity.type == MessageEntityType.URL:
@@ -131,5 +161,5 @@ async def twitter_share(_: Client, message: Message):
             url = entity.url
         else:
             continue
-        await process_url(url, message)
+        await process_url(url, reply)
     raise ContinuePropagation

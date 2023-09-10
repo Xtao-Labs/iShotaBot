@@ -51,7 +51,7 @@ def twitter_media(tweet_media_lists: List[FixTweetMedia], text: str):
         if media.type == "photo":
             media_lists.append(
                 InputMediaPhoto(
-                    media.media_url,
+                    media.url,
                     caption=text if idx == 0 else None,
                     parse_mode=ParseMode.HTML,
                 )
@@ -59,15 +59,17 @@ def twitter_media(tweet_media_lists: List[FixTweetMedia], text: str):
         elif media.type == "gif":
             media_lists.append(
                 InputMediaAnimation(
-                    media.media_url,
+                    media.url,
                     caption=text if idx == 0 else None,
                     parse_mode=ParseMode.HTML,
                 )
             )
-        else:
+        elif media.type == "video":
             media_lists.append(
                 InputMediaVideo(
-                    media.media_url,
+                    media.url,
+                    thumb=media.thumbnail_url,
+                    duration=media.duration,
                     caption=text if idx == 0 else None,
                     parse_mode=ParseMode.HTML,
                 )

@@ -40,6 +40,9 @@ class User(BaseModel):
 class FixTweetMedia(BaseModel):
     type: str
     url: str
+    thumbnail_url: str = ""
+    duration: float = 0
+    format: str = ""
     width: int = 0
     height: int = 0
     altText: str = ""

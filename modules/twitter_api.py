@@ -15,34 +15,34 @@ from defs.fix_twitter_api import (
     twitter_medias,
 )
 from init import bot
-from models.apis.twitter.model import MediaItem
+from models.apis.fxtwitter.model import FixTweetMedia
 
 
-async def send_single_tweet(message: Message, media: MediaItem, text: str, button):
+async def send_single_tweet(message: Message, media: FixTweetMedia, text: str, button):
     if media.type == "photo":
         await message.reply_photo(
-            media.media_url,
+            media.url,
             quote=True,
             caption=text,
             reply_markup=button,
         )
     elif media.type == "video":
         await message.reply_video(
-            media.media_url,
+            media.url,
             quote=True,
             caption=text,
             reply_markup=button,
         )
     elif media.type == "gif":
         await message.reply_animation(
-            media.media_url,
+            media.url,
             quote=True,
             caption=text,
             reply_markup=button,
         )
     else:
         await message.reply_document(
-            media.media_url,
+            media.url,
             quote=True,
             caption=text,
             reply_markup=button,
@@ -87,7 +87,12 @@ async def process_user(message: Message, username: str):
 
 async def process_url(url: str, message: Message):
     url = urlparse(url)
-    if url.hostname and url.hostname in ["twitter.com", "vxtwitter.com"]:
+    if url.hostname and url.hostname in [
+        "twitter.com",
+        "vxtwitter.com",
+        "fxtwitter.com",
+        "x.com",
+    ]:
         if url.path.find("status") >= 0:
             status_id = str(
                 url.path[url.path.find("status") + 7 :].split("/")[0]

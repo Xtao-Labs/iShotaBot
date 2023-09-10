@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel
 from pyrogram import Client, filters, ContinuePropagation
-from pyrogram.enums import MessageEntityType
+from pyrogram.enums import MessageEntityType, ChatType
 from pyrogram.types import Message
 
 from defs.fix_twitter_api import (
@@ -148,7 +148,7 @@ async def twitter_share(_: Client, message: Message):
         # 过滤绑定频道的转发
         return
     mid = message.id
-    if message.text.startswith("del"):
+    if message.text.startswith("del") and message.chat.type == ChatType.CHANNEL:
         with contextlib.suppress(Exception):
             await message.delete()
             mid = None

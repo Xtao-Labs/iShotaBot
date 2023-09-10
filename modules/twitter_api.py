@@ -4,7 +4,7 @@ from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
-from defs.twitter_api import (
+from defs.fix_twitter_api import (
     fetch_tweet,
     get_twitter_status,
     twitter_link,
@@ -85,6 +85,28 @@ async def process_user(message: Message, username: str):
     )
 
 
+async def process_url(url: str, message: Message):
+    url = urlparse(url)
+    if url.hostname and url.hostname in ["twitter.com", "vxtwitter.com"]:
+        if url.path.find("status") >= 0:
+            status_id = str(
+                url.path[url.path.find("status") + 7 :].split("/")[0]
+            ).split("?")[0]
+            try:
+                await process_status(message, status_id)
+            except Exception as e:
+                print(e)
+        elif url.path == "/":
+            return
+        else:
+            # 解析用户
+            uid = url.path.replace("/", "")
+            try:
+                await process_user(message, uid)
+            except Exception as e:
+                print(e)
+
+
 @bot.on_message(filters.incoming & filters.text & filters.regex(r"twitter.com/"))
 async def twitter_share(_: Client, message: Message):
     if not message.text:
@@ -97,23 +119,5 @@ async def twitter_share(_: Client, message: Message):
             url = entity.url
         else:
             continue
-        url = urlparse(url)
-        if url.hostname and url.hostname in ["twitter.com", "vxtwitter.com"]:
-            if url.path.find("status") >= 0:
-                status_id = str(
-                    url.path[url.path.find("status") + 7 :].split("/")[0]
-                ).split("?")[0]
-                try:
-                    await process_status(message, status_id)
-                except Exception as e:
-                    print(e)
-            elif url.path == "/":
-                return
-            else:
-                # 解析用户
-                uid = url.path.replace("/", "")
-                try:
-                    await process_user(message, uid)
-                except Exception as e:
-                    print(e)
+        await process_url(url, message)
     raise ContinuePropagation

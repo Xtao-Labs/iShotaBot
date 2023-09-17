@@ -136,7 +136,7 @@ async def process_url(url: str, reply: Reply):
                 print(e)
 
 
-@bot.on_message(filters.incoming & filters.text & filters.regex(r"twitter.com/"))
+@bot.on_message(filters.incoming & filters.text & filters.regex(r"(x|twitter).com/"))
 async def twitter_share(_: Client, message: Message):
     if not message.text:
         return

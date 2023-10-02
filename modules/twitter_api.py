@@ -47,7 +47,6 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
         await bot.send_animation(
             reply.cid,
             media.url,
-            quote=True,
             caption=text,
             reply_markup=button,
             reply_to_message_id=reply.mid,
@@ -56,7 +55,6 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
         await bot.reply_document(
             reply.cid,
             media.url,
-            quote=True,
             caption=text,
             reply_markup=button,
             reply_to_message_id=reply.mid,

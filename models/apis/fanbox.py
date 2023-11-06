@@ -24,7 +24,7 @@ class User(BaseModel):
 
     @property
     def kemono_url(self) -> str:
-        return f"https://kemono.party/fanbox/user/{self.user.userId}"
+        return f"https://kemono.su/fanbox/user/{self.user.userId}"
 
     @property
     def name(self) -> str:
@@ -58,7 +58,7 @@ class Post(BaseModel):
 
     @property
     def kemono_url(self) -> str:
-        return f"https://kemono.party/fanbox/user/{self.user.userId}/post/{self.id}"
+        return f"https://kemono.su/fanbox/user/{self.user.userId}/post/{self.id}"
 
     @property
     def user_url(self) -> str:

@@ -310,7 +310,7 @@ async def go_download(v: Video, p_num: int, m: Message, task: bool = True):
             # FLV 流下载
             await download_url(streams[0].url, flv_temp_path, m, "视频 FLV ")
             # 转换文件格式
-            _, result = await execute(f"{FFMPEG_PATH} -i {flv_temp_path} {video_path}")
+            _, result = await execute(f'{FFMPEG_PATH} -i "{flv_temp_path}" "{video_path}"')
         else:
             if len(streams) < 2:
                 raise BilibiliDownloaderError("获取下载链接异常")

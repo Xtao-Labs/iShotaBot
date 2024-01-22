@@ -18,3 +18,4 @@ sqlmodel
 aiosqlite
 aiofiles
 pydantic
+lottie

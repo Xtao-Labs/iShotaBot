@@ -3,7 +3,7 @@ from init import request
 
 class Exchange:
     API = (
-        "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies.json"
+        "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/"
     )
 
     def __init__(self):
@@ -13,7 +13,7 @@ class Exchange:
 
     async def refresh(self):
         try:
-            req = await request.get(self.API)
+            req = await request.get(self.API + "currencies.json")
             data = req.json()
             self.currencies.clear()
             for key in list(enumerate(data)):
@@ -46,16 +46,14 @@ class Exchange:
             return "FromError"
         if self.currencies.count(TO) == 0:
             return "ToError"
-        endpoint = (
-            f"https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/"
-            f"{FROM.lower()}/{TO.lower()}.json"
-        )
+        endpoint = self.API + f"currencies/{FROM.lower()}.json"
         try:
             req = await request.get(endpoint)
             rate_data = req.json()
+            rate = rate_data[FROM.lower()][TO.lower()]
             return (
-                f"{num} {FROM} = <b>{round(num * rate_data[TO.lower()], 2)} {TO}</b>\n"
-                f"Rate: <b>{round(1.0 * rate_data[TO.lower()], 6)}</b>"
+                f"{num} {FROM} = <b>{round(num * rate, 2)} {TO}</b>\n"
+                f"Rate: <b>{round(1.0 * rate, 6)}</b>"
             )
         except Exception as e:
             print(e)

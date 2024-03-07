@@ -43,8 +43,11 @@ async def process_sticker_set(client: "Client", message: "Message"):
 async def process_single_sticker(client: "Client", message: "Message"):
     await message.reply_chat_action(ChatAction.TYPING)
     if temp := await cache.get(f"sticker:export:{message.from_user.id}"):
-        await export_add(temp, message.sticker, client)
-        await message.reply_text("成功加入导出列表，结束选择请输入 /sticker_export_end", quote=True)
+        try:
+            await export_add(temp, message.sticker, client)
+            await message.reply_text("成功加入导出列表，结束选择请输入 /sticker_export_end", quote=True)
+        except ValueError as exc:
+            await message.reply(str(exc), quote=True)
     else:
         reply = await message.reply("正在转换贴纸...请耐心等待", quote=True)
         target_file = None
@@ -52,11 +55,13 @@ async def process_single_sticker(client: "Client", message: "Message"):
             target_file = await get_from_sticker(client, message)
             await message.reply_chat_action(ChatAction.UPLOAD_DOCUMENT)
             await message.reply_document(target_file.as_posix(), quote=True)
+            with contextlib.suppress(Exception):
+                await reply.delete()
+        except ValueError as exc:
+            await reply.edit(str(exc))
         finally:
             if target_file:
                 target_file.unlink(missing_ok=True)
-        with contextlib.suppress(Exception):
-            await reply.delete()
     raise ContinuePropagation
 
 
@@ -70,17 +75,23 @@ async def process_custom_emoji(client: "Client", message: "Message"):
         await message.reply("无法获取贴纸", quote=True)
         raise ContinuePropagation
     reply = await message.reply(f"正在下载 {len(stickers)} 个 emoji ...请耐心等待", quote=True)
+    exc = None
     for sticker in stickers:
         target_file = None
         try:
             target_file = await get_from_custom_emoji(client, sticker)
             await message.reply_chat_action(ChatAction.UPLOAD_DOCUMENT)
             await message.reply_document(target_file.as_posix(), quote=True)
+        except ValueError as exc_:
+            exc = exc_
         finally:
             if target_file:
                 target_file.unlink(missing_ok=True)
-    with contextlib.suppress(Exception):
-        await reply.delete()
+    if exc:
+        await reply.edit(str(exc))
+    else:
+        with contextlib.suppress(Exception):
+            await reply.delete()
     raise ContinuePropagation
 
 

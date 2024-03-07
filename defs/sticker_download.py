@@ -79,7 +79,7 @@ async def converter(src_file: Union[Path, str]) -> Path:
         src_file.unlink(missing_ok=True)
     else:
         logs.error("转换 %s -> %s 时出错: %s", src_file.name, target_file.name, stderr.decode("utf-8"))
-        raise ValueError
+        raise ValueError("转换 %s -> %s 时出错" % (src_file.name, target_file.name))
     return target_file
 
 
@@ -162,14 +162,12 @@ async def get_from_sticker_set(short_name: str, uid: int, client: "Client", repl
 
 
 async def get_from_sticker(client: "Client", message: "Message") -> Path:
-    sticker_path = temp_path / f"{message.sticker.file_unique_id}.webp"
-    await client.download_media(message, file_name=sticker_path.as_posix())
+    sticker_path = await client.download_media(message)
     return await converter(sticker_path)
 
 
 async def get_from_custom_emoji(client: "Client", sticker: "Sticker") -> Path:
-    sticker_path = temp_path / f"{sticker.file_unique_id}.webp"
-    await client.download_media(sticker.file_id, file_name=sticker_path.as_posix())
+    sticker_path = await client.download_media(sticker.file_id)
     return await converter(sticker_path)
 
 

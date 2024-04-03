@@ -147,6 +147,8 @@ async def download_url(url: str, out: str, m: Message, start: str):
         async with sess.stream("GET", url) as resp:
             logger.info(f"Downloading {start}")
             resp: Response
+            if resp.status_code != 200:
+                raise BilibiliDownloaderError("下载链接异常，请尝试重新下载")
             length = resp.headers.get("content-length")
             if not length:
                 raise FileNoSize

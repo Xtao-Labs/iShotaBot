@@ -9,7 +9,7 @@ import aiofiles
 from bilibili_api import HEADERS
 from bilibili_api.audio import Audio
 from bilibili_api.video import Video, VideoDownloadURLDataDetecter, VideoQuality
-from httpx import AsyncClient, Response
+from httpx import AsyncClient, Response, URL
 from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
@@ -24,6 +24,13 @@ LOCK = Lock()
 EDIT_TEMP_SECONDS = 10.0
 MESSAGE_MAP: Dict[int, float] = {}
 UPLOAD_MESSAGE_MAP: Dict[int, int] = {}
+CDN = [
+    "",
+    "upos-hz-mirrorakam.akamaized.net",
+    "upos-sz-mirroraliov.bilivideo.com",
+    "cn-hk-eq-01-09.bilivideo.com",
+    "cn-sccd-cu-01-08.bilivideo.com",
+]
 
 
 class BilibiliDownloaderError(Exception):
@@ -143,47 +150,55 @@ async def message_edit(
 
 
 async def download_url(url: str, out: str, m: Message, start: str):
-    async with AsyncClient(headers=HEADERS, timeout=60) as sess:
-        async with sess.stream("GET", url) as resp:
-            logger.info(f"Downloading {start}")
-            resp: Response
-            if resp.status_code != 200:
-                raise BilibiliDownloaderError("下载链接异常，请尝试重新下载")
-            length = resp.headers.get("content-length")
-            if not length:
-                raise FileNoSize
-            length = int(length)
-            if length > 1.9 * 1024 * 1024 * 1024:
-                raise FileTooBig
-            total_downloaded = 0
-            temp_downloaded = 0
-            MESSAGE_MAP[m.id] = time.time() - EDIT_TEMP_SECONDS
-            async with aiofiles.open(out, "wb") as f:
-                async for chunk in resp.aiter_bytes(1024):
-                    if not chunk:
-                        break
-                    chunk_len = len(chunk)
-                    total_downloaded += chunk_len
-                    temp_downloaded += chunk_len
-                    async with LOCK:
-                        _should_edit = should_edit(m)
+    for i in CDN:
+        if i:
+            u = URL(url).host
+            url = url.replace(u, i)
+        async with AsyncClient(headers=HEADERS, timeout=60) as sess:
+            head = await sess.head(url)
+            if head.status_code != 200:
+                if i == CDN[-1]:
+                    raise BilibiliDownloaderError("下载链接异常，请尝试重新下载")
+                logger.warning(f"下载链接异常，使用 CDN {i} 失败，尝试使用其他 CDN")
+                continue
+            async with sess.stream("GET", url) as resp:
+                logger.info(f"Downloading {start}")
+                resp: Response
+                length = resp.headers.get("content-length")
+                if not length:
+                    raise FileNoSize
+                length = int(length)
+                if length > 1.9 * 1024 * 1024 * 1024:
+                    raise FileTooBig
+                total_downloaded = 0
+                temp_downloaded = 0
+                MESSAGE_MAP[m.id] = time.time() - EDIT_TEMP_SECONDS
+                async with aiofiles.open(out, "wb") as f:
+                    async for chunk in resp.aiter_bytes(1024):
+                        if not chunk:
+                            break
+                        chunk_len = len(chunk)
+                        total_downloaded += chunk_len
+                        temp_downloaded += chunk_len
+                        async with LOCK:
+                            _should_edit = should_edit(m)
+                            if _should_edit:
+                                now = time.time()
+                                chunk_time = now - MESSAGE_MAP[m.id]
+                                MESSAGE_MAP[m.id] = now
                         if _should_edit:
-                            now = time.time()
-                            chunk_time = now - MESSAGE_MAP[m.id]
-                            MESSAGE_MAP[m.id] = now
-                    if _should_edit:
-                        bot.loop.create_task(
-                            message_edit(
-                                length,
-                                total_downloaded,
-                                temp_downloaded,
-                                chunk_time,
-                                m,
-                                f"{start}下载",
+                            bot.loop.create_task(
+                                message_edit(
+                                    length,
+                                    total_downloaded,
+                                    temp_downloaded,
+                                    chunk_time,
+                                    m,
+                                    f"{start}下载",
+                                )
                             )
-                        )
-                        temp_downloaded = 0
-                    await f.write(chunk)
+                            temp_downloaded = 0
+                        await f.write(chunk)
 
 
 async def get_video_duration(path: str) -> float:
@@ -317,8 +332,10 @@ async def go_download(v: Video, p_num: int, m: Message, task: bool = True):
             if len(streams) < 2:
                 raise BilibiliDownloaderError("获取下载链接异常")
             # MP4 流下载
-            await download_url(streams[0].url, video_temp_path, m, "视频 m4s ")
-            await download_url(streams[1].url, audio_temp_path, m, "音频 m4s ")
+            video_url = streams[0].url
+            audio_url = streams[1].url
+            await download_url(video_url, video_temp_path, m, "视频 m4s ")
+            await download_url(audio_url, audio_temp_path, m, "音频 m4s ")
             # 混流
             logger.info("Merging video and audio")
             _, result = await execute(

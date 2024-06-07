@@ -9,12 +9,19 @@ from init import bot
     filters.incoming & filters.command(["donate", f"donate@{bot.me.username}"])
 )
 async def send_donate(_, message: Message):
+    amount = 10
+    try:
+        amount = int(message.command[1])
+    except Exception:
+        pass
+    if amount < 1 or amount > 1000:
+        amount = 10
     await bot.send_invoice(
         message.chat.id,
         title="Donate",
         description="Support me",
         currency="XTR",
-        prices=[LabeledPrice(label="Star", amount=10)],
+        prices=[LabeledPrice(label="Star", amount=amount)],
         payload="stars"
     )
 

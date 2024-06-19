@@ -7,7 +7,7 @@ from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
 from pyrogram.types import InlineQueryResultCachedPhoto
 
-from defs.glover import splash_channel, splash_channel_username
+from defs.glover import splash_channel, splash_channel_username, config
 from defs.request import cache_file
 from init import bot, request, logger
 from models.models.splash import Splash as SplashModel
@@ -16,7 +16,11 @@ from models.services.splash import SplashService
 
 
 async def get_splash() -> List[SplashApi]:
-    data = await request.get("https://bbs-api.miyoushe.com/apihub/api/getAppSplash")
+    mys_cookie = config.get("api", "mys_cookie", fallback="")
+    headers = {
+        "cookie": mys_cookie,
+    }
+    data = await request.get("https://bbs-api.miyoushe.com/apihub/api/getAppSplash", headers=headers)
     splash_list = []
     if data.is_success:
         data = data.json()

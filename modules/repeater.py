@@ -17,7 +17,7 @@ async def repeater_handler(client: Client, message: Message):
     try:
         last_msg[group_id]
     except KeyError:
-        last_msg[group_id] = ""
+        last_msg[group_id] = {}
     try:
         last_repeat_msg[group_id]
     except KeyError:
@@ -34,8 +34,14 @@ async def repeater_handler(client: Client, message: Message):
     ):
         raise ContinuePropagation
 
-    if msg != last_msg[group_id] or msg == last_repeat_msg[group_id]:
-        last_msg[group_id] = msg
+    last_msg_text = last_msg[group_id].get("text", "")
+    last_msg_id = last_msg[group_id].get("id", 0)
+
+    if message.id == last_msg_id:
+        raise ContinuePropagation
+
+    if msg != last_msg_text or msg == last_repeat_msg[group_id]:
+        last_msg[group_id] = {"text": msg, "id": message.id}
         repeat_count[group_id] = 0
     else:
         repeat_count[group_id] += 1
@@ -43,6 +49,6 @@ async def repeater_handler(client: Client, message: Message):
         if repeat_count[group_id] >= 2:
             await client.send_message(group_id, t_msg)
             repeat_count[group_id] = 0
-            last_msg[group_id] = ""
+            last_msg[group_id] = {}
             last_repeat_msg[group_id] = msg
     raise ContinuePropagation

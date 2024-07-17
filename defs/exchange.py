@@ -2,9 +2,7 @@ from init import request
 
 
 class Exchange:
-    API = (
-        "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/"
-    )
+    API = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/"
 
     def __init__(self):
         self.inited = False

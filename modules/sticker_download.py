@@ -7,8 +7,14 @@ from pyrogram import filters, ContinuePropagation
 from pyrogram.enums import ChatAction, MessageEntityType
 from pyrogram.errors import StickersetInvalid
 
-from defs.sticker_download import get_from_sticker_set, get_from_sticker, custom_emoji_filter, \
-    get_from_custom_emoji, export_end, export_add
+from defs.sticker_download import (
+    get_from_sticker_set,
+    get_from_sticker,
+    custom_emoji_filter,
+    get_from_custom_emoji,
+    export_end,
+    export_add,
+)
 from init import bot
 
 if TYPE_CHECKING:
@@ -17,7 +23,10 @@ if TYPE_CHECKING:
 
 
 @bot.on_message(
-    filters.private & filters.text & filters.incoming & filters.regex(r"^https://t.me/addstickers/.*")
+    filters.private
+    & filters.text
+    & filters.incoming
+    & filters.regex(r"^https://t.me/addstickers/.*")
 )
 async def process_sticker_set(client: "Client", message: "Message"):
     cid = message.from_user.id
@@ -69,7 +78,11 @@ async def process_single_sticker(client: "Client", message: "Message"):
 async def process_custom_emoji(client: "Client", message: "Message"):
     try:
         stickers = await client.get_custom_emoji_stickers(
-            [i.custom_emoji_id for i in message.entities if i and i.type == MessageEntityType.CUSTOM_EMOJI]
+            [
+                i.custom_emoji_id
+                for i in message.entities
+                if i and i.type == MessageEntityType.CUSTOM_EMOJI
+            ]
         )
     except AttributeError:
         await message.reply("无法获取贴纸", quote=True)
@@ -96,15 +109,17 @@ async def process_custom_emoji(client: "Client", message: "Message"):
 
 
 @bot.on_message(
-    filters.private & filters.incoming & filters.command(
-        ["sticker_export_start", "sticker_export_end"]
-    )
+    filters.private
+    & filters.incoming
+    & filters.command(["sticker_export_start", "sticker_export_end"])
 )
 async def batch_start(_: "Client", message: "Message"):
     uid = message.from_user.id
     if "start" in message.command[0].lower():
         if await cache.get(f"sticker:export:{uid}"):
-            await message.reply("已经开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end", quote=True)
+            await message.reply(
+                "已经开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end", quote=True
+            )
             return
         await cache.set(f"sticker:export:{uid}", tempfile.mkdtemp())
         await message.reply("开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end", quote=True)

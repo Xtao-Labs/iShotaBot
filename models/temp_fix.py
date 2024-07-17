@@ -10,10 +10,18 @@ async def temp_fix(
     is_scheduled: bool = False,
     replies: int = 1,
     business_connection_id: str = None,
-    reply_to_message: "raw.base.Message" = None
+    reply_to_message: "raw.base.Message" = None,
 ):
     parsed = await pyrogram.types.Message.old_parse(
-        client, message, users, chats, topics, is_scheduled, replies, business_connection_id, reply_to_message
+        client,
+        message,
+        users,
+        chats,
+        topics,
+        is_scheduled,
+        replies,
+        business_connection_id,
+        reply_to_message,
     )  # noqa
     if (
         isinstance(message, pyrogram.raw.types.Message)

@@ -20,7 +20,9 @@ async def get_splash() -> List[SplashApi]:
     headers = {
         "cookie": mys_cookie,
     }
-    data = await request.get("https://bbs-api.miyoushe.com/apihub/api/getAppSplash", headers=headers)
+    data = await request.get(
+        "https://bbs-api.miyoushe.com/apihub/api/getAppSplash", headers=headers
+    )
     splash_list = []
     if data.is_success:
         data = data.json()

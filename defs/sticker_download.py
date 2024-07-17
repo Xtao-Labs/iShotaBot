@@ -78,7 +78,12 @@ async def converter(src_file: Union[Path, str]) -> Path:
     if process.returncode == 0:
         src_file.unlink(missing_ok=True)
     else:
-        logs.error("转换 %s -> %s 时出错: %s", src_file.name, target_file.name, stderr.decode("utf-8"))
+        logs.error(
+            "转换 %s -> %s 时出错: %s",
+            src_file.name,
+            target_file.name,
+            stderr.decode("utf-8"),
+        )
         raise ValueError("转换 %s -> %s 时出错" % (src_file.name, target_file.name))
     return target_file
 
@@ -113,7 +118,7 @@ def get_ext_from_mime(mime: str) -> str:
 
 
 def zip_dir(dir_path: str, zip_filepath: Path):
-    zipf = zipfile.ZipFile(zip_filepath, 'w', zipfile.ZIP_DEFLATED)
+    zipf = zipfile.ZipFile(zip_filepath, "w", zipfile.ZIP_DEFLATED)
     for root, dirs, files in os.walk(dir_path):
         for file in files:
             file_path = Path(root).joinpath(file)
@@ -126,7 +131,10 @@ async def run_zip_dir(dir_path: str, zip_filepath: Path):
     loop = asyncio.get_event_loop()
     with ThreadPoolExecutor() as executor:
         await loop.run_in_executor(
-            executor, zip_dir, dir_path, zip_filepath,
+            executor,
+            zip_dir,
+            dir_path,
+            zip_filepath,
         )
 
 
@@ -135,7 +143,9 @@ async def edit_message(reply: "Message", text: str) -> "Message":
         return await reply.edit(text)
 
 
-async def get_from_sticker_set(short_name: str, uid: int, client: "Client", reply: "Message") -> Path:
+async def get_from_sticker_set(
+    short_name: str, uid: int, client: "Client", reply: "Message"
+) -> Path:
     s = InputStickerSetShortName(short_name=short_name)
     packs: "StickerSet" = await client.invoke(GetStickerSet(stickerset=s, hash=0))
     tempdir = tempfile.mkdtemp()

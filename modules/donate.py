@@ -22,7 +22,7 @@ async def send_donate(_, message: Message):
         description="Support me",
         currency="XTR",
         prices=[LabeledPrice(label="Star", amount=amount)],
-        payload="stars"
+        payload="stars",
     )
 
 

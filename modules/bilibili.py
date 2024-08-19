@@ -1,6 +1,7 @@
 import re
 from io import BytesIO
 
+from bilibili_api import ResponseCodeException
 from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.types import Message
 
@@ -14,7 +15,7 @@ from defs.bilibili import (
 from defs.button import gen_button, Button
 from defs.glover import bili_auth_user, bili_auth_chat
 from init import bot
-from scheduler import scheduler
+from scheduler import scheduler, add_delete_message_job
 
 
 @bot.on_message(
@@ -36,7 +37,13 @@ async def bili_resolve(_: Client, message: Message):
     video_number = p.search(message.text)
     if video_number:
         video_number = video_number[0]
-    video_info = await video_info_get(video_number) if video_number else None
+    try:
+        video_info = await video_info_get(video_number) if video_number else None
+    except ResponseCodeException as e:
+        text = f"视频解析失败：[{e.code}] {e.msg}"
+        reply = await message.reply(text, quote=True)
+        add_delete_message_job(reply)
+        raise ContinuePropagation
     if video_info:
         image = await binfo_image_create(video_info)
         buttons = [Button(0, "Link", "https://b23.tv/" + video_info["bvid"])]

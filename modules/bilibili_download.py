@@ -19,7 +19,7 @@ from models.services.bilifav import BiliFavAction
 async def bili_download_resolve(_: Client, message: Message):
     if "b23.tv" in message.text:
         message.text = await b23_extract(message.text)
-    p = re.compile(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})")
+    p = re.compile(r"av(\d{1,12})|BV(\w{10})|b23.tv")
     video_number = p.search(message.text)
     if video_number:
         video_number = video_number[0]
@@ -80,9 +80,14 @@ async def bili_download_resolve_cb(_: Client, callback_query: CallbackQuery):
     video = create_video(video_number)
     if video_db := await BiliFavAction.get_by_bv_id(video.get_bvid()):
         await callback_query.answer("找到缓存")
+        caption = (
+            f"详细信息：https://t.me/{bilifav_channel_username}/{video_db.message_id}"
+            if video_db.message_id
+            else None
+        )
         await callback_query.message.reply_video(
             video_db.file_id,
-            caption=f"详细信息：https://t.me/{bilifav_channel_username}/{video_db.message_id}",
+            caption=caption,
             quote=True,
         )
         raise ContinuePropagation

@@ -20,7 +20,7 @@ from scheduler import scheduler
 @bot.on_message(
     filters.incoming
     & filters.text
-    & filters.regex(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})|b23.tv")
+    & filters.regex(r"av(\d{1,12})|BV(\w{10})|b23.tv")
     & ~(
         filters.command(["download", "bilibili_fav"])
         & (filters.user(bili_auth_user) | filters.chat(bili_auth_chat))
@@ -32,7 +32,7 @@ async def bili_resolve(_: Client, message: Message):
     """
     if "b23.tv" in message.text:
         message.text = await b23_extract(message.text)
-    p = re.compile(r"av(\d{1,12})|BV(1[A-Za-z0-9]{2}4.1.7[A-Za-z0-9]{2})")
+    p = re.compile(r"av(\d{1,12})|BV(\w{10})|b23.tv")
     video_number = p.search(message.text)
     if video_number:
         video_number = video_number[0]

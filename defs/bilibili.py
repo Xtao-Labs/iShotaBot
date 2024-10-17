@@ -5,7 +5,7 @@ from typing import Optional
 import qrcode
 import string
 
-from bilibili_api import Credential
+from bilibili_api import Credential, ResponseCodeException
 from bilibili_api.audio import Audio
 from bilibili_api.video import Video
 from bilibili_api.user import User
@@ -168,6 +168,48 @@ def numf(num: int):
     return view
 
 
+async def binfo_up_info(video_info: dict):
+    # UP主
+    # 等级 0-4 \uE6CB-F 5-6\uE6D0-1
+    # UP \uE723
+    if "staff" in video_info:
+        up_list = []
+        for up in video_info["staff"]:
+            up_mid = up["mid"]
+            u = User(up_mid, credential=credential)
+            up_data = await u.get_user_info()
+            up_list.append(
+                {
+                    "name": up["name"],
+                    "up_title": up["title"],
+                    "face": up["face"],
+                    "color": up_data["vip"]["nickname_color"]
+                    if up_data["vip"]["nickname_color"] != ""
+                    else "black",
+                    "follower": up["follower"],
+                    "level": up_data["level"],
+                }
+            )
+    else:
+        up_mid = video_info["owner"]["mid"]
+        u = User(up_mid, credential=credential)
+        up_data = await u.get_user_info()
+        up_stat = await u.get_relation_info()
+        up_list = [
+            {
+                "name": up_data["name"],
+                "up_title": "UP主",
+                "face": up_data["face"],
+                "color": up_data["vip"]["nickname_color"]
+                if up_data["vip"]["nickname_color"] != ""
+                else "black",
+                "follower": up_stat["follower"],
+                "level": up_data["level"],
+            }
+        ]
+    return up_list
+
+
 async def binfo_image_create(video_info: dict):
     bg_y = 0
     # 封面
@@ -252,44 +294,12 @@ async def binfo_image_create(video_info: dict):
     info_bg_y = info_bg.size[1]
     bg_y += info_bg_y
 
-    # UP主
-    # 等级 0-4 \uE6CB-F 5-6\uE6D0-1
-    # UP \uE723
-    if "staff" in video_info:
+    try:
+        up_list = await binfo_up_info(video_info)
+    except ResponseCodeException as e:
+        print(f"获取UP主信息时发生错误：{e}")
         up_list = []
-        for up in video_info["staff"]:
-            up_mid = up["mid"]
-            u = User(up_mid, credential=credential)
-            up_data = await u.get_user_info()
-            up_list.append(
-                {
-                    "name": up["name"],
-                    "up_title": up["title"],
-                    "face": up["face"],
-                    "color": up_data["vip"]["nickname_color"]
-                    if up_data["vip"]["nickname_color"] != ""
-                    else "black",
-                    "follower": up["follower"],
-                    "level": up_data["level"],
-                }
-            )
-    else:
-        up_mid = video_info["owner"]["mid"]
-        u = User(up_mid, credential=credential)
-        up_data = await u.get_user_info()
-        up_stat = await u.get_relation_info()
-        up_list = [
-            {
-                "name": up_data["name"],
-                "up_title": "UP主",
-                "face": up_data["face"],
-                "color": up_data["vip"]["nickname_color"]
-                if up_data["vip"]["nickname_color"] != ""
-                else "black",
-                "follower": up_stat["follower"],
-                "level": up_data["level"],
-            }
-        ]
+
     up_num = len(up_list)
     up_bg = Image.new("RGB", (560, 20 + (up_num * 120) + 20), "#F5F5F7")
     draw = ImageDraw.Draw(up_bg)

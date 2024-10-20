@@ -48,6 +48,9 @@ try:
 except ValueError:
     bili_auth_user: List[int] = []
     bili_auth_chat: List[int] = []
+# bsky
+bsky_username = config.get("bsky", "username", fallback="")
+bsky_password = config.get("bsky", "password", fallback="")
 try:
     ipv6 = bool(strtobool(ipv6))
 except ValueError:

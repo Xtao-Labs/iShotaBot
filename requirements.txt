@@ -19,3 +19,4 @@ aiosqlite
 aiofiles
 pydantic
 lottie
+atproto

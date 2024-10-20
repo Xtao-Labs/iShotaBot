@@ -166,7 +166,8 @@ class HumanPost(BaseModel, frozen=False):
         parent_post = None
         if data.reply:
             is_reply = True
-            parent_post = HumanPost.parse_view(data.reply.parent)
+            if hasattr(data.reply.parent, "post"):
+                parent_post = HumanPost.parse_view(data.reply.parent)
         elif data.reason:
             is_repost = True
         elif data.post.embed and isinstance(data.post.embed, BskyViewRecord):
@@ -186,7 +187,8 @@ class HumanPost(BaseModel, frozen=False):
         parent_post = None
         if data.parent:
             is_reply = True
-            parent_post = HumanPost.parse_view(data.parent.post)
+            if hasattr(data.parent, "post"):
+                parent_post = HumanPost.parse_view(data.parent.post)
         elif data.post.embed and isinstance(data.post.embed, BskyViewRecord):
             is_quote = True
             if isinstance(data.post.embed.record, BskyViewRecordRecord):

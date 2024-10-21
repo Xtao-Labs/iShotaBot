@@ -131,8 +131,6 @@ class HumanPost(BaseModel, frozen=False):
             return "引用"
         elif self.is_reply:
             return "回复"
-        elif self.is_repost:
-            return "转发"
         return "发表"
 
     @staticmethod
@@ -192,7 +190,8 @@ class HumanPost(BaseModel, frozen=False):
         elif data.reason:
             is_repost = True
             repost_info = HumanRepostInfo(
-                by=HumanAuthor.parse(data.reason.by), at=data.reason.at
+                by=HumanAuthor.parse(data.reason.by),
+                at=data.reason.indexed_at,
             )
         elif data.post.embed and isinstance(data.post.embed, BskyViewRecord):
             is_quote = True

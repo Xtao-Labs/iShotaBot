@@ -75,18 +75,15 @@ class Timeline:
     @staticmethod
     def get_post_text(post: HumanPost) -> str:
         text = "<b>Bsky Post Info</b>\n\n<code>"
-        key = "发表"
-        if post.is_reply:
-            key = "回复"
-        elif post.is_quote:
-            key = "引用"
         if post.parent_post:
             text += f"> {post.parent_post.content}\n\n=====================\n\n"
         text += post.content
         text += "\n\n"
-        text += f"{post.author.format} {key}于 {post.time_str}\n"
+        if (post.is_reply or post.is_quote) and post.parent_post:
+            text += f"{post.parent_post.author.format} {post.parent_post.status}于 {post.parent_post.time_str}\n"
+        text += f"{post.author.format} {post.status}于 {post.time_str}\n"
         if post.is_repost:
-            text += f"{post.repost_info.by.format} 转发于 {post.repost_info.time_str}\n"
+            text += f"{post.repost_info.by.format} {post.status}于 {post.repost_info.time_str}\n"
         text += f"点赞: {post.like_count} | 引用: {post.quote_count} | 回复: {post.reply_count} | 转发: {post.repost_count}"
         return text
 

@@ -125,6 +125,16 @@ class HumanPost(BaseModel, frozen=False):
         # utc+8
         return self.created_at.astimezone(TZ).strftime("%Y-%m-%d %H:%M:%S")
 
+    @property
+    def status(self) -> str:
+        if self.is_quote:
+            return "引用"
+        elif self.is_reply:
+            return "回复"
+        elif self.is_repost:
+            return "转发"
+        return "发表"
+
     @staticmethod
     def parse_view(post: Union["PostView", "BskyViewRecordRecord"]) -> "HumanPost":
         record = post.value if isinstance(post, BskyViewRecordRecord) else post.record
@@ -181,7 +191,9 @@ class HumanPost(BaseModel, frozen=False):
                 parent_post = HumanPost.parse_view(data.reply.parent)
         elif data.reason:
             is_repost = True
-            repost_info = HumanRepostInfo(by=HumanAuthor.parse(data.reason.by), at=data.reason.at)
+            repost_info = HumanRepostInfo(
+                by=HumanAuthor.parse(data.reason.by), at=data.reason.at
+            )
         elif data.post.embed and isinstance(data.post.embed, BskyViewRecord):
             is_quote = True
             if isinstance(data.post.embed.record, BskyViewRecordRecord):

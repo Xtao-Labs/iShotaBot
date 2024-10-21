@@ -31,9 +31,7 @@ async def process_url(url: str, reply: Reply):
                 await Timeline.send_to_user(reply, post)
             except Exception as e:
                 print(e)
-        elif url.path == "/":
-            return
-        else:
+        elif url.path == f"/profile/{author_handle}":
             # 解析用户
             try:
                 user = await Timeline.fetch_user(author_handle)

@@ -197,8 +197,6 @@ class HTML:
             entities_offsets.append((end_tag, end))
             return internal_i - entity_i
 
-        text = utils.add_surrogates(text)
-
         entities_offsets = []
 
         # probably useless because entities are already sorted by telegram

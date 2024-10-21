@@ -63,7 +63,7 @@ class Parser(HTMLParser):
 
         e = ParserModel(
             features=[entity(**extra)],
-            offset=len(self.text),
+            offset=len(self.text.encode("utf-8")),
             length=0,
         )
         self.tag_entities[tag].append(e)
@@ -73,7 +73,7 @@ class Parser(HTMLParser):
 
         for entities in self.tag_entities.values():
             for entity in entities:
-                entity.length += len(data)
+                entity.length += len(data.encode("utf-8"))
 
         self.text += data
 
@@ -214,10 +214,12 @@ class HTML:
             # no need to sort, but still add entities starting from the end
             for entity, offset in reversed(entities_offsets):
                 text = (
-                    text[:offset]
+                    text.encode("utf-8")[:offset].decode("utf-8")
                     + entity
-                    + html.escape(text[offset:last_offset])
-                    + text[last_offset:]
+                    + html.escape(
+                        text.encode("utf-8")[offset:last_offset].decode("utf-8")
+                    )
+                    + text.encode("utf-8")[last_offset:].decode("utf-8")
                 )
                 last_offset = offset
 

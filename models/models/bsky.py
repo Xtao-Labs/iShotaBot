@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     )
 
 TZ = pytz.timezone("Asia/Shanghai")
+XRPC_DOMAIN = "bsky.social"
 
 
 class HumanAuthor(BaseModel):
@@ -99,6 +100,7 @@ class HumanPost(BaseModel, frozen=False):
     images: Optional[list[str]] = None
     gif: Optional[str] = None
     video: Optional[str] = None
+    video_thumbnail: Optional[str] = None
     external: Optional[str] = None
     created_at: datetime
 
@@ -138,12 +140,18 @@ class HumanPost(BaseModel, frozen=False):
     @staticmethod
     def parse_view(post: Union["PostView", "BskyViewRecordRecord"]) -> "HumanPost":
         record = post.value if isinstance(post, BskyViewRecordRecord) else post.record
+        # author
+        author = HumanAuthor.parse(post.author)
         embed = (
             (post.embeds[0] if post.embeds else None)
             if isinstance(post, BskyViewRecordRecord)
             else post.embed
         )
-        content = bsky_html_parser.unparse(record.text, record.facets) if record.facets else record.text
+        content = (
+            bsky_html_parser.unparse(record.text, record.facets)
+            if record.facets
+            else record.text
+        )
         created_at = record.created_at
         # images
         images = []
@@ -151,9 +159,10 @@ class HumanPost(BaseModel, frozen=False):
             for image in embed.images:
                 images.append(image.fullsize)
         # video
-        video = None
+        video, video_thumbnail = None, None
         if isinstance(embed, BskyViewVideo):
-            video = embed.playlist  # m3u8
+            video = f"https://{XRPC_DOMAIN}/xrpc/com.atproto.sync.getBlob?did={author.did}&cid={embed.cid}"
+            video_thumbnail = embed.thumbnail
         # gif
         gif, extra = None, None
         if isinstance(embed, BskyViewExternal):
@@ -162,14 +171,13 @@ class HumanPost(BaseModel, frozen=False):
                 gif = uri
             else:
                 extra = uri
-        # author
-        author = HumanAuthor.parse(post.author)
         return HumanPost(
             cid=post.cid,
             content=content,
             images=images,
             gif=gif,
             video=video,
+            video_thumbnail=video_thumbnail,
             external=extra,
             created_at=created_at,
             like_count=post.like_count,

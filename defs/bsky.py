@@ -100,6 +100,16 @@ class Timeline:
                 parse_mode=ParseMode.HTML,
                 reply_markup=Timeline.get_button(post),
             )
+        elif post.video:
+            return await bot.send_video(
+                reply.cid,
+                post.video,
+                caption=text,
+                thumb=post.video_thumbnail,
+                reply_to_message_id=reply.mid,
+                parse_mode=ParseMode.HTML,
+                reply_markup=Timeline.get_button(post),
+            )
         elif not post.images:
             return await bot.send_message(
                 reply.cid,

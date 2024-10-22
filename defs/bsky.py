@@ -59,7 +59,7 @@ class Timeline:
         )
 
     @staticmethod
-    def get_media_group(text: str, post: HumanPost) -> list[InputMediaPhoto]:
+    def get_media_group(text: str, post: HumanPost, has_spoiler: bool) -> list[InputMediaPhoto]:
         data = []
         images = post.images
         for idx, image in enumerate(images):
@@ -68,6 +68,7 @@ class Timeline:
                     image,
                     caption=text if idx == 0 else None,
                     parse_mode=ParseMode.HTML,
+                    has_spoiler=has_spoiler,
                 )
             )
         return data
@@ -89,8 +90,11 @@ class Timeline:
 
     @staticmethod
     @flood_wait()
-    async def send_to_user(reply: "Reply", post: HumanPost):
+    async def send_to_user(reply: "Reply", post: HumanPost, override_hidden: bool):
         text = Timeline.get_post_text(post)
+        need_spoiler = post.need_spoiler
+        if need_spoiler and override_hidden:
+            need_spoiler = False
         if post.gif:
             return await bot.send_animation(
                 reply.cid,
@@ -98,6 +102,7 @@ class Timeline:
                 caption=text,
                 reply_to_message_id=reply.mid,
                 parse_mode=ParseMode.HTML,
+                has_spoiler=need_spoiler,
                 reply_markup=Timeline.get_button(post),
             )
         elif post.video:
@@ -108,6 +113,7 @@ class Timeline:
                 thumb=post.video_thumbnail,
                 reply_to_message_id=reply.mid,
                 parse_mode=ParseMode.HTML,
+                has_spoiler=need_spoiler,
                 reply_markup=Timeline.get_button(post),
             )
         elif not post.images:
@@ -126,12 +132,13 @@ class Timeline:
                 caption=text,
                 reply_to_message_id=reply.mid,
                 parse_mode=ParseMode.HTML,
+                has_spoiler=need_spoiler,
                 reply_markup=Timeline.get_button(post),
             )
         else:
             await bot.send_media_group(
                 reply.cid,
-                Timeline.get_media_group(text, post),
+                Timeline.get_media_group(text, post, need_spoiler),
                 reply_to_message_id=reply.mid,
             )
 

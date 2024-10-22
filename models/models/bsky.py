@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union, List
 
 from datetime import datetime
 
@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
 TZ = pytz.timezone("Asia/Shanghai")
 XRPC_DOMAIN = "bsky.social"
+LABELERS = ["did:plc:ar7c4by46qjdydhdevvrndac"]
 
 
 class HumanAuthor(BaseModel):
@@ -113,6 +114,8 @@ class HumanPost(BaseModel, frozen=False):
 
     author: HumanAuthor
 
+    labels: List[str]
+
     is_quote: bool = False
     is_reply: bool = False
     is_repost: bool = False
@@ -137,11 +140,33 @@ class HumanPost(BaseModel, frozen=False):
             return "回复"
         return "发表"
 
+    @property
+    def need_spoiler(self) -> bool:
+        return any(
+            label in ["porn", "sexual", "graphic-media", "nudity"]
+            for label in self.labels
+        )
+
+    @staticmethod
+    def parse_labels(
+        post: Union["PostView", "BskyViewRecordRecord"], author: HumanAuthor
+    ) -> List[str]:
+        labels = []
+        if not post.labels:
+            return labels
+        labelers = LABELERS.copy()
+        labelers.append(author.did)
+        for label in post.labels:
+            if label.src in labelers:
+                labels.append(label.val)
+        return labels
+
     @staticmethod
     def parse_view(post: Union["PostView", "BskyViewRecordRecord"]) -> "HumanPost":
         record = post.value if isinstance(post, BskyViewRecordRecord) else post.record
         # author
         author = HumanAuthor.parse(post.author)
+        labels = HumanPost.parse_labels(post, author)
         embed = (
             (post.embeds[0] if post.embeds else None)
             if isinstance(post, BskyViewRecordRecord)
@@ -186,6 +211,7 @@ class HumanPost(BaseModel, frozen=False):
             repost_count=post.repost_count,
             uri=post.uri,
             author=author,
+            labels=labels,
         )
 
     @staticmethod

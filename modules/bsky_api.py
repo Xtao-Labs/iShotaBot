@@ -16,7 +16,7 @@ class Reply(BaseModel):
     mid: Optional[int] = None
 
 
-async def process_url(url: str, reply: Reply):
+async def process_url(url: str, reply: Reply, override_hidden: bool):
     url = urlparse(url)
     if url.hostname and url.hostname in ["bsky.app"]:
         if url.path.find("profile") < 0:
@@ -28,7 +28,7 @@ async def process_url(url: str, reply: Reply):
             )[0]
             try:
                 post = await Timeline.fetch_post(author_handle, status_id)
-                await Timeline.send_to_user(reply, post)
+                await Timeline.send_to_user(reply, post, override_hidden)
             except Exception as e:
                 print(e)
         elif url.path == f"/profile/{author_handle}":
@@ -42,7 +42,8 @@ async def process_url(url: str, reply: Reply):
 
 @bot.on_message(filters.incoming & filters.text & filters.regex(r"bsky.app/"))
 async def bsky_share(_: Client, message: Message):
-    if not message.text:
+    text = message.text
+    if not text:
         return
     if (
         message.sender_chat
@@ -51,8 +52,13 @@ async def bsky_share(_: Client, message: Message):
     ):
         # 过滤绑定频道的转发
         return
+    if text.startswith("~"):
+        return
+    override_hidden = False
+    if "no" in text or "不隐藏" in text:
+        override_hidden = True
     mid = message.id
-    if message.text.startswith("del") and message.chat.type == ChatType.CHANNEL:
+    if text.startswith("del") and message.chat.type == ChatType.CHANNEL:
         with contextlib.suppress(Exception):
             await message.delete()
             mid = None
@@ -60,10 +66,10 @@ async def bsky_share(_: Client, message: Message):
     for num in range(len(message.entities)):
         entity = message.entities[num]
         if entity.type == MessageEntityType.URL:
-            url = message.text[entity.offset : entity.offset + entity.length]
+            url = text[entity.offset : entity.offset + entity.length]
         elif entity.type == MessageEntityType.TEXT_LINK:
             url = entity.url
         else:
             continue
-        await process_url(url, reply)
+        await process_url(url, reply, override_hidden)
     raise ContinuePropagation

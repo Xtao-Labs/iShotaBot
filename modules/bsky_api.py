@@ -18,7 +18,7 @@ class Reply(BaseModel):
 
 async def process_url(url: str, reply: Reply, override_hidden: bool):
     url = urlparse(url)
-    if url.hostname and url.hostname in ["bsky.app"]:
+    if url.hostname and url.hostname in ["bsky.app", "bsky.xtaolabs.com"]:
         if url.path.find("profile") < 0:
             return
         author_handle = str(url.path[url.path.find("profile") + 8 :].split("/")[0])
@@ -40,7 +40,7 @@ async def process_url(url: str, reply: Reply, override_hidden: bool):
                 print(e)
 
 
-@bot.on_message(filters.incoming & filters.text & filters.regex(r"bsky.app/"))
+@bot.on_message(filters.incoming & filters.text & filters.regex(r"bsky.*?\/profile\/"))
 async def bsky_share(_: Client, message: Message):
     text = message.text
     if not text:

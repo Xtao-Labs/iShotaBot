@@ -59,7 +59,9 @@ class Timeline:
         )
 
     @staticmethod
-    def get_media_group(text: str, post: HumanPost, has_spoiler: bool) -> list[InputMediaPhoto]:
+    def get_media_group(
+        text: str, post: HumanPost, has_spoiler: bool
+    ) -> list[InputMediaPhoto]:
         data = []
         images = post.images
         for idx, image in enumerate(images):

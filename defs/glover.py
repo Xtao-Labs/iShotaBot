@@ -51,6 +51,9 @@ except ValueError:
 # bsky
 bsky_username = config.get("bsky", "username", fallback="")
 bsky_password = config.get("bsky", "password", fallback="")
+# predict
+predict_url = config.get("predict", "url", fallback="")
+predict_token = config.get("predict", "token", fallback="")
 try:
     ipv6 = bool(strtobool(ipv6))
 except ValueError:

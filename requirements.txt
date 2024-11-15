@@ -1,4 +1,4 @@
-pyrogram==2.0.106
+git+https://github.com/TeamPGM/pyrogram
 tgcrypto==1.2.5
 bilibili-api-python==16.2.1
 httpx

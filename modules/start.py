@@ -64,6 +64,11 @@ async def empty_inline(_, inline_query: InlineQuery):
             input_message_content=InputTextMessageContent("使用 dc 来查询会话数据中心"),
             description="使用 dc 来查询会话数据中心",
         ),
+        InlineQueryResultArticle(
+            title="exchange",
+            input_message_content=InputTextMessageContent("使用 exchange 来查询汇率数据"),
+            description="使用 exchange 来查询汇率数据",
+        ),
     ]
     return await inline_query.answer(
         results=results,

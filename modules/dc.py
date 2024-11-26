@@ -12,6 +12,7 @@ from pyrogram.types import (
 )
 from pyrogram.utils import unpack_inline_message_id
 
+from defs import inline_result_filters
 from init import bot
 
 geo_dic = {
@@ -84,10 +85,8 @@ def get_dc_text(dc: int):
     return f"此会话所在数据中心为: <b>DC{dc}</b>\n" f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
 
 
-@bot.on_chosen_inline_result()
+@bot.on_chosen_inline_result(inline_result_filters.regex(r"^dc$"))
 async def dc_choose_callback(_: Client, chosen_inline_result: ChosenInlineResult):
-    if chosen_inline_result.query != "dc":
-        chosen_inline_result.continue_propagation()
     mid = chosen_inline_result.inline_message_id
     if not mid:
         return

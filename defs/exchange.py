@@ -21,8 +21,8 @@ class Exchange:
         except Exception:
             pass
 
-    async def check_ex(self, message):
-        tlist = message.text.split()
+    async def check_ex(self, text: str):
+        tlist = text.split()
         if not 2 < len(tlist) < 5:
             return "help"
         elif len(tlist) == 3:

@@ -42,9 +42,7 @@ class LofterItem:
 
     async def check_exists(self):
         if await LofterPostModel.get_by_post_id(self.post_id):
-            self.text += (
-                f'\n📄 此图集已被<a href="https://t.me/{lofter_channel_username}">此频道</a>收录'
-            )
+            self.text += f'\n📄 此图集已被<a href="https://t.me/{lofter_channel_username}">此频道</a>收录'
 
     async def init(self):
         await self.check_exists()

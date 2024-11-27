@@ -90,9 +90,9 @@ class TwitterClient:
         return await self.client.request(method, url, headers=headers, **kwargs)
 
     async def reset_session(self):
-        self.headers[
-            "authorization"
-        ] = f"Basic {base64.b64encode(self.tokens[0].encode()).decode()}"
+        self.headers["authorization"] = (
+            f"Basic {base64.b64encode(self.tokens[0].encode()).decode()}"
+        )
         response = await self.request(
             "https://api.twitter.com/oauth2/token",
             method="POST",

@@ -3,7 +3,14 @@ from re import Pattern
 from typing import Union
 
 from pyrogram.filters import create
-from pyrogram.types import Message, CallbackQuery, InlineQuery, PreCheckoutQuery, ChosenInlineResult, Update
+from pyrogram.types import (
+    Message,
+    CallbackQuery,
+    InlineQuery,
+    PreCheckoutQuery,
+    ChosenInlineResult,
+    Update,
+)
 
 
 def regex(pattern: Union[str, Pattern], flags: int = 0):
@@ -27,5 +34,5 @@ def regex(pattern: Union[str, Pattern], flags: int = 0):
     return create(
         func,
         "RegexFilter",
-        p=pattern if isinstance(pattern, Pattern) else re.compile(pattern, flags)
+        p=pattern if isinstance(pattern, Pattern) else re.compile(pattern, flags),
     )

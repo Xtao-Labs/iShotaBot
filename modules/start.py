@@ -66,7 +66,9 @@ async def empty_inline(_, inline_query: InlineQuery):
         ),
         InlineQueryResultArticle(
             title="exchange",
-            input_message_content=InputTextMessageContent("使用 exchange 来查询汇率数据"),
+            input_message_content=InputTextMessageContent(
+                "使用 exchange 来查询汇率数据"
+            ),
             description="使用 exchange 来查询汇率数据",
         ),
     ]

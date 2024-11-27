@@ -54,7 +54,9 @@ async def process_single_sticker(client: "Client", message: "Message"):
     if temp := await cache.get(f"sticker:export:{message.from_user.id}"):
         try:
             await export_add(temp, message.sticker, client)
-            await message.reply_text("成功加入导出列表，结束选择请输入 /sticker_export_end", quote=True)
+            await message.reply_text(
+                "成功加入导出列表，结束选择请输入 /sticker_export_end", quote=True
+            )
         except ValueError as exc:
             await message.reply(str(exc), quote=True)
     else:
@@ -87,7 +89,9 @@ async def process_custom_emoji(client: "Client", message: "Message"):
     except AttributeError:
         await message.reply("无法获取贴纸", quote=True)
         raise ContinuePropagation
-    reply = await message.reply(f"正在下载 {len(stickers)} 个 emoji ...请耐心等待", quote=True)
+    reply = await message.reply(
+        f"正在下载 {len(stickers)} 个 emoji ...请耐心等待", quote=True
+    )
     exc = None
     for sticker in stickers:
         target_file = None
@@ -118,15 +122,21 @@ async def batch_start(_: "Client", message: "Message"):
     if "start" in message.command[0].lower():
         if await cache.get(f"sticker:export:{uid}"):
             await message.reply(
-                "已经开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end", quote=True
+                "已经开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end",
+                quote=True,
             )
             return
         await cache.set(f"sticker:export:{uid}", tempfile.mkdtemp())
-        await message.reply("开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end", quote=True)
+        await message.reply(
+            "开始批量导出贴纸，请直接发送贴纸，完成选择请输入 /sticker_export_end",
+            quote=True,
+        )
     else:
         target_dir = await cache.get(f"sticker:export:{uid}")
         if not target_dir:
-            await message.reply("未开始批量导出贴纸，请先使用命令 /sticker_export_start", quote=True)
+            await message.reply(
+                "未开始批量导出贴纸，请先使用命令 /sticker_export_start", quote=True
+            )
             return
         file = None
         try:

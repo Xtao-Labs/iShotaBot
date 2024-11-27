@@ -66,7 +66,9 @@ async def dc_query(_: Client, inline_query: InlineQuery):
     results = [
         InlineQueryResultArticle(
             title="查询 dc",
-            input_message_content=InputTextMessageContent(message_text="加载中，请等待。。。"),
+            input_message_content=InputTextMessageContent(
+                message_text="加载中，请等待。。。"
+            ),
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton(text="重试", callback_data="dc")]]
             ),
@@ -82,7 +84,10 @@ async def dc_query(_: Client, inline_query: InlineQuery):
 
 
 def get_dc_text(dc: int):
-    return f"此会话所在数据中心为: <b>DC{dc}</b>\n" f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
+    return (
+        f"此会话所在数据中心为: <b>DC{dc}</b>\n"
+        f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
+    )
 
 
 @bot.on_chosen_inline_result(inline_result_filters.regex(r"^dc$"))

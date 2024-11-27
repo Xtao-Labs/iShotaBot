@@ -33,9 +33,11 @@ async def bili_download_resolve(_: Client, message: Message):
     if video_db := await BiliFavAction.get_by_bv_id(video.get_bvid()):
         await message.reply_video(
             video_db.file_id,
-            caption=f"详细信息：https://t.me/{bilifav_channel_username}/{video_db.message_id}"
-            if video_db.message_id
-            else None,
+            caption=(
+                f"详细信息：https://t.me/{bilifav_channel_username}/{video_db.message_id}"
+                if video_db.message_id
+                else None
+            ),
             quote=True,
         )
         raise ContinuePropagation
@@ -55,9 +57,11 @@ async def bili_audio_download_resolve(_: Client, message: Message):
     if audio_db := await BiliFavAction.get_by_id(audio.get_auid()):
         await message.reply_audio(
             audio_db.file_id,
-            caption=f"详细信息：https://t.me/{bilifav_channel_username}/{audio_db.message_id}"
-            if audio_db.message_id
-            else None,
+            caption=(
+                f"详细信息：https://t.me/{bilifav_channel_username}/{audio_db.message_id}"
+                if audio_db.message_id
+                else None
+            ),
             quote=True,
         )
         raise ContinuePropagation

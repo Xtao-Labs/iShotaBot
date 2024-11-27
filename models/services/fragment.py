@@ -78,7 +78,10 @@ class UserName(BaseModel):
         if self.status == AuctionStatus.Available:
             text += f"最低出价：{self.now_price.text}\n"
         elif self.status == AuctionStatus.OnAuction:
-            text += f"目前最高出价：{self.now_price.text}\n" f"距离拍卖结束：{self.end_human_time}\n"
+            text += (
+                f"目前最高出价：{self.now_price.text}\n"
+                f"距离拍卖结束：{self.end_human_time}\n"
+            )
         elif self.status == AuctionStatus.Sold:
             text += (
                 f"售出价格：{self.now_price.text}\n"
@@ -86,7 +89,10 @@ class UserName(BaseModel):
                 f"售出时间：{self.strf_end_time}\n"
             )
         elif self.status == AuctionStatus.Sale:
-            text += f"售价：{self.now_price.text}\n" f"距离出售结束：{self.end_human_time}\n"
+            text += (
+                f"售价：{self.now_price.text}\n"
+                f"距离出售结束：{self.end_human_time}\n"
+            )
         return text
 
 

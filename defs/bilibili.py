@@ -8,7 +8,7 @@ import string
 from bilibili_api import Credential, ResponseCodeException
 from bilibili_api.audio import Audio
 from bilibili_api.video import Video
-from bilibili_api.user import User
+from bilibili_api.utils.network import Api
 from pyrogram import ContinuePropagation
 from qrcode.image.pil import PilImage
 from io import BytesIO
@@ -168,6 +168,13 @@ def numf(num: int):
     return view
 
 
+async def get_user_info(mid: int):
+    api = "https://api.bilibili.com/x/web-interface/card"
+    params = {"mid": mid}
+    result = await Api(api, "GET", credential=credential).update_params(**params).result
+    return result
+
+
 async def binfo_up_info(video_info: dict):
     # UP主
     # 等级 0-4 \uE6CB-F 5-6\uE6D0-1
@@ -176,35 +183,41 @@ async def binfo_up_info(video_info: dict):
         up_list = []
         for up in video_info["staff"]:
             up_mid = up["mid"]
-            u = User(up_mid, credential=credential)
-            up_data = await u.get_user_info()
+            up_data = await get_user_info(up_mid)
+            nickname_color, level = (
+                up_data["card"]["vip"]["nickname_color"],
+                up_data["card"]["level_info"]["current_level"],
+            )
             up_list.append(
                 {
                     "name": up["name"],
                     "up_title": up["title"],
                     "face": up["face"],
-                    "color": up_data["vip"]["nickname_color"]
-                    if up_data["vip"]["nickname_color"] != ""
-                    else "black",
+                    "color": nickname_color if nickname_color != "" else "black",
                     "follower": up["follower"],
-                    "level": up_data["level"],
+                    "level": level,
                 }
             )
     else:
         up_mid = video_info["owner"]["mid"]
-        u = User(up_mid, credential=credential)
-        up_data = await u.get_user_info()
-        up_stat = await u.get_relation_info()
+        up_data = await get_user_info(up_mid)
+        nickname_color, level = (
+            up_data["card"]["vip"]["nickname_color"],
+            up_data["card"]["level_info"]["current_level"],
+        )
+        name, face, follower = (
+            up_data["card"]["name"],
+            up_data["card"]["face"],
+            up_data["follower"],
+        )
         up_list = [
             {
-                "name": up_data["name"],
+                "name": name,
                 "up_title": "UP主",
-                "face": up_data["face"],
-                "color": up_data["vip"]["nickname_color"]
-                if up_data["vip"]["nickname_color"] != ""
-                else "black",
-                "follower": up_stat["follower"],
-                "level": up_data["level"],
+                "face": face,
+                "color": nickname_color if nickname_color != "" else "black",
+                "follower": follower,
+                "level": level,
             }
         ]
     return up_list

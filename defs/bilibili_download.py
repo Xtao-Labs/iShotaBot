@@ -383,9 +383,7 @@ def gen_video_caption(v: Video, info: Dict) -> str:
         f"<b>{info['title']}</b>\n\n{info['desc']}\n\nhttps://b23.tv/{v.get_bvid()}"
     )
     if len(caption) > 800:
-        caption = (
-            f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://b23.tv/{v.get_bvid()}"
-        )
+        caption = f"<b>{info['title']}</b>\n\n简介过长，无法显示\n\nhttps://b23.tv/{v.get_bvid()}"
     return caption
 
 

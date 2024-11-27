@@ -71,6 +71,11 @@ async def empty_inline(_, inline_query: InlineQuery):
             ),
             description="使用 exchange 来查询汇率数据",
         ),
+        InlineQueryResultArticle(
+            title="ip",
+            input_message_content=InputTextMessageContent("使用 ip 来查询 ip 数据"),
+            description="使用 ip 来查询 ip 数据",
+        ),
     ]
     return await inline_query.answer(
         results=results,

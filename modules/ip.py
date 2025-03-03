@@ -51,8 +51,8 @@ async def ip_command(_: Client, message: Message):
     text = await get_rep_text_from_msg(message) or ""
     if not text:
         url = message.text[4:]
-        if url:
-            text = await get_rep_text(url) or ""
+        if t := await get_rep_text(url):
+            text = t
     if rep_text == "" and text == "":
         await msg.edit("没有找到要查询的 ip/域名 ...")
     elif rep_text != "" and text != "":

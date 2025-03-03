@@ -6,7 +6,7 @@ import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pyrogram.types import Message
 
-scheduler = AsyncIOScheduler(timezone="Asia/ShangHai")
+scheduler = AsyncIOScheduler(timezone=pytz.timezone("Asia/Shanghai"))
 
 
 async def delete_message(message: Message) -> bool:

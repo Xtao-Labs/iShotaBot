@@ -76,6 +76,11 @@ async def empty_inline(_, inline_query: InlineQuery):
             input_message_content=InputTextMessageContent("使用 ip 来查询 ip 数据"),
             description="使用 ip 来查询 ip 数据",
         ),
+        InlineQueryResultArticle(
+            title="whois",
+            input_message_content=InputTextMessageContent("使用 whois 来查询 whois 数据"),
+            description="使用 whois 来查询 whois 数据",
+        ),
     ]
     return await inline_query.answer(
         results=results,

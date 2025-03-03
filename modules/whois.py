@@ -64,7 +64,7 @@ async def whois_command(_: Client, message: Message):
 @bot.on_message(filters.incoming & filters.command(["whois_raw", f"whois_raw@{bot.me.username}"]))
 async def whois_raw_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")
-    url = message.text[6:]
+    url = message.text[10:]
     text = None
     if t := await get_rep_text(url, need_format=False):
         text = f"<blockquote expandable>{t}</blockquote>"

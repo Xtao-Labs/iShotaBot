@@ -1,9 +1,6 @@
 import contextlib
-import os
-import re
 
-from io import BytesIO
-from typing import List
+from typing import List, Tuple
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
@@ -20,23 +17,28 @@ from defs.glover import lofter_channel_username
 from models.services.lofter import LofterPost as LofterPostModel
 from init import request
 
+from lofter.client.lofter import LofterClient
+
+client = LofterClient()
+
 
 class LofterItem:
     def __init__(
-        self, url, audio_link, title: str, origin_url, username, name, comment, tags
+        self, url, title: str, origin_url: str, username: str, name: str, comment: str, tags: List[str], audio_link: str = None,
     ):
         self.url = url
         self.audio_link = f"https://music.163.com/#/song?id={audio_link}"
         self.only_text = url is None
-        self.file = None
+        self.file = url
         self.origin_url = origin_url
         self.post_id = origin_url.split("/post/")[1].split("?")[0]
         self.username = username
+        tags_text = "".join(f"#{i} " for i in tags)
         self.text = (
             f"<b>Lofter Status Info</b>\n\n"
             f"<code>{title.strip()}</code>\n\n"
             f'✍️ <a href="https://{username}.lofter.com/">{name}</a>\n'
-            f"{tags}\n"
+            f"{tags_text}\n"
             f"{comment}"
         )
 
@@ -44,18 +46,7 @@ class LofterItem:
         if await LofterPostModel.get_by_post_id(self.post_id):
             self.text += f'\n📄 此图集已被<a href="https://t.me/{lofter_channel_username}">此频道</a>收录'
 
-    async def init(self):
-        await self.check_exists()
-        if self.only_text:
-            return
-        file = await request.get(self.url, timeout=30)
-        file = BytesIO(file.content)
-        file.name = os.path.basename(self.url).split("?")[0]
-        self.file = file
-
     async def reply_to(self, message: Message, static: bool = False):
-        if not self.file:
-            await self.init()
         if static:
             await message.reply_document(
                 self.file,
@@ -72,7 +63,7 @@ class LofterItem:
                     self.audio_link, self.origin_url, self.username
                 ),
             )
-        elif self.file.name.endswith(".gif"):
+        elif self.file.endswith(".gif"):
             await message.reply_animation(
                 self.file,
                 caption=self.text,
@@ -88,11 +79,9 @@ class LofterItem:
             )
 
     async def export(self, static: bool = False, first: bool = False):
-        if not self.file:
-            await self.init()
         if static:
             return InputMediaDocument(self.file, caption=self.text if first else None)
-        elif self.file.name.endswith(".gif"):
+        elif self.file.endswith(".gif"):
             return InputMediaAnimation(self.file, caption=self.text if first else None)
         else:
             return InputMediaPhoto(self.file, caption=self.text if first else None)
@@ -102,53 +91,52 @@ async def input_media(img: List[LofterItem], static: bool = False):
     return [(await img[ff].export(static, ff == 0)) for ff in range(len(img))]
 
 
-async def get_loft(url: str) -> List[LofterItem]:
-    res = await request.get(url)
-    assert res.status_code == 200
-    username, avatar, name, bio, soup = parse_loft_user(url, res.text)
+def get_username_and_post_id(url: str) -> Tuple[str, str]:
     try:
-        title = soup.findAll("div", {"class": "text"})[-1].getText().strip()
-    except IndexError:
-        title = ""
-    links = soup.findAll("a", {"class": "imgclasstag"})
-    audio_link = None
-    audio = soup.find("div", {"class": "img"})
-    if audio and audio.getText().strip():
-        title = (
-            f"分享音乐：{audio.getText().strip()}\n\n{title}"
-            if title
-            else f"分享音乐：{audio.getText().strip()}"
-        )
-        audio_link = re.findall(
-            r"%26id%3D(.*?)%26", audio.findAll("div")[1].get("onclick")
-        )[0]
-    comment = soup.findAll("h3", {"class": "nctitle"})
-    comment_text = "".join(f"{i.getText()}  " for i in comment)
-    if "(" not in comment_text:
-        comment_text = ""
-    tags = soup.find("meta", {"name": "Keywords"}).get("content")
-    tags_text = "".join(f"#{i} " for i in tags.split(","))
-    return (
-        [
+        u = urlparse(url)
+        username = u.hostname.split(".")[0]
+        post_id = url.split("/post/")[1].split("?")[0]
+    except Exception:
+        username, post_id = "", ""
+    return username, post_id
+
+
+async def get_loft(url: str) -> List[LofterItem]:
+    username, post_id = get_username_and_post_id(url)
+    if not username or not post_id:
+        return []
+    post = await client.get_post_detail_web(username, post_id)
+    user = post.blogInfo
+    post_view = post.postData.postView
+    comment = BeautifulSoup(post_view.digest, "lxml").getText()
+    data = []
+    if post_view.photoPostView:
+        for p in post_view.photoPostView.photoLinks:
+            data.append(
+                LofterItem(
+                    p.format_url,
+                    post_view.title,
+                    url,
+                    username,
+                    user.name,
+                    comment,
+                    post_view.tagList,
+                )
+            )
+    if post_view.videoPostView:
+        v = post_view.videoPostView.videoInfo
+        data.append(
             LofterItem(
-                i.get("bigimgsrc"),
-                audio_link,
-                title,
+                v.url,
+                post_view.title,
                 url,
                 username,
-                name,
-                comment_text,
-                tags_text,
+                user.name,
+                comment,
+                post_view.tagList,
             )
-            for i in links
-        ]
-        if links
-        else [
-            LofterItem(
-                None, audio_link, title, url, username, name, comment_text, tags_text
-            )
-        ]
-    )
+        )
+    return data
 
 
 def parse_loft_user(url: str, content: str):

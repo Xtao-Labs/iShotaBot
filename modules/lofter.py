@@ -2,7 +2,7 @@ from pyrogram import Client, filters, ContinuePropagation
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
-from defs.lofter import get_loft, input_media, get_loft_user, lofter_user_link
+from defs.lofter_defs import get_loft, input_media
 from init import bot
 
 
@@ -30,22 +30,22 @@ async def lofter_share(_: Client, message: Message):
                     await message.reply_media_group(
                         media=await input_media(img[:9], static), quote=True
                     )
-            elif "front/blog" not in url:
-                text, avatar, username, status_link = await get_loft_user(url)
-                if avatar:
-                    await message.reply_photo(
-                        avatar,
-                        caption=text,
-                        quote=True,
-                        reply_markup=lofter_user_link(username, status_link),
-                    )
-                else:
-                    await message.reply_text(
-                        text,
-                        quote=True,
-                        disable_web_page_preview=True,
-                        reply_markup=lofter_user_link(username, status_link),
-                    )
+            # elif "front/blog" not in url:
+            #     text, avatar, username, status_link = await get_loft_user(url)
+            #     if avatar:
+            #         await message.reply_photo(
+            #             avatar,
+            #             caption=text,
+            #             quote=True,
+            #             reply_markup=lofter_user_link(username, status_link),
+            #         )
+            #     else:
+            #         await message.reply_text(
+            #             text,
+            #             quote=True,
+            #             disable_web_page_preview=True,
+            #             reply_markup=lofter_user_link(username, status_link),
+            #         )
     except Exception as e:
         print(e)
     raise ContinuePropagation

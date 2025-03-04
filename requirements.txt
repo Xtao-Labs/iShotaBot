@@ -2,31 +2,23 @@
 #    uv pip compile requirements.in -o requirements.txt
 aiofiles==24.1.0
     # via -r requirements.in
-aiohappyeyeballs==2.4.3
-    # via aiohttp
-aiohttp==3.10.5
-    # via bilibili-api-python
-aiosignal==1.3.1
-    # via aiohttp
 aiosqlite==0.20.0
     # via -r requirements.in
 annotated-types==0.7.0
     # via pydantic
 anyio==4.6.2.post1
     # via httpx
-apscheduler==3.10.4
+apscheduler==3.11.0
     # via
     #   -r requirements.in
     #   bilibili-api-python
-atproto==0.0.55
+atproto==0.0.59
     # via -r requirements.in
-attrs==24.2.0
-    # via aiohttp
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.3
     # via
     #   -r requirements.in
     #   bilibili-api-python
-bilibili-api-python==16.3.0
+bilibili-api-python==17.1.3
     # via -r requirements.in
 brotli==1.1.0
     # via bilibili-api-python
@@ -47,17 +39,12 @@ colorama==0.4.6
     #   bilibili-api-python
     #   click
     #   qrcode
-    #   tqdm
 coloredlogs==15.0.1
     # via -r requirements.in
 cryptography==43.0.3
     # via atproto
 dnspython==2.7.0
     # via atproto
-frozenlist==1.5.0
-    # via
-    #   aiohttp
-    #   aiosignal
 greenlet==3.1.1
     # via
     #   playwright
@@ -68,11 +55,11 @@ h11==0.14.0
     #   uvicorn
 httpcore==1.0.7
     # via httpx
-httpx==0.26.0
+httpx==0.28.1
     # via
     #   -r requirements.in
     #   atproto
-    #   bilibili-api-python
+    #   lofter-py
 humanfriendly==10.0
     # via coloredlogs
 idna==3.10
@@ -82,46 +69,47 @@ idna==3.10
     #   yarl
 jinja2==3.1.4
     # via -r requirements.in
-libipld==3.0.0
+libipld==3.0.1
     # via atproto
+lofter-py @ git+https://github.com/Xtao-Labs/lofter.py@be85cc620f23515b7c0b9045daab3d2876e913f0
+    # via -r requirements.in
 lottie==0.7.1
     # via -r requirements.in
-lxml==5.3.0
+lxml==5.3.1
     # via
     #   -r requirements.in
     #   bilibili-api-python
 markupsafe==3.0.2
     # via jinja2
 multidict==6.1.0
-    # via
-    #   aiohttp
-    #   yarl
-pillow==10.4.0
+    # via yarl
+pillow==11.1.0
     # via
     #   -r requirements.in
     #   bilibili-api-python
     #   qrcode-terminal
 playwright==1.49.0
     # via -r requirements.in
+propcache==0.3.0
+    # via yarl
 pyaes==1.6.1
     # via pyrogram
-pyasn1==0.6.1
-    # via rsa
 pycparser==2.22
     # via cffi
-pycryptodomex==3.20.0
+pycryptodomex==3.21.0
     # via bilibili-api-python
 pydantic==2.10.2
     # via
     #   -r requirements.in
     #   atproto
+    #   lofter-py
     #   sqlmodel
 pydantic-core==2.27.1
     # via pydantic
 pyee==12.0.0
     # via playwright
-pypng==0.20220715.0
-    # via qrcode
+pyjwt==2.10.1
+    # via bilibili-api-python
 pyreadline3==3.5.4
     # via humanfriendly
 pyrogram @ git+https://github.com/TeamPGM/pyrogram@1e10f5fdeb963e6c0feae922e7398b3dffcb0173
@@ -131,28 +119,20 @@ pyrotgcrypto==1.2.7
 pysocks==1.7.1
     # via pyrogram
 pytz==2024.2
-    # via
-    #   -r requirements.in
-    #   apscheduler
+    # via -r requirements.in
 pyyaml==6.0.2
     # via bilibili-api-python
-qrcode==7.4.2
+qrcode==8.0
     # via
     #   -r requirements.in
     #   bilibili-api-python
     #   qrcode-terminal
 qrcode-terminal==0.8
     # via bilibili-api-python
-rsa==4.9
-    # via bilibili-api-python
 setuptools==75.8.2
     # via -r requirements.in
-six==1.16.0
-    # via apscheduler
 sniffio==1.3.1
-    # via
-    #   anyio
-    #   httpx
+    # via anyio
 soupsieve==2.6
     # via beautifulsoup4
 sqlalchemy==2.0.36
@@ -161,16 +141,14 @@ sqlalchemy==2.0.36
     #   sqlmodel
 sqlmodel==0.0.22
     # via -r requirements.in
-tqdm==4.66.6
-    # via bilibili-api-python
 typing-extensions==4.12.2
     # via
     #   aiosqlite
     #   atproto
+    #   beautifulsoup4
     #   pydantic
     #   pydantic-core
     #   pyee
-    #   qrcode
     #   sqlalchemy
 tzdata==2024.2
     # via tzlocal
@@ -180,7 +158,5 @@ uvicorn==0.32.1
     # via -r requirements.in
 websockets==13.1
     # via atproto
-yarl==1.11.1
-    # via
-    #   aiohttp
-    #   bilibili-api-python
+yarl==1.18.3
+    # via bilibili-api-python

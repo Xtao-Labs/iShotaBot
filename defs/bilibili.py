@@ -31,6 +31,7 @@ def from_cookie_get_credential() -> Optional[Credential]:
         sessdata = cookie["SESSDATA"]
         bili_jct = cookie["bili_jct"]
         buvid3 = cookie["buvid3"]
+        buvid4 = cookie["buvid4"]
         dedeuserid = cookie["DedeUserID"]
     except KeyError:
         return None
@@ -38,7 +39,14 @@ def from_cookie_get_credential() -> Optional[Credential]:
         ac_time_value = cookie["ac_time_value"]
     except KeyError:
         ac_time_value = None
-    return Credential(sessdata, bili_jct, buvid3, dedeuserid, ac_time_value)
+    return Credential(
+        sessdata=sessdata,
+        bili_jct=bili_jct,
+        buvid3=buvid3,
+        buvid4=buvid4,
+        dedeuserid=dedeuserid,
+        ac_time_value=ac_time_value,
+    )
 
 
 credential = from_cookie_get_credential()
@@ -46,10 +54,18 @@ credential = from_cookie_get_credential()
 
 def set_cookie_from_cred(new_cred: Credential) -> None:
     cookie = get_bili_cookie()
-    cookie["SESSDATA"] = new_cred.sessdata
-    cookie["bili_jct"] = new_cred.bili_jct
-    cookie["buvid3"] = new_cred.buvid3
-    cookie["ac_time_value"] = new_cred.ac_time_value
+    if new_cred.sessdata:
+        cookie["SESSDATA"] = new_cred.sessdata
+    if new_cred.bili_jct:
+        cookie["bili_jct"] = new_cred.bili_jct
+    if new_cred.buvid3:
+        cookie["buvid3"] = new_cred.buvid3
+    if new_cred.buvid4:
+        cookie["buvid4"] = new_cred.buvid4
+    if new_cred.dedeuserid:
+        cookie["DedeUserID"] = new_cred.dedeuserid
+    if new_cred.ac_time_value:
+        cookie["ac_time_value"] = new_cred.ac_time_value
     set_bili_cookie(cookie)
 
 

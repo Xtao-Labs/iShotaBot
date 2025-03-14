@@ -112,7 +112,7 @@ pyjwt==2.10.1
     # via bilibili-api-python
 pyreadline3==3.5.4
     # via humanfriendly
-pyrogram @ git+https://github.com/TeamPGM/pyrogram@1e10f5fdeb963e6c0feae922e7398b3dffcb0173
+pyrogram @ git+https://github.com/TeamPGM/pyrogram@97bcb0be1b12c489d88449e7fb85c9603c42b54b
     # via -r requirements.in
 pyrotgcrypto==1.2.7
     # via -r requirements.in

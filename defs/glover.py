@@ -16,6 +16,7 @@ splash_channel_username: str = ""
 bilifav_id: int = 0
 bilifav_channel: int = 0
 bilifav_channel_username: str = ""
+exchange_channel: int = 0
 # [api]
 amap_key: str = ""
 bili_auth_user_str: str = ""
@@ -39,6 +40,7 @@ bilifav_channel = config.getint("post", "bilifav_channel", fallback=bilifav_chan
 bilifav_channel_username = config.get(
     "post", "bilifav_channel_username", fallback=bilifav_channel_username
 )
+exchange_channel = config.getint("post", "exchange_channel", fallback=exchange_channel)
 amap_key = config.get("api", "amap_key", fallback=amap_key)
 bili_auth_user_str = config.get("api", "bili_auth_user", fallback=bili_auth_user_str)
 bili_auth_chat_str = config.get("api", "bili_auth_chat", fallback=bili_auth_chat_str)

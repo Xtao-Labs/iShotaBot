@@ -323,7 +323,7 @@ async def go_download(v: Video, p_num: int, m: Message, task: bool = True):
         )
         if not streams:
             raise BilibiliDownloaderError("无法获取下载链接")
-        if detector.check_flv_stream():
+        if detector.check_flv_mp4_stream():
             # FLV 流下载
             await download_url(streams[0].url, flv_temp_path, m, "视频 FLV ")
             # 转换文件格式

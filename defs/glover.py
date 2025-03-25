@@ -21,6 +21,7 @@ exchange_channel: int = 0
 amap_key: str = ""
 bili_auth_user_str: str = ""
 bili_auth_chat_str: str = ""
+caiyun_weather: str = ""
 config = RawConfigParser()
 config.read("config.ini")
 api_id = config.getint("pyrogram", "api_id", fallback=api_id)
@@ -50,6 +51,7 @@ try:
 except ValueError:
     bili_auth_user: List[int] = []
     bili_auth_chat: List[int] = []
+caiyun_weather = config.get("api", "caiyun_weather", fallback=caiyun_weather)
 # bsky
 bsky_username = config.get("bsky", "username", fallback="")
 bsky_password = config.get("bsky", "password", fallback="")

@@ -41,7 +41,9 @@ async def get_rep_text_from_msg(message: Message):
                 return t
 
 
-@bot.on_message(filters.incoming & filters.command(["whois", f"whois@{bot.me.username}"]))
+@bot.on_message(
+    filters.incoming & filters.command(["whois", f"whois@{bot.me.username}"])
+)
 async def whois_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")
     reply = message.reply_to_message
@@ -61,7 +63,9 @@ async def whois_command(_: Client, message: Message):
         await msg.edit(f"{rep_text}{text}", disable_web_page_preview=True)
 
 
-@bot.on_message(filters.incoming & filters.command(["whois_raw", f"whois_raw@{bot.me.username}"]))
+@bot.on_message(
+    filters.incoming & filters.command(["whois_raw", f"whois_raw@{bot.me.username}"])
+)
 async def whois_raw_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")
     url = message.text[10:]

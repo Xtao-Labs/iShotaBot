@@ -78,8 +78,17 @@ async def empty_inline(_, inline_query: InlineQuery):
         ),
         InlineQueryResultArticle(
             title="whois",
-            input_message_content=InputTextMessageContent("使用 whois 来查询 whois 数据"),
+            input_message_content=InputTextMessageContent(
+                "使用 whois 来查询 whois 数据"
+            ),
             description="使用 whois 来查询 whois 数据",
+        ),
+        InlineQueryResultArticle(
+            title="weather",
+            input_message_content=InputTextMessageContent(
+                "使用 weather 来查询天气数据"
+            ),
+            description="使用 weather 来查询天气数据",
         ),
     ]
     return await inline_query.answer(

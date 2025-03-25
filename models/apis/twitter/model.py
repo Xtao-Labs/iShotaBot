@@ -38,7 +38,7 @@ class MediaItem(BaseModel):
     def media_url(self):
         if self.type == "photo":
             ext = self.media_url_https.split(".")[-1]
-            return f"{self.media_url_https[:-(len(ext) + 1)]}?format={ext}&name=orig"
+            return f"{self.media_url_https[: -(len(ext) + 1)]}?format={ext}&name=orig"
         elif self.type == "video":
             return self.video_info.best_variant.url
         return self.media_url_https

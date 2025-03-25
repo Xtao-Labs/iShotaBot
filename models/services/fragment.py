@@ -74,7 +74,7 @@ class UserName(BaseModel):
 
     @property
     def text(self) -> str:
-        text = f"用户名：@{self.name}\n" f"状态：{self.status.text}\n"
+        text = f"用户名：@{self.name}\n状态：{self.status.text}\n"
         if self.status == AuctionStatus.Available:
             text += f"最低出价：{self.now_price.text}\n"
         elif self.status == AuctionStatus.OnAuction:
@@ -90,8 +90,7 @@ class UserName(BaseModel):
             )
         elif self.status == AuctionStatus.Sale:
             text += (
-                f"售价：{self.now_price.text}\n"
-                f"距离出售结束：{self.end_human_time}\n"
+                f"售价：{self.now_price.text}\n距离出售结束：{self.end_human_time}\n"
             )
         return text
 

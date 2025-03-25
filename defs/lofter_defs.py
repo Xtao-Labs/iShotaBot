@@ -24,7 +24,15 @@ client = LofterClient()
 
 class LofterItem:
     def __init__(
-        self, url, title: str, origin_url: str, username: str, name: str, comment: str, tags: List[str], audio_link: str = None,
+        self,
+        url,
+        title: str,
+        origin_url: str,
+        username: str,
+        name: str,
+        comment: str,
+        tags: List[str],
+        audio_link: str = None,
     ):
         self.url = url
         self.audio_link = f"https://music.163.com/#/song?id={audio_link}"

@@ -85,8 +85,7 @@ async def dc_query(_: Client, inline_query: InlineQuery):
 
 def get_dc_text(dc: int):
     return (
-        f"此会话所在数据中心为: <b>DC{dc}</b>\n"
-        f"该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
+        f"此会话所在数据中心为: <b>DC{dc}</b>\n该数据中心位于 <b>{geo_dic[str(dc)]}</b>"
     )
 
 

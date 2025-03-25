@@ -98,19 +98,19 @@ def get_twitter_user(user: User):
 def get_twitter_status(tweet: FixTweet):
     text = tweet.text or "暂 无 内 容"
     text = f"<code>{text}</code>"
-    final_text = "<b>Twitter Status Info</b>\n\n" f"{text}\n\n"
+    final_text = f"<b>Twitter Status Info</b>\n\n{text}\n\n"
     if tweet.retweet_or_quoted:
         roq = tweet.retweet_or_quoted
         final_text += (
-            f'<code>RT: {roq.text or "暂 无 内 容"}</code>\n\n'
-            f'{roq.author.one_line} 发表于 {roq.created.strftime("%Y-%m-%d %H:%M:%S")}'
+            f"<code>RT: {roq.text or '暂 无 内 容'}</code>\n\n"
+            f"{roq.author.one_line} 发表于 {roq.created.strftime('%Y-%m-%d %H:%M:%S')}"
             f"\n👁 {roq.views}  👍 {roq.likes}   🔁 {roq.retweets}\n"
-            f'{tweet.author.one_line} 转于 {tweet.created.strftime("%Y-%m-%d %H:%M:%S")}\n'
+            f"{tweet.author.one_line} 转于 {tweet.created.strftime('%Y-%m-%d %H:%M:%S')}\n"
             f"👁 {tweet.views}  👍 {tweet.likes}   🔁 {tweet.retweets}"
         )
     else:
         final_text += (
-            f'{tweet.author.one_line} 发表于 {tweet.created.strftime("%Y-%m-%d %H:%M:%S")}'
+            f"{tweet.author.one_line} 发表于 {tweet.created.strftime('%Y-%m-%d %H:%M:%S')}"
             f"\n👁 {tweet.views}  👍 {tweet.likes}   🔁 {tweet.retweets}"
         )
     return final_text

@@ -32,7 +32,7 @@ async def weather_graph_command(_: "Client", message: "Message"):
             await reply.edit(f"生成失败：{e.error}")
 
 
-@scheduler.scheduled_job("interval", hours=1, id="weather_graph_refresh")
+# @scheduler.scheduled_job("interval", hours=1, id="weather_graph_refresh")
 async def weather_graph_refresh():
     try:
         await gen()

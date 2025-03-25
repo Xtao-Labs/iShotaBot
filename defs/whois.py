@@ -28,18 +28,24 @@ def format_whois_result(data: dict) -> str:
     update_date = get_field("update_date")
 
     status_list = data.get("status", [])
-    status = "\n".join([f"• {s}" for s in status_list]) if status_list else "• 暂无状态信息"
+    status = (
+        "\n".join([f"• {s}" for s in status_list]) if status_list else "• 暂无状态信息"
+    )
 
     nameserver_list = data.get("nameserver", [])
-    nameserver = "\n".join([f"• {ns}" for ns in nameserver_list]) if nameserver_list else "• 暂无DNS信息"
+    nameserver = (
+        "\n".join([f"• {ns}" for ns in nameserver_list])
+        if nameserver_list
+        else "• 暂无DNS信息"
+    )
 
     owner_info = [
         f"├ 姓名：{get_field('owner_name')}",
         f"├ 机构：{get_field('owner_org')}",
         f"├ 邮箱：{get_field('owner_email')}",
-        f"└ 电话：{get_field('owner_phone')}"
+        f"└ 电话：{get_field('owner_phone')}",
     ]
-    owner_info_text = '\n'.join(owner_info)
+    owner_info_text = "\n".join(owner_info)
 
     return f"""
 🔍 Whois 查询结果 [ {domain_name} ]

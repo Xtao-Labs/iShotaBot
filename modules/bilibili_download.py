@@ -19,7 +19,7 @@ from models.services.bilifav import BiliFavAction
 async def bili_download_resolve(_: Client, message: Message):
     if "b23.tv" in message.text:
         message.text = await b23_extract(message.text)
-    p = re.compile(r"av(\d{1,12})|BV(\w{10})|b23.tv")
+    p = re.compile("\b(?:av(\d)|BV(\w{10}))|b23\.tv")
     video_number = p.search(message.text)
     if video_number:
         video_number = video_number[0]

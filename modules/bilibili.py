@@ -21,7 +21,7 @@ from scheduler import scheduler, add_delete_message_job
 @bot.on_message(
     filters.incoming
     & filters.text
-    & filters.regex(r"av(\d{1,12})|BV(\w{10})|b23.tv")
+    & filters.regex(r"\b(?:av(\d)|BV(\w{10}))|b23\.tv")
     & ~(
         filters.command(["download", "bilibili_fav"])
         & (filters.user(bili_auth_user) | filters.chat(bili_auth_chat))
@@ -33,7 +33,7 @@ async def bili_resolve(_: Client, message: Message):
     """
     if "b23.tv" in message.text:
         message.text = await b23_extract(message.text)
-    p = re.compile(r"av(\d{1,12})|BV(\w{10})|b23.tv")
+    p = re.compile(r"\b(?:av(\d)|BV(\w{10}))|b23\.tv")
     video_number = p.search(message.text)
     if video_number:
         video_number = video_number[0]

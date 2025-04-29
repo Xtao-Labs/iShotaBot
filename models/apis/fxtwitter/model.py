@@ -59,9 +59,9 @@ class FixTweet(BaseModel):
     likes: int
     """ 喜欢 """
     created_at: str
-    views: int
+    views: Optional[int] = 0
     """ 阅读次数 """
-    source: str
+    source: Optional[str] = ""
     medias: Optional[List[FixTweetMedia]] = None
     author: User
     retweeted: "FixTweet" = None

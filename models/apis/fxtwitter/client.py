@@ -29,14 +29,14 @@ class FixTwitterClient:
         return tweet
 
     async def tweet_detail(self, tid: int) -> FixTweet:
-        url = f"{self.url}X/status/{tid}"
+        url = f"{self.url}2/thread/{tid}"
         response = await self.client.get(url)
         if response.status_code != 200:
             raise FixTwitterError(response.status_code, response.text)
         data = response.json()
         if data.get("code", 200) != 200:
             raise FixTwitterError(data.get("code"), data.get("message"))
-        return self.gen_tweet(data["tweet"])
+        return self.gen_tweet(data["status"])
 
     async def user_by_screen_name(self, username: str) -> User:
         url = f"{self.url}{username}"

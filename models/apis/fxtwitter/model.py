@@ -54,7 +54,7 @@ class FixTweet(BaseModel):
     text: str
     replies: int
     """ 回复 """
-    retweets: int
+    reposts: int
     """ 转推 """
     likes: int
     """ 喜欢 """

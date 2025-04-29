@@ -104,14 +104,14 @@ def get_twitter_status(tweet: FixTweet):
         final_text += (
             f"<code>RT: {roq.text or '暂 无 内 容'}</code>\n\n"
             f"{roq.author.one_line} 发表于 {roq.created.strftime('%Y-%m-%d %H:%M:%S')}"
-            f"\n👁 {roq.views}  👍 {roq.likes}   🔁 {roq.retweets}\n"
+            f"\n👁 {roq.views}  👍 {roq.likes}   🔁 {roq.reposts}\n"
             f"{tweet.author.one_line} 转于 {tweet.created.strftime('%Y-%m-%d %H:%M:%S')}\n"
-            f"👁 {tweet.views}  👍 {tweet.likes}   🔁 {tweet.retweets}"
+            f"👁 {tweet.views}  👍 {tweet.likes}   🔁 {tweet.reposts}"
         )
     else:
         final_text += (
             f"{tweet.author.one_line} 发表于 {tweet.created.strftime('%Y-%m-%d %H:%M:%S')}"
-            f"\n👁 {tweet.views}  👍 {tweet.likes}   🔁 {tweet.retweets}"
+            f"\n👁 {tweet.views}  👍 {tweet.likes}   🔁 {tweet.reposts}"
         )
     return final_text
 

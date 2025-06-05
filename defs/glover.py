@@ -58,6 +58,9 @@ bsky_password = config.get("bsky", "password", fallback="")
 # predict
 predict_url = config.get("predict", "url", fallback="")
 predict_token = config.get("predict", "token", fallback="")
+# mc
+mc_server_url = config.get("mc", "server_url", fallback="")
+mc_group_id = config.getint("mc", "group_id", fallback=0)
 try:
     ipv6 = bool(strtobool(ipv6))
 except ValueError:

@@ -22,3 +22,4 @@ lottie
 atproto
 setuptools
 git+https://github.com/Xtao-Labs/lofter.py
+mcstatus

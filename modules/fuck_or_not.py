@@ -8,11 +8,18 @@ from init import bot
 
 @bot.on_message(filters.incoming & filters.command(["fuck", f"fuck@{bot.me.username}"]))
 async def fuck_or_not(_: Client, message: Message):
-    data = None
+    data, user = None, None
     if message.photo:
         data = await message.download(in_memory=True)
-    elif message.reply_to_message and message.reply_to_message.photo:
-        data = await message.reply_to_message.download(in_memory=True)
+    elif reply := message.reply_to_message:
+        if reply.photo:
+            data = await reply.download(in_memory=True)
+        elif reply.from_user and reply.from_user.photo:
+            user = reply.from_user.photo.big_file_id
+        elif reply.sender_chat and reply.sender_chat.photo:
+            user = reply.sender_chat.photo.big_file_id
+    if not data and user:
+        data = await bot.download_media(user, in_memory=True)
     if data:
         try:
             d = await run_chat_completion(data.getvalue())

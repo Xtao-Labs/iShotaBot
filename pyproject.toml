@@ -3,7 +3,39 @@ name = "ishotabot"
 version = "0.1.0"
 description = "ishotabot"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "ruff>=0.11.2",
+    "aiofiles>=24.1.0",
+    "aiosqlite>=0.21.0",
+    "apscheduler>=3.11.0",
+    "atproto>=0.0.61",
+    "beautifulsoup4>=4.13.4",
+    "bilibili-api-python>=17.3.0",
+    "cashews>=7.4.1",
+    "coloredlogs>=15.0.1",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "lofter-py",
+    "lottie>=0.7.2",
+    "lxml>=5.4.0",
+    "pillow>=11.2.1",
+    "playwright>=1.54.0",
+    "pydantic>=2.11.7",
+    "pyrogram",
+    "pyrotgcrypto>=1.2.7",
+    "pytz>=2025.2",
+    "qrcode>=8.2",
+    "setuptools>=80.9.0",
+    "sqlalchemy>=2.0.41",
+    "sqlmodel>=0.0.24",
+    "uvicorn>=0.35.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.4",
+]
+
+[tool.uv.sources]
+pyrogram = { git = "https://github.com/TeamPGM/pyrogram" }
+lofter-py = { git = "https://github.com/Xtao-Labs/lofter.py" }

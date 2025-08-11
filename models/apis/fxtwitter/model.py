@@ -9,7 +9,7 @@ class User(BaseModel):
     name: str
     screen_name: str
     avatar_url: str = ""
-    banner_url: str = ""
+    banner_url: Optional[str] = ""
     description: str = ""
     location: str = ""
     url: str

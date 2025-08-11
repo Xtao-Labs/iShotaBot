@@ -6,7 +6,7 @@ aiosqlite==0.21.0
     # via ishotabot
 annotated-types==0.7.0
     # via pydantic
-anyio==4.9.0
+anyio==4.10.0
     # via httpx
 apscheduler==3.11.0
     # via
@@ -24,7 +24,7 @@ brotli==1.1.0
     # via bilibili-api-python
 cashews==7.4.1
     # via ishotabot
-certifi==2025.7.14
+certifi==2025.8.3
     # via
     #   httpcore
     #   httpx
@@ -41,13 +41,13 @@ colorama==0.4.6
     #   qrcode
 coloredlogs==15.0.1
     # via ishotabot
-cryptography==45.0.5
+cryptography==45.0.6
     # via atproto
 dnspython==2.7.0
     # via atproto
 exceptiongroup==1.3.0 ; python_full_version < '3.11'
     # via anyio
-greenlet==3.2.3
+greenlet==3.2.4
     # via
     #   playwright
     #   sqlalchemy
@@ -83,7 +83,7 @@ lxml==5.4.0
     #   ishotabot
 markupsafe==3.0.2
     # via jinja2
-multidict==6.6.3
+multidict==6.6.4
     # via yarl
 pillow==11.2.1
     # via
@@ -114,7 +114,7 @@ pyjwt==2.10.1
     # via bilibili-api-python
 pyreadline3==3.5.4 ; sys_platform == 'win32'
     # via humanfriendly
-pyrogram @ git+https://github.com/TeamPGM/pyrogram@3090368b24caa35b71715752bd923ecadd934e1b
+pyrogram @ git+https://github.com/TeamPGM/pyrogram@6cbc94de0b0f70f354355b9c23b650d991b7662b
     # via ishotabot
 pyrotgcrypto==1.2.7
     # via ishotabot
@@ -131,14 +131,14 @@ qrcode==8.2
     #   qrcode-terminal
 qrcode-terminal==0.8
     # via bilibili-api-python
-ruff==0.12.4
+ruff==0.12.8
 setuptools==80.9.0
     # via ishotabot
 sniffio==1.3.1
     # via anyio
 soupsieve==2.7
     # via beautifulsoup4
-sqlalchemy==2.0.41
+sqlalchemy==2.0.42
     # via
     #   ishotabot
     #   sqlmodel

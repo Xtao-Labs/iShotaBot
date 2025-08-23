@@ -52,7 +52,7 @@ async def bsky_share(_: Client, message: Message):
     ):
         # 过滤绑定频道的转发
         return
-    if text.startswith("~"):
+    if text.startswith("~") or text.endswith("~"):
         return
     override_hidden = False
     if "no" in text or "不隐藏" in text:

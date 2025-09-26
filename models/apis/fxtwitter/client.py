@@ -13,7 +13,7 @@ class FixTwitterError(Exception):
 
 class FixTwitterClient:
     def __init__(self):
-        self.client = AsyncClient(timeout=60.0)
+        self.client = AsyncClient(timeout=60.0, headers={"User-Agent": "TelegramBot/iShotaBot"})
         self.url = "https://api.fxtwitter.com/"
 
     @staticmethod

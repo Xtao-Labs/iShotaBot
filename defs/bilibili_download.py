@@ -1,6 +1,7 @@
 import contextlib
 import os
 import time
+import traceback
 from asyncio import create_subprocess_shell, subprocess, Lock
 from io import BytesIO
 from typing import Tuple, Dict, Union, Optional
@@ -26,10 +27,16 @@ MESSAGE_MAP: Dict[int, float] = {}
 UPLOAD_MESSAGE_MAP: Dict[int, int] = {}
 CDN = [
     "",
-    "upos-hz-mirrorakam.akamaized.net",
-    "upos-sz-mirroraliov.bilivideo.com",
+    'upos-sz-mirroraliov.bilivideo.com',
+    'upos-sz-mirroralib.bilivideo.com',
+    "cn-hk-eq-01-03.bilivideo.com",
     "cn-hk-eq-01-09.bilivideo.com",
-    "cn-sccd-cu-01-08.bilivideo.com",
+    "cn-hk-eq-01-10.bilivideo.com",
+    "cn-hk-eq-01-12.bilivideo.com",
+    "cn-hk-eq-01-13.bilivideo.com",
+    "cn-hk-eq-01-14.bilivideo.com",
+    "cn-hk-eq-bcache-13.bilivideo.com",
+    "upos-hz-mirrorakam.akamaized.net",
 ]
 
 
@@ -154,51 +161,61 @@ async def download_url(url: str, out: str, m: Message, start: str):
         if i:
             u = URL(url).host
             url = url.replace(u, i)
-        async with AsyncClient(headers=HEADERS, timeout=60) as sess:
-            head = await sess.head(url)
-            if head.status_code != 200:
-                if i == CDN[-1]:
-                    raise BilibiliDownloaderError("下载链接异常，请尝试重新下载")
-                logger.warning(f"下载链接异常，使用 CDN {i} 失败，尝试使用其他 CDN")
-                continue
-            async with sess.stream("GET", url) as resp:
-                logger.info(f"Downloading {start}")
-                resp: Response
-                length = resp.headers.get("content-length")
-                if not length:
-                    raise FileNoSize
-                length = int(length)
-                if length > 1.9 * 1024 * 1024 * 1024:
-                    raise FileTooBig
-                total_downloaded = 0
-                temp_downloaded = 0
-                MESSAGE_MAP[m.id] = time.time() - EDIT_TEMP_SECONDS
-                async with aiofiles.open(out, "wb") as f:
-                    async for chunk in resp.aiter_bytes(1024):
-                        if not chunk:
-                            break
-                        chunk_len = len(chunk)
-                        total_downloaded += chunk_len
-                        temp_downloaded += chunk_len
-                        async with LOCK:
-                            _should_edit = should_edit(m)
-                            if _should_edit:
-                                now = time.time()
-                                chunk_time = now - MESSAGE_MAP[m.id]
-                                MESSAGE_MAP[m.id] = now
+            logger.info(f"上一个下载链接异常，使用 CDN {i}")
+        try:
+            return await download_url_by_cdn(url, out, m, start)
+        except BilibiliDownloaderError as e:
+            if i == CDN[-1]:
+                raise e
+            continue
+        except Exception as _:
+            traceback.print_exc()
+            continue
+
+
+async def download_url_by_cdn(url: str, out: str, m: Message, start: str):
+    async with AsyncClient(headers=HEADERS) as sess:
+        head = await sess.head(url, timeout=10)
+        if head.status_code != 200:
+            raise BilibiliDownloaderError("下载链接异常，请尝试重新下载")
+        async with sess.stream("GET", url, timeout=600) as resp:
+            logger.info(f"Downloading {start}")
+            resp: Response
+            length = resp.headers.get("content-length")
+            if not length:
+                raise FileNoSize
+            length = int(length)
+            if length > 1.9 * 1024 * 1024 * 1024:
+                raise FileTooBig
+            total_downloaded = 0
+            temp_downloaded = 0
+            MESSAGE_MAP[m.id] = time.time() - EDIT_TEMP_SECONDS
+            async with aiofiles.open(out, "wb") as f:
+                async for chunk in resp.aiter_bytes(1024):
+                    if not chunk:
+                        break
+                    chunk_len = len(chunk)
+                    total_downloaded += chunk_len
+                    temp_downloaded += chunk_len
+                    async with LOCK:
+                        _should_edit = should_edit(m)
                         if _should_edit:
-                            bot.loop.create_task(
-                                message_edit(
-                                    length,
-                                    total_downloaded,
-                                    temp_downloaded,
-                                    chunk_time,
-                                    m,
-                                    f"{start}下载",
-                                )
+                            now = time.time()
+                            chunk_time = now - MESSAGE_MAP[m.id]
+                            MESSAGE_MAP[m.id] = now
+                    if _should_edit:
+                        bot.loop.create_task(
+                            message_edit(
+                                length,
+                                total_downloaded,
+                                temp_downloaded,
+                                chunk_time,
+                                m,
+                                f"{start}下载",
                             )
-                            temp_downloaded = 0
-                        await f.write(chunk)
+                        )
+                        temp_downloaded = 0
+                    await f.write(chunk)
 
 
 async def get_video_duration(path: str) -> float:

@@ -27,8 +27,8 @@ MESSAGE_MAP: Dict[int, float] = {}
 UPLOAD_MESSAGE_MAP: Dict[int, int] = {}
 CDN = [
     "",
-    'upos-sz-mirroraliov.bilivideo.com',
-    'upos-sz-mirroralib.bilivideo.com',
+    "upos-sz-mirroraliov.bilivideo.com",
+    "upos-sz-mirroralib.bilivideo.com",
     "cn-hk-eq-01-03.bilivideo.com",
     "cn-hk-eq-01-09.bilivideo.com",
     "cn-hk-eq-01-10.bilivideo.com",

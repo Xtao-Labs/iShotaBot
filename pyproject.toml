@@ -5,22 +5,22 @@ description = "ishotabot"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "aiofiles>=24.1.0",
-    "aiosqlite>=0.21.0",
-    "apscheduler>=3.11.0",
-    "atproto>=0.0.61",
-    "beautifulsoup4>=4.13.4",
-    "bilibili-api-python>=17.3.0",
-    "cashews>=7.4.1",
+    "aiofiles>=25.1.0",
+    "aiosqlite>=0.22.0",
+    "apscheduler>=3.11.2",
+    "atproto>=0.0.65",
+    "beautifulsoup4>=4.14.3",
+    "bilibili-api-python>=17.4.1",
+    "cashews>=7.4.4",
     "coloredlogs>=15.0.1",
     "httpx>=0.28.1",
     "jinja2>=3.1.6",
     "lofter-py",
     "lottie>=0.7.2",
-    "lxml>=5.4.0",
-    "pillow>=11.2.1",
-    "playwright>=1.54.0",
-    "pydantic>=2.11.7",
+    "lxml>=6.0.2",
+    "pillow>=12.0.0",
+    "playwright>=1.57.0",
+    "pydantic>=2.12.5",
     "pyrogram",
     "pyrotgcrypto>=1.2.7",
     "pytz>=2025.2",
@@ -33,7 +33,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12.4",
+    "ruff>=0.14.10",
 ]
 
 [tool.uv.sources]

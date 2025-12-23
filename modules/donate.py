@@ -5,9 +5,7 @@ from defs.glover import admin
 from init import bot
 
 
-@bot.on_message(
-    filters.incoming & filters.command(["donate", f"donate@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["donate"]))
 async def send_donate(_, message: Message):
     amount = 10
     try:

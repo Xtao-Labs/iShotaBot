@@ -5,9 +5,7 @@ from defs.guess import guess_str
 from init import bot
 
 
-@bot.on_message(
-    filters.incoming & filters.command(["guess", f"guess@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["guess"]))
 async def guess_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")
     if len(message.text.split()) == 1:

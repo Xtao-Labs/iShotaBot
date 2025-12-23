@@ -5,7 +5,7 @@ from defs.geo import get_geo_data_from_message
 from init import bot
 
 
-@bot.on_message(filters.incoming & filters.command(["geo", f"geo@{bot.me.username}"]))
+@bot.on_message(filters.incoming & filters.command(["geo"]))
 async def geo_command(_: Client, message: Message):
     if len(message.command) <= 1:
         await message.reply("没有找到要查询的中国 经纬度/地址 ...")

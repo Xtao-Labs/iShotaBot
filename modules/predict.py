@@ -7,9 +7,7 @@ from defs.predict import predict
 from init import bot
 
 
-@bot.on_message(
-    filters.incoming & filters.command(["predict", f"predict@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["predict"]))
 async def predict_command(_: Client, message: Message):
     r = message
     if message.reply_to_message and message.reply_to_message.photo:

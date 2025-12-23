@@ -13,9 +13,7 @@ from defs.weather import Weather
 from init import bot
 
 
-@bot.on_message(
-    filters.incoming & filters.command(["weather", f"weather@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["weather"]))
 async def weather_command(_: Client, message: Message):
     if len(message.command) <= 1:
         await message.reply("没有找到要查询的中国 经纬度/地址 ...")
@@ -32,10 +30,7 @@ async def weather_command(_: Client, message: Message):
         await message.reply("获取天气信息失败 ...", quote=True)
 
 
-@bot.on_message(
-    filters.incoming
-    & filters.command(["weather_api", f"weather_api@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["weather_api"]))
 async def weather_api_command(_: Client, message: Message):
     if len(message.command) <= 1:
         await message.reply("没有找到要查询的中国 经纬度/地址 ...")

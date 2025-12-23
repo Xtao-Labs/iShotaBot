@@ -43,7 +43,7 @@ async def get_rep_text_from_msg(message: Message):
             return t
 
 
-@bot.on_message(filters.incoming & filters.command(["ip", f"ip@{bot.me.username}"]))
+@bot.on_message(filters.incoming & filters.command(["ip"]))
 async def ip_command(_: Client, message: Message):
     msg = await message.reply("正在查询中...")
     reply = message.reply_to_message

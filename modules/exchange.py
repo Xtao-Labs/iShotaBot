@@ -42,9 +42,7 @@ async def get_text(text: str, inline: bool):
     return text, False
 
 
-@bot.on_message(
-    filters.incoming & filters.command(["exchange", f"exchange@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["exchange"]))
 async def exchange_command(_: Client, message: Message):
     if not exchange_client.inited:
         await exchange_client.refresh()

@@ -10,10 +10,7 @@ from scheduler import scheduler
 CACHE_KEY = "weather_graph:file_id"
 
 
-@bot.on_message(
-    filters.incoming
-    & filters.command(["weather_graph", f"weather_graph@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.command(["weather_graph"]))
 async def weather_graph_command(_: "Client", message: "Message"):
     if file_id := await cache.get(CACHE_KEY):
         await message.reply_video(file_id, quote=True)

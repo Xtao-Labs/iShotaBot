@@ -78,9 +78,7 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
 
 
 @bot.on_message(
-    filters.incoming
-    & filters.group
-    & filters.command(["anti_channel_msg", f"anti_channel_msg@{bot.me.username}"])
+    filters.incoming & filters.group & filters.command(["anti_channel_msg"])
 )
 async def switch_anti_channel_msg(client: Client, message: Message):
     # Check user

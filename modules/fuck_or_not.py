@@ -6,7 +6,7 @@ from defs.fuck_or_not import run_chat_completion
 from init import bot
 
 
-@bot.on_message(filters.incoming & filters.command(["fuck", f"fuck@{bot.me.username}"]))
+@bot.on_message(filters.incoming & filters.command(["fuck"]))
 async def fuck_or_not(_: Client, message: Message):
     data, user = None, None
     if message.photo:

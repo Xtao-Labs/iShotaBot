@@ -51,7 +51,7 @@ def get_dc(message: Message):
     return dc, mention
 
 
-@bot.on_message(filters.incoming & filters.command(["dc", f"dc@{bot.me.username}"]))
+@bot.on_message(filters.incoming & filters.command(["dc"]))
 async def dc_command(_: Client, message: Message):
     dc, mention = get_dc(message)
     if dc:

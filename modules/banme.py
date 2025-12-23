@@ -22,11 +22,7 @@ def gen_cancel_button(uid: int):
     )
 
 
-@bot.on_message(
-    filters.incoming
-    & filters.group
-    & filters.command(["banme", f"banme@{bot.me.username}"])
-)
+@bot.on_message(filters.incoming & filters.group & filters.command(["banme"]))
 async def ban_me_command(client: Client, message: Message):
     args = str(message.text).strip()
     # 检查是否有倍数参数

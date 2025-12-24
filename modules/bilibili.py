@@ -83,6 +83,6 @@ async def bili_dynamic(_: Client, message: Message):
     raise ContinuePropagation
 
 
-@scheduler.scheduled_job("interval", hours=1, id="bili_cookie_refresh")
+@scheduler.scheduled_job("cron", hour="1,13", minute="0", name="bili_cookie_refresh", id="bili_cookie_refresh")
 async def bili_cookie_refresh():
     await check_and_refresh_credential()

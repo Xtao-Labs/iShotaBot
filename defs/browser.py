@@ -11,34 +11,18 @@
 
 __author__ = "yanyongyu"
 
-import asyncio
-import platform
 from contextlib import asynccontextmanager
 from os import getcwd
-from typing import Optional, AsyncIterator
+from typing import Optional, AsyncIterator, TYPE_CHECKING
 from playwright.async_api import Page, Browser, async_playwright, Error
 from init import logger
-from uvicorn.loops import asyncio as _asyncio
-from uvicorn import config
+
+if TYPE_CHECKING:
+    from playwright.async_api._generated import Playwright as AsyncPlaywright
 
 
-def asyncio_setup():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-
-@property
-def should_reload(self):
-    return False
-
-
-if platform.system() == "Windows":
-    _asyncio.asyncio_setup = asyncio_setup
-    config.Config.should_reload = should_reload
-    logger.warning("检测到当前为 Windows 系统，已自动注入猴子补丁")
-
-_browser: Optional[Browser] = None
-_playwright = None
+_browser: Optional["Browser"] = None
+_playwright: Optional["AsyncPlaywright"] = None
 
 
 async def init(**kwargs) -> Browser:
@@ -72,8 +56,10 @@ async def get_new_page(**kwargs) -> AsyncIterator[Page]:
 
 
 async def shutdown_browser():
-    await _browser.close()
-    await _playwright.stop()
+    if _browser:
+        await _browser.close()
+    if _playwright:
+        await _playwright.stop()
 
 
 async def install_browser():

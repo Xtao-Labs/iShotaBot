@@ -8,6 +8,7 @@ dependencies = [
     "aiofiles>=25.1.0",
     "aiosqlite>=0.22.0",
     "apscheduler>=3.11.2",
+    "asyncio>=4.0.0",
     "atproto>=0.0.65",
     "beautifulsoup4>=4.14.3",
     "bilibili-api-python>=17.4.1",
@@ -28,7 +29,6 @@ dependencies = [
     "setuptools>=80.9.0",
     "sqlalchemy>=2.0.41",
     "sqlmodel>=0.0.24",
-    "uvicorn>=0.35.0",
 ]
 
 [dependency-groups]

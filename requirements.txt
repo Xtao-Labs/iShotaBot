@@ -2,7 +2,7 @@
 #    uv export -o requirements.txt --no-hashes
 aiofiles==25.1.0
     # via ishotabot
-aiosqlite==0.22.0
+aiosqlite==0.22.1
     # via ishotabot
 annotated-types==0.7.0
     # via pydantic
@@ -12,6 +12,8 @@ apscheduler==3.11.2
     # via
     #   bilibili-api-python
     #   ishotabot
+asyncio==4.0.0
+    # via ishotabot
 atproto==0.0.65
     # via ishotabot
 beautifulsoup4==4.14.3
@@ -31,9 +33,7 @@ certifi==2025.11.12
 cffi==2.0.0 ; platform_python_implementation != 'PyPy'
     # via cryptography
 click==8.3.1
-    # via
-    #   atproto
-    #   uvicorn
+    # via atproto
 colorama==0.4.6
     # via
     #   bilibili-api-python
@@ -52,9 +52,7 @@ greenlet==3.3.0
     #   playwright
     #   sqlalchemy
 h11==0.16.0
-    # via
-    #   httpcore
-    #   uvicorn
+    # via httpcore
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
@@ -140,7 +138,7 @@ sqlalchemy==2.0.45
     # via
     #   ishotabot
     #   sqlmodel
-sqlmodel==0.0.27
+sqlmodel==0.0.29
     # via ishotabot
 typing-extensions==4.15.0
     # via
@@ -155,15 +153,12 @@ typing-extensions==4.15.0
     #   pyee
     #   sqlalchemy
     #   typing-inspection
-    #   uvicorn
 typing-inspection==0.4.2
     # via pydantic
 tzdata==2025.3 ; sys_platform == 'win32'
     # via tzlocal
 tzlocal==5.3.1
     # via apscheduler
-uvicorn==0.40.0
-    # via ishotabot
 websockets==15.0.1
     # via atproto
 yarl==1.22.0

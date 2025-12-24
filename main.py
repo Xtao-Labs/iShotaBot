@@ -1,7 +1,7 @@
 import asyncio
-
 from pyrogram import idle
 
+from defs import browser
 from init import logs, bot, sqlite
 from models.services.bsky import bsky_client
 from scheduler import scheduler
@@ -18,7 +18,9 @@ async def main():
     await idle()
     await bot.stop()
     sqlite.stop()
+    scheduler.shutdown()
+    await browser.shutdown_browser()
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main())
+    bot.run(main())

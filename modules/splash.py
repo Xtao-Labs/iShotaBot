@@ -18,7 +18,7 @@ async def splash_update(_: Client, message: Message):
     await message.reply("更新成功", quote=True)
 
 
-@scheduler.scheduled_job("interval", minutes=30, id="splash_update")
+# @scheduler.scheduled_job("interval", minutes=30, id="splash_update")
 async def splash_update_job() -> None:
     await update_splash()
 

@@ -50,8 +50,8 @@ class Exchange:
             rate_data = req.json()
             rate = rate_data[FROM.lower()][TO.lower()]
             return (
-                f"{num} {FROM} = <b>{round(num * rate, 2)} {TO}</b>\n"
-                f"Rate: <b>{round(1.0 * rate, 6)}</b>"
+                f'<emoji id="5451882707875276247">🕯</emoji> {num} {FROM} = <b>{round(num * rate, 2)} {TO}</b>\n'
+                f'<emoji id="5229064374403998351">🛍</emoji> Rate: <b>{round(1.0 * rate, 6)}</b>'
             )
         except Exception as e:
             print(e)

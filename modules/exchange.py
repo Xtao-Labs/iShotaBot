@@ -5,8 +5,13 @@ from pyrogram.types import (
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    ChosenInlineResult,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    CallbackQuery,
 )
 
+from defs import inline_result_filters
 from defs.exchange import exchange_client
 from scheduler import scheduler
 from init import bot
@@ -18,6 +23,8 @@ async def exchange_refresh() -> None:
 
 
 async def get_text(text: str, inline: bool):
+    if not exchange_client.inited:
+        await exchange_client.refresh()
     if not exchange_client.inited:
         return "获取汇率数据出现错误！", False
     text = await exchange_client.check_ex(text)
@@ -44,8 +51,6 @@ async def get_text(text: str, inline: bool):
 
 @bot.on_message(filters.incoming & filters.command(["exchange"]))
 async def exchange_command(_: Client, message: Message):
-    if not exchange_client.inited:
-        await exchange_client.refresh()
     text, success = await get_text(message.text, False)
     reply_ = await message.reply(text)
     if not success and message.chat.type == ChatType.PRIVATE:
@@ -56,17 +61,42 @@ async def exchange_command(_: Client, message: Message):
 
 @bot.on_inline_query(filters.regex("^exchange"))
 async def exchange_inline(_: Client, inline_query: InlineQuery):
-    text, success = await get_text(inline_query.query, True)
+    query = inline_query.query
+    text, success = await get_text(query, True)
     results = [
         InlineQueryResultArticle(
             title="查询汇率数据成功" if success else "查询汇率数据失败",
             input_message_content=InputTextMessageContent(message_text=text),
-            # reply_markup=InlineKeyboardMarkup(
-            #     [[InlineKeyboardButton(text="重试", callback_data="dc")]]
-            # ),
+            reply_markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton(text="重试", callback_data=query)]]
+            ),
         )
     ]
     await inline_query.answer(
         results=results,
         cache_time=0,
     )
+
+
+@bot.on_chosen_inline_result(inline_result_filters.regex(r"^exchange"))
+async def exchange_choose_callback(_: Client, chosen_inline_result: ChosenInlineResult):
+    mid = chosen_inline_result.inline_message_id
+    query = chosen_inline_result.query
+    if not mid or not query:
+        return
+    text, success = await get_text(query, True)
+    await bot.edit_inline_text(mid, text)
+
+
+@bot.on_callback_query(filters.regex(r"^exchange"))
+async def exchange_callback(_: Client, callback_query: CallbackQuery):
+    mid = callback_query.inline_message_id
+    query = callback_query.data
+    if not mid:
+        await callback_query.answer("数据错误", show_alert=True)
+        callback_query.continue_propagation()
+    text, success = await get_text(query, True)
+    try:
+        await callback_query.edit_message_text(text)
+    except Exception:
+        await callback_query.answer("数据错误", show_alert=True)

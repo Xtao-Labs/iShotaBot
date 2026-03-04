@@ -12,6 +12,8 @@ apscheduler==3.11.2
     # via
     #   bilibili-api-python
     #   ishotabot
+async-timeout==5.0.1 ; python_full_version < '3.11'
+    # via python-socks
 asyncio==4.0.0
     # via ishotabot
 atproto==0.0.65
@@ -24,9 +26,9 @@ bilibili-api-python==17.4.1
     # via ishotabot
 brotli==1.2.0
     # via bilibili-api-python
-cashews==7.4.4
+cashews==7.5.0
     # via ishotabot
-certifi==2026.1.4
+certifi==2026.2.25
     # via
     #   httpcore
     #   httpx
@@ -41,13 +43,13 @@ colorama==0.4.6
     #   qrcode
 coloredlogs==15.0.1
     # via ishotabot
-cryptography==46.0.3
+cryptography==46.0.5
     # via atproto
 dnspython==2.8.0
     # via atproto
 exceptiongroup==1.3.1 ; python_full_version < '3.11'
     # via anyio
-greenlet==3.3.1
+greenlet==3.3.2
     # via
     #   playwright
     #   sqlalchemy
@@ -83,12 +85,12 @@ markupsafe==3.0.3
     # via jinja2
 multidict==6.7.1
     # via yarl
-pillow==12.1.0
+pillow==12.1.1
     # via
     #   bilibili-api-python
     #   ishotabot
     #   qrcode-terminal
-playwright==1.57.0
+playwright==1.58.0
     # via ishotabot
 propcache==0.4.1
     # via yarl
@@ -106,19 +108,19 @@ pydantic==2.12.5
     #   sqlmodel
 pydantic-core==2.41.5
     # via pydantic
-pyee==13.0.0
+pyee==13.0.1
     # via playwright
-pyjwt==2.10.1
+pyjwt==2.11.0
     # via bilibili-api-python
 pyreadline3==3.5.4 ; sys_platform == 'win32'
     # via humanfriendly
-pyrogram @ git+https://github.com/TeamPGM/pyrogram@323afd2a8a243dbbdac90b83e9bab090037f2898
+pyrogram @ git+https://github.com/TeamPGM/pyrogram@1ba7e6bf53c315579b225c3eae77bbd87b490d5b
     # via ishotabot
 pyrotgcrypto==1.2.7
     # via ishotabot
-pysocks==1.7.1
+python-socks==2.8.1
     # via pyrogram
-pytz==2025.2
+pytz==2026.1.post1
     # via ishotabot
 pyyaml==6.0.3
     # via bilibili-api-python
@@ -129,16 +131,16 @@ qrcode==8.2
     #   qrcode-terminal
 qrcode-terminal==0.8
     # via bilibili-api-python
-ruff==0.14.14
-setuptools==80.10.2
+ruff==0.15.4
+setuptools==82.0.0
     # via ishotabot
 soupsieve==2.8.3
     # via beautifulsoup4
-sqlalchemy==2.0.46
+sqlalchemy==2.0.48
     # via
     #   ishotabot
     #   sqlmodel
-sqlmodel==0.0.31
+sqlmodel==0.0.37
     # via ishotabot
 typing-extensions==4.15.0
     # via
@@ -161,5 +163,5 @@ tzlocal==5.3.1
     # via apscheduler
 websockets==15.0.1
     # via atproto
-yarl==1.22.0
+yarl==1.23.0
     # via bilibili-api-python

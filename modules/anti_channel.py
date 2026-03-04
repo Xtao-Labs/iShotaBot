@@ -82,11 +82,12 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
 )
 async def switch_anti_channel_msg(client: Client, message: Message):
     # Check user
-    if message.from_user:
-        data = await client.get_chat_member(message.chat.id, message.from_user.id)
-        if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-            await message.reply("You are not an admin of this chat.")
-            raise ContinuePropagation
+    if not message.from_user:
+        return
+    data = await client.get_chat_member(message.chat.id, message.from_user.id)
+    if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
+        await message.reply("You are not an admin of this chat.")
+        raise ContinuePropagation
     # Check self
     data = await client.get_chat_member(message.chat.id, bot.me.id)
     if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:

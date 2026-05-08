@@ -1,4 +1,3 @@
-import asyncio
 from pyrogram import idle
 
 from defs import browser

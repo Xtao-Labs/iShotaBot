@@ -28,8 +28,8 @@ async def detect_member_rank_change(
     old_member = chat_member_updated.old_chat_member
     if not member or not member.user or not old_member or not old_member.user:
         raise ContinuePropagation
-    now_rank = member.rank
-    old_rank = old_member.rank
+    now_rank = member.tag
+    old_rank = old_member.tag
     actor = chat_member_updated.from_user
     if now_rank == old_rank:
         raise ContinuePropagation

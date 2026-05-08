@@ -1,4 +1,5 @@
 import inspect
+import re
 from types import MethodType
 
 import pyrogram
@@ -66,7 +67,9 @@ async def guest_chat_query(client: Client, update: Update, users, chats):
     text = message.text or message.caption or ""
     query = text
     if me := client.me:
-        query = query.replace(f"@{me.username}", "").strip()
+        query = re.sub(
+            rf"@{re.escape(me.username)}", "", query, flags=re.IGNORECASE
+        ).strip()
 
     if not query:
         result = InlineQueryResultArticle(

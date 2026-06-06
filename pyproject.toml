@@ -19,8 +19,9 @@ dependencies = [
     "lofter-py",
     "lottie>=0.7.2",
     "lxml>=6.0.2",
+    "markdown>=3.10.2",
     "pillow>=12.0.0",
-    "playwright>=1.57.0",
+    "playwright==1.58.0",
     "pydantic>=2.12.5",
     "pyrefly>=0.45.0",
     "pyrogram",
@@ -38,5 +39,5 @@ dev = [
 ]
 
 [tool.uv.sources]
-pyrogram = { git = "https://github.com/TeamPGM/pyrogram" }
+pyrogram = { git = "https://github.com/TeamPGM/pyrogram", branch = "dev" }
 lofter-py = { git = "https://github.com/Xtao-Labs/lofter.py" }

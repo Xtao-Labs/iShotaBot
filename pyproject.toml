@@ -39,5 +39,5 @@ dev = [
 ]
 
 [tool.uv.sources]
-pyrogram = { git = "https://github.com/TeamPGM/pyrogram", branch = "dev" }
+pyrogram = { git = "https://github.com/TeamPGM/pyrogram" }
 lofter-py = { git = "https://github.com/Xtao-Labs/lofter.py" }

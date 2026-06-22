@@ -1553,7 +1553,7 @@ wheels = [
 [[package]]
 name = "pyrogram"
 version = "2.0.155.dev3"
-source = { git = "https://github.com/TeamPGM/pyrogram#8f3f9b97880696560966a5bc4048ec6a1b509386" }
+source = { git = "https://github.com/TeamPGM/pyrogram#b5e55bc57b8624116cafdafa600d93826d876180" }
 dependencies = [
     { name = "pyaes" },
     { name = "python-socks", extra = ["asyncio"] },

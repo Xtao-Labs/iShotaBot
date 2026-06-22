@@ -24,6 +24,8 @@ START_TEXT = """欢迎使用 iShotaBot！
 ★ ip - 查询 ip 数据
 ★ whois - 查询 whois 数据
 ★ weather - 查询天气数据
+★ md - 使用 markdown 渲染消息
+★ html - 使用 html 渲染消息
 """
 
 

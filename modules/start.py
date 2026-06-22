@@ -39,6 +39,20 @@ async def start_command(_: Client, message: Message):
     )
 
 
+# 内联查询帮助列表：每项为 (关键词, 描述) 格式
+# 添加更多帮助只需在此列表追加一项即可
+INLINE_HELPS: list[tuple[str, str]] = [
+    ("m", "使用 m 来查询米游社启动图"),
+    ("dc", "使用 dc 来查询会话数据中心"),
+    ("exchange", "使用 exchange 来查询汇率数据"),
+    ("ip", "使用 ip 来查询 ip 数据"),
+    ("whois", "使用 whois 来查询 whois 数据"),
+    ("weather", "使用 weather 来查询天气数据"),
+    ("md", "使用 markdown 渲染消息"),
+    ("html", "使用 html 渲染消息"),
+]
+
+
 def empty():
     async def fun(_, __, update):
         return not bool(update.query)
@@ -46,53 +60,22 @@ def empty():
     return filters.create(fun)
 
 
+def _build_help_results() -> list[InlineQueryResultArticle]:
+    """根据 INLINE_HELPS 构造内联帮助条目列表"""
+    return [
+        InlineQueryResultArticle(
+            title=keyword,
+            input_message_content=InputTextMessageContent(desc),
+            description=desc,
+        )
+        for keyword, desc in INLINE_HELPS
+    ]
+
+
 @bot.on_inline_query(filters=empty())
 async def empty_inline(_, inline_query: InlineQuery):
-    results = [
-        InlineQueryResultArticle(
-            title="@username",
-            input_message_content=InputTextMessageContent("使用 @username 来查询遗产"),
-            description="使用 @username 来查询遗产",
-        ),
-        InlineQueryResultArticle(
-            title="m",
-            input_message_content=InputTextMessageContent("使用 m 来查询米游社启动图"),
-            description="使用 m 来查询米游社启动图",
-        ),
-        InlineQueryResultArticle(
-            title="dc",
-            input_message_content=InputTextMessageContent("使用 dc 来查询会话数据中心"),
-            description="使用 dc 来查询会话数据中心",
-        ),
-        InlineQueryResultArticle(
-            title="exchange",
-            input_message_content=InputTextMessageContent(
-                "使用 exchange 来查询汇率数据"
-            ),
-            description="使用 exchange 来查询汇率数据",
-        ),
-        InlineQueryResultArticle(
-            title="ip",
-            input_message_content=InputTextMessageContent("使用 ip 来查询 ip 数据"),
-            description="使用 ip 来查询 ip 数据",
-        ),
-        InlineQueryResultArticle(
-            title="whois",
-            input_message_content=InputTextMessageContent(
-                "使用 whois 来查询 whois 数据"
-            ),
-            description="使用 whois 来查询 whois 数据",
-        ),
-        InlineQueryResultArticle(
-            title="weather",
-            input_message_content=InputTextMessageContent(
-                "使用 weather 来查询天气数据"
-            ),
-            description="使用 weather 来查询天气数据",
-        ),
-    ]
     return await inline_query.answer(
-        results=results,
+        results=_build_help_results(),
         switch_pm_text="使用关键词开始查询",
         switch_pm_parameter="start",
         cache_time=0,

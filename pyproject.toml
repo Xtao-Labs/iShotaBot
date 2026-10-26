@@ -3,7 +3,7 @@ name = "ishotabot"
 version = "0.1.0"
 description = "ishotabot"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "aiofiles>=25.1.0",
     "aiosqlite>=0.22.0",
@@ -23,18 +23,18 @@ dependencies = [
     "pillow>=12.0.0",
     "playwright==1.58.0",
     "pydantic>=2.12.5",
-    "pyrefly>=0.45.0",
     "pyrogram",
     "pyrotgcrypto>=1.2.7",
-    "pytz>=2025.2",
+    "pytz>=2026.3",
     "qrcode>=8.2",
-    "setuptools>=80.9.0",
+    "setuptools>=83.0.0",
     "sqlalchemy>=2.0.41",
-    "sqlmodel>=0.0.24",
+    "sqlmodel>=0.0.39",
 ]
 
 [dependency-groups]
 dev = [
+    "pyrefly>=1.2.0",
     "ruff>=0.14.10",
 ]
 

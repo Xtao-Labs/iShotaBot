@@ -1,7 +1,7 @@
 import base64
 import json
 import random
-from typing import Dict, Any
+from typing import Any
 
 from httpx import AsyncClient, Cookies
 
@@ -83,7 +83,7 @@ class TwitterClient:
         self.inited = False
 
     async def request(
-        self, url: str, method: str = "GET", headers: Dict[str, str] = None, **kwargs
+        self, url: str, method: str = "GET", headers: dict[str, str] = None, **kwargs
     ):
         headers = headers or self.headers
         headers = {key: value for key, value in headers.items() if value is not None}
@@ -148,7 +148,7 @@ class TwitterClient:
     async def pagination_tweets(
         self,
         endpoint: str,
-        variables: Dict[str, Any],
+        variables: dict[str, Any],
     ) -> Tweet:
         _variables = self._variables.copy()
         _variables.update(variables)
@@ -165,7 +165,7 @@ class TwitterClient:
             raise TwitterError(400, result.get("reason"))
         tweet_legacy = result["legacy"]
         user = User(**result["core"]["user_results"]["result"]["legacy"])
-        tweet = Tweet(**tweet_legacy, **{"user": user})
+        tweet = Tweet(**tweet_legacy, user=user)
         if tweet_legacy.get("quoted_status_id_str"):
             try:
                 tweet.quoted = await self.tweet_detail(

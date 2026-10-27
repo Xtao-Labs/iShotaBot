@@ -1,6 +1,5 @@
-from typing import List
 
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
 class Button:
@@ -10,7 +9,7 @@ class Button:
         self.data = data  # 按钮指向的链接/回调数据
 
 
-def gen_button(data: List) -> InlineKeyboardMarkup:
+def gen_button(data: list) -> InlineKeyboardMarkup:
     """
     生成按钮
     :param data: 按钮数据

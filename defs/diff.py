@@ -1,4 +1,3 @@
-from typing import List
 
 
 class cache:
@@ -13,7 +12,7 @@ class cache:
             return False
 
 
-def merge(intervals: List[cache]):
+def merge(intervals: list[cache]):
     """合并重复区间
     :param intervals: 待去重区间
     :returns: 去重的区间（根据开始位置逆序）
@@ -40,12 +39,12 @@ def compare(origin: str, dest: str, sensitive: int):
     """
     length = max(len(origin), len(dest)) ** 2
     matrix = [0 for i in range(length)]
-    cache_array: List[cache] = []
+    cache_array: list[cache] = []
 
     def convert(index_y: int, index_x: int):
         return index_y * len(origin) + index_x
 
-    def remove(arr: List[cache], obj: cache):
+    def remove(arr: list[cache], obj: cache):
         return list(filter(lambda s: s != obj, arr))
 
     def new_cache(end: int, offset: int):
@@ -75,7 +74,7 @@ def compare(origin: str, dest: str, sensitive: int):
     return merge(cache_array)
 
 
-def render(s: str, flag: List[cache], tag: str):
+def render(s: str, flag: list[cache], tag: str):
     """给重复区间加tag
     :param s: raw text
     :param flag: repeat area Array

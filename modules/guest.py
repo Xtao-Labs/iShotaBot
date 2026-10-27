@@ -8,11 +8,11 @@ from pyrogram.enums import ChatType
 from pyrogram.handlers import InlineQueryHandler
 from pyrogram.raw.types import UpdateBotGuestChatQuery
 from pyrogram.types import (
-    Update,
     InlineQuery,
-    User,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    Update,
+    User,
 )
 
 from init import bot

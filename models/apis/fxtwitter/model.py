@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -9,7 +8,7 @@ class User(BaseModel):
     name: str
     screen_name: str
     avatar_url: str = ""
-    banner_url: Optional[str] = ""
+    banner_url: str | None = ""
     description: str = ""
     location: str = ""
     url: str
@@ -59,10 +58,10 @@ class FixTweet(BaseModel):
     likes: int
     """ 喜欢 """
     created_at: str
-    views: Optional[int] = 0
+    views: int | None = 0
     """ 阅读次数 """
-    source: Optional[str] = ""
-    medias: Optional[List[FixTweetMedia]] = None
+    source: str | None = ""
+    medias: list[FixTweetMedia] | None = None
     author: User
     retweeted: "FixTweet" = None
     quoted: "FixTweet" = None

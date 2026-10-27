@@ -1,6 +1,7 @@
 import textwrap
 from io import BytesIO
 from os import sep
+
 from PIL import Image, ImageDraw, ImageFont
 
 

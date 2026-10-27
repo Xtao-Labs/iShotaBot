@@ -1,29 +1,29 @@
-from typing import TYPE_CHECKING, Optional, Union, List
-
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional, Union
 
 import pytz
-from pydantic import BaseModel
-
-from atproto_client.models.app.bsky.embed.images import View as BskyViewImage
-from atproto_client.models.app.bsky.embed.video import View as BskyViewVideo
 from atproto_client.models.app.bsky.embed.external import View as BskyViewExternal
+from atproto_client.models.app.bsky.embed.images import View as BskyViewImage
 from atproto_client.models.app.bsky.embed.record import (
     View as BskyViewRecord,
+)
+from atproto_client.models.app.bsky.embed.record import (
     ViewRecord as BskyViewRecordRecord,
 )
+from atproto_client.models.app.bsky.embed.video import View as BskyViewVideo
+from pydantic import BaseModel
 
 from .bsky_richtext import bsky_html_parser
 
 if TYPE_CHECKING:
+    from atproto_client.models.app.bsky.actor.defs import (
+        ProfileViewBasic,
+        ProfileViewDetailed,
+    )
     from atproto_client.models.app.bsky.feed.defs import (
         FeedViewPost,
         PostView,
         ThreadViewPost,
-    )
-    from atproto_client.models.app.bsky.actor.defs import (
-        ProfileViewBasic,
-        ProfileViewDetailed,
     )
 
 TZ = pytz.timezone("Asia/Shanghai")
@@ -35,13 +35,13 @@ class HumanAuthor(BaseModel):
     display_name: str
     handle: str
     did: str
-    avatar_img: Optional[str] = None
+    avatar_img: str | None = None
     created_at: datetime
 
-    description: Optional[str] = None
-    followers_count: Optional[int] = None
-    follows_count: Optional[int] = None
-    posts_count: Optional[int] = None
+    description: str | None = None
+    followers_count: int | None = None
+    follows_count: int | None = None
+    posts_count: int | None = None
 
     @property
     def url(self) -> str:
@@ -98,11 +98,11 @@ class HumanRepostInfo(BaseModel):
 class HumanPost(BaseModel, frozen=False):
     cid: str
     content: str
-    images: Optional[list[str]] = None
-    gif: Optional[str] = None
-    video: Optional[str] = None
-    video_thumbnail: Optional[str] = None
-    external: Optional[str] = None
+    images: list[str] | None = None
+    gif: str | None = None
+    video: str | None = None
+    video_thumbnail: str | None = None
+    external: str | None = None
     created_at: datetime
 
     like_count: int
@@ -114,13 +114,13 @@ class HumanPost(BaseModel, frozen=False):
 
     author: HumanAuthor
 
-    labels: List[str]
+    labels: list[str]
 
     is_quote: bool = False
     is_reply: bool = False
     is_repost: bool = False
 
-    repost_info: Optional[HumanRepostInfo] = None
+    repost_info: HumanRepostInfo | None = None
     parent_post: Optional["HumanPost"] = None
 
     @property
@@ -150,7 +150,7 @@ class HumanPost(BaseModel, frozen=False):
     @staticmethod
     def parse_labels(
         post: Union["PostView", "BskyViewRecordRecord"], author: HumanAuthor
-    ) -> List[str]:
+    ) -> list[str]:
         labels = []
         if not post.labels:
             return labels

@@ -1,6 +1,6 @@
 import re
 import secrets
-from typing import List
+
 from init import bot
 
 
@@ -44,7 +44,7 @@ async def hif(message: str) -> str:
 
 async def who(message: str, group_id: int) -> str:
     group_member_list = await bot.get_chat_member(group_id)
-    member_list: List[str] = [n.first_name for n in group_member_list]
+    member_list: list[str] = [n.first_name for n in group_member_list]
     while "谁" in message:
         member_name = member_list[secrets.choice(range(len(member_list) - 1))]
         message = message.replace("谁", member_name, 1)

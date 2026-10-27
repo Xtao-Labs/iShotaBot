@@ -2,12 +2,9 @@ from pathlib import Path
 
 from atproto import AsyncClient
 from atproto.exceptions import BadRequestError
-
-from typing import Optional
-
 from atproto_client import Session, SessionEvent
 
-from defs.glover import bsky_username, bsky_password
+from defs.glover import bsky_password, bsky_username
 from init import logs
 
 DATA_PATH = Path("data")
@@ -17,7 +14,7 @@ class SessionReuse:
     def __init__(self):
         self.session_file = DATA_PATH / "session.txt"
 
-    def get_session(self) -> Optional[str]:
+    def get_session(self) -> str | None:
         try:
             with open(self.session_file, encoding="UTF-8") as f:
                 return f.read()

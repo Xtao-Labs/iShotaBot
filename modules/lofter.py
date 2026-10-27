@@ -1,4 +1,4 @@
-from pyrogram import Client, filters, ContinuePropagation
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
@@ -28,7 +28,7 @@ async def lofter_share(_: Client, message: Message):
                     await img[0].reply_to(message, static=static)
                 else:
                     await message.reply_media_group(
-                        media=await input_media(img[:9], static), quote=True
+                        media=await input_media(img[:9], static)
                     )
             # elif "front/blog" not in url:
             #     text, avatar, username, status_link = await get_loft_user(url)
@@ -36,14 +36,12 @@ async def lofter_share(_: Client, message: Message):
             #         await message.reply_photo(
             #             avatar,
             #             caption=text,
-            #             quote=True,
             #             reply_markup=lofter_user_link(username, status_link),
             #         )
             #     else:
             #         await message.reply_text(
             #             text,
-            #             quote=True,
-            #             disable_web_page_preview=True,
+            #             link_preview_options=LinkPreviewOptions(is_disabled=True),
             #             reply_markup=lofter_user_link(username, status_link),
             #         )
     except Exception as e:

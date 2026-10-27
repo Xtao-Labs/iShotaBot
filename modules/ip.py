@@ -2,14 +2,15 @@ from urllib.parse import urlparse
 
 from pyrogram import Client, filters
 from pyrogram.types import (
-    Message,
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    LinkPreviewOptions,
+    Message,
 )
 
 from defs.ip import ip_info
-from init import request, bot
+from init import bot, request
 
 
 async def get_rep_text(url: str):
@@ -34,7 +35,7 @@ async def get_rep_text_from_msg(message: Message):
         return
     if not message.entities:
         return
-    for num in range(0, len(message.entities)):
+    for num in range(len(message.entities)):
         url = message.text[
             message.entities[num].offset : message.entities[num].offset
             + message.entities[num].length
@@ -57,10 +58,14 @@ async def ip_command(_: Client, message: Message):
         await msg.edit("没有找到要查询的 ip/域名 ...")
     elif rep_text != "" and text != "":
         await msg.edit(
-            f"{rep_text}\n================\n{text}", disable_web_page_preview=True
+            f"{rep_text}\n================\n{text}",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
         )
     else:
-        await msg.edit(f"{rep_text}{text}", disable_web_page_preview=True)
+        await msg.edit(
+            f"{rep_text}{text}",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
+        )
 
 
 @bot.on_inline_query(filters.regex("^ip"))

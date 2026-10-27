@@ -5,18 +5,17 @@ import re
 import time
 from asyncio import sleep
 from io import BytesIO
-from typing import List, Dict
 
 from pyrogram.errors import FloodWait
 from pyrogram.types import Message
 
 from defs.glover import lofter_channel
 from defs.lofter_defs import lofter_link
-from models.services.lofter import LofterPost as LofterPostModel
+from init import bot, request
 from models.models.lofter import Lofter as LofterModel
-from init import request, bot
+from models.services.lofter import LofterPost as LofterPostModel
 
-pattern = re.compile(r"<[^>]+>", re.S)
+pattern = re.compile(r"<[^>]+>", re.DOTALL)
 
 
 class LofterPost:
@@ -116,7 +115,7 @@ class LofterPost:
                 await self.upload(file)
 
     @staticmethod
-    def parse_data(data: List[Dict]) -> List[Item]:
+    def parse_data(data: list[dict]) -> list[Item]:
         datas = []
         for i in data:
             if post_data := i.get("postData"):
@@ -161,8 +160,8 @@ class LofterPost:
                                     first = False
         return datas
 
-    async def get_items(self) -> List[Item]:
-        datas: List[LofterPost.Item] = []
+    async def get_items(self) -> list[Item]:
+        datas: list[LofterPost.Item] = []
         data = await self.get_data()
         if data:
             data = data.get("data", {})

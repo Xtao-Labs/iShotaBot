@@ -1,4 +1,4 @@
-from typing import cast, Optional, List
+from typing import cast
 
 from sqlalchemy import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -9,7 +9,7 @@ from models.models.splash import Splash
 
 class SplashService:
     @staticmethod
-    async def get_by_splash_id(splash_id: int) -> Optional[Splash]:
+    async def get_by_splash_id(splash_id: int) -> Splash | None:
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             check = Splash.id == splash_id
@@ -18,7 +18,7 @@ class SplashService:
             return post[0] if (post := results.first()) else None
 
     @staticmethod
-    async def get_all_splashes() -> List[Optional[Splash]]:
+    async def get_all_splashes() -> list[Splash | None]:
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(Splash)

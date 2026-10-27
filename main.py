@@ -1,7 +1,7 @@
 from pyrogram import idle
 
 from defs import browser
-from init import logs, bot, sqlite
+from init import bot, logs, sqlite
 from models.services.bsky import bsky_client
 from scheduler import scheduler
 

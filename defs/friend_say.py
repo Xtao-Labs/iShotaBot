@@ -1,7 +1,8 @@
 from io import BytesIO
 from os import sep
-from typing import Tuple, Union, Literal, Optional
 from pathlib import Path
+from typing import Literal, Union
+
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -18,17 +19,17 @@ class ImageUtil:
         height: int,
         paste_image_width: int = 0,
         paste_image_height: int = 0,
-        color: Union[str, Tuple[int, int, int], Tuple[int, int, int, int]] = None,
+        color: str | tuple[int, int, int] | tuple[int, int, int, int] = None,
         image_mode: Literal[
             "CMYK", "HSV", "LAB", "RGB", "RGBA", "RGBX", "YCbCr"
         ] = "RGBA",
         font_size: int = 10,
-        background: Union[Optional[str], BytesIO, Path] = None,
+        background: str | None | BytesIO | Path = None,
         font: str = "sarasa-mono-sc-semibold.ttf",
         ratio: float = 1,
         is_alpha: bool = False,
-        plain_text: Optional[str] = None,
-        font_color: Optional[Tuple[int, int, int]] = None,
+        plain_text: str | None = None,
+        font_color: tuple[int, int, int] | None = None,
     ) -> None:
         """
         :说明: `__init__`
@@ -70,9 +71,7 @@ class ImageUtil:
                     else self.font.getsize(plain_text)[1]
                 )
                 self.height = (
-                    self.height
-                    if self.height > self.font.getsize(plain_text)[1]
-                    else self.font.getsize(plain_text)[1]
+                    max(self.font.getsize(plain_text)[1], self.height)
                 )
             self.mark_image = Image.new(image_mode, (self.width, self.height), color)
             self.mark_image.convert(image_mode)
@@ -109,9 +108,9 @@ class ImageUtil:
 
     def text(
         self,
-        pos: Tuple[int, int],
+        pos: tuple[int, int],
         text: str,
-        fill: Tuple[int, int, int] = (0, 0, 0),
+        fill: tuple[int, int, int] = (0, 0, 0),
         center_type: Literal["center", "by_height", "by_width"] = None,
     ):
         """
@@ -148,7 +147,7 @@ class ImageUtil:
     def paste(
         self,
         img: Union["ImageUtil", Image.Image],
-        pos: Tuple[int, int] = None,
+        pos: tuple[int, int] = None,
         alpha: bool = False,
         center_type: Literal["center", "by_height", "by_width"] = None,
     ):
@@ -199,7 +198,7 @@ class ImageUtil:
             self.mark_image.paste(img, pos)
         self.current_width += self.paste_image_width
 
-    def getsize(self, msg: str) -> Tuple[int, int]:
+    def getsize(self, msg: str) -> tuple[int, int]:
         """
         :说明: `getsize`
         > 获取文本大小
@@ -210,7 +209,7 @@ class ImageUtil:
         """
         return self.font.getsize(msg)
 
-    def point(self, pos: Tuple[int, int], fill: Tuple[int, int, int] = (0, 0, 0)):
+    def point(self, pos: tuple[int, int], fill: tuple[int, int, int] = (0, 0, 0)):
         """
         :说明: `point`
         > 绘制单独的像素点
@@ -223,9 +222,9 @@ class ImageUtil:
 
     def ellipse(
         self,
-        pos: Tuple[int, int, int, int],
-        fill: Optional[Tuple[int, int, int]] = None,
-        outline: Optional[Tuple[int, int, int]] = None,
+        pos: tuple[int, int, int, int],
+        fill: tuple[int, int, int] | None = None,
+        outline: tuple[int, int, int] | None = None,
         width: int = 1,
     ):
         """
@@ -240,7 +239,7 @@ class ImageUtil:
         """
         self.draw.ellipse(pos, fill, outline, width)
 
-    def save(self, path: Union[str, Path]):
+    def save(self, path: str | Path):
         """
         :说明: `save`
         > 保存图片

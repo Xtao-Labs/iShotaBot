@@ -1,14 +1,13 @@
 import json
-from secrets import choice
 from os import sep
-from typing import List
+from secrets import choice
 
-from pyrogram import Client, filters, ContinuePropagation
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.types import Message
 
 from init import bot
 
-book_of_answers: List[str]
+book_of_answers: list[str]
 
 
 with open(
@@ -19,5 +18,5 @@ with open(
 
 @bot.on_message(filters.incoming & filters.regex(r"^答案之书$"))
 async def book_of_answer(_: Client, message: Message):
-    await message.reply_text(f"{choice(book_of_answers)}", quote=True)
+    await message.reply_text(f"{choice(book_of_answers)}")
     raise ContinuePropagation

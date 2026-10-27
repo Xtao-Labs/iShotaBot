@@ -1,25 +1,23 @@
 import re
+import string
+from io import BytesIO
 from os import sep
-from typing import Optional
 
 import qrcode
-import string
-
 from bilibili_api import Credential, ResponseCodeException
 from bilibili_api.audio import Audio
-from bilibili_api.video import Video
 from bilibili_api.utils.network import Api
+from bilibili_api.video import Video
+from PIL import Image, ImageDraw, ImageFont
 from pyrogram import ContinuePropagation
 from qrcode.image.pil import PilImage
-from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
 
-from defs.cookie import get_bili_cookie, get_bili_browser_cookie, set_bili_cookie
 from defs.browser import get_browser
+from defs.cookie import get_bili_browser_cookie, get_bili_cookie, set_bili_cookie
 from init import request
 
 
-def from_cookie_get_credential() -> Optional[Credential]:
+def from_cookie_get_credential() -> Credential | None:
     """
     从 cookie 中获取 Credential 对象。
 
@@ -150,7 +148,7 @@ async def b23_extract(text):
     return r
 
 
-def create_video(cid) -> Optional[Video]:
+def create_video(cid) -> Video | None:
     v = None
     if cid[:2] == "av":
         v = Video(aid=int(cid[2:]), credential=credential)
@@ -159,7 +157,7 @@ def create_video(cid) -> Optional[Video]:
     return v
 
 
-def create_audio(aid: str) -> Optional[Audio]:
+def create_audio(aid: str) -> Audio | None:
     a = None
     if aid[:2] == "au":
         a = Audio(auid=int(aid[2:]), credential=credential)

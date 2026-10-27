@@ -1,17 +1,16 @@
-from typing import Optional, List
 
 from pyrogram.enums import ParseMode
 from pyrogram.types import (
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InputMediaAnimation,
     InputMediaPhoto,
     InputMediaVideo,
-    InputMediaAnimation,
 )
 
 from init import logs
-from models.apis.twitter.client import twitter_client, TwitterError
-from models.apis.twitter.model import User, Tweet, MediaItem
+from models.apis.twitter.client import TwitterError, twitter_client
+from models.apis.twitter.model import MediaItem, Tweet, User
 
 
 def twitter_link(tweet: Tweet):
@@ -45,7 +44,7 @@ def twitter_medias(tweet: Tweet):
     return tweet_media_lists
 
 
-def twitter_media(tweet_media_lists: List[MediaItem], text: str):
+def twitter_media(tweet_media_lists: list[MediaItem], text: str):
     media_lists = []
     for idx, media in enumerate(tweet_media_lists):
         if len(media_lists) >= 10:
@@ -115,7 +114,7 @@ def get_twitter_status(tweet: Tweet):
     return final_text
 
 
-async def fetch_tweet(tweet_id: int) -> Optional[Tweet]:
+async def fetch_tweet(tweet_id: int) -> Tweet | None:
     try:
         return await twitter_client.tweet_detail(tweet_id)
     except TwitterError as e:
@@ -123,7 +122,7 @@ async def fetch_tweet(tweet_id: int) -> Optional[Tweet]:
         return None
 
 
-async def fetch_user(username: str) -> Optional[User]:
+async def fetch_user(username: str) -> User | None:
     try:
         user = await twitter_client.user_by_screen_name(username)
     except TwitterError as e:

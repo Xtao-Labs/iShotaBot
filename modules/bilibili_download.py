@@ -1,11 +1,11 @@
 import re
 
-from pyrogram import filters, Client, ContinuePropagation
-from pyrogram.types import Message, CallbackQuery
+from pyrogram import Client, ContinuePropagation, filters
+from pyrogram.types import CallbackQuery, Message
 
-from defs.bilibili import b23_extract, create_video, create_audio
-from defs.bilibili_download import go_download, audio_download
-from defs.glover import bili_auth_user, bilifav_channel_username, bili_auth_chat
+from defs.bilibili import b23_extract, create_audio, create_video
+from defs.bilibili_download import audio_download, go_download
+from defs.glover import bili_auth_chat, bili_auth_user, bilifav_channel_username
 from init import bot
 from models.services.bilifav import BiliFavAction
 
@@ -19,7 +19,7 @@ from models.services.bilifav import BiliFavAction
 async def bili_download_resolve(_: Client, message: Message):
     if "b23.tv" in message.text:
         message.text = await b23_extract(message.text)
-    p = re.compile("\b(?:av(\d)|BV(\w{10}))|b23\.tv")
+    p = re.compile("\b(?:av(\\d)|BV(\\w{10}))|b23\\.tv")
     video_number = p.search(message.text)
     if video_number:
         video_number = video_number[0]
@@ -38,10 +38,9 @@ async def bili_download_resolve(_: Client, message: Message):
                 if video_db.message_id
                 else None
             ),
-            quote=True,
         )
         raise ContinuePropagation
-    m = await message.reply("开始获取视频数据", quote=True)
+    m = await message.reply("开始获取视频数据")
     bot.loop.create_task(go_download(video, p_num, m))
 
 
@@ -62,10 +61,9 @@ async def bili_audio_download_resolve(_: Client, message: Message):
                 if audio_db.message_id
                 else None
             ),
-            quote=True,
         )
         raise ContinuePropagation
-    m = await message.reply("开始获取音频数据", quote=True)
+    m = await message.reply("开始获取音频数据")
     bot.loop.create_task(audio_download(audio, m))
 
 
@@ -92,9 +90,8 @@ async def bili_download_resolve_cb(_: Client, callback_query: CallbackQuery):
         await callback_query.message.reply_video(
             video_db.file_id,
             caption=caption,
-            quote=True,
         )
         raise ContinuePropagation
-    m = await callback_query.message.reply("开始获取视频数据", quote=True)
+    m = await callback_query.message.reply("开始获取视频数据")
     bot.loop.create_task(go_download(video, 0, m))
     await callback_query.answer("开始下载")

@@ -1,6 +1,5 @@
 import time
 from enum import Enum
-from typing import Optional
 
 from bilibili_api.audio import Audio
 from bilibili_api.favorite_list import FavoriteList
@@ -8,18 +7,18 @@ from bilibili_api.video import Video
 from pydantic import BaseModel, ValidationError
 from pyrogram.types import Message
 
-from defs.bilibili import credential, create_video, create_audio
+from defs.bilibili import create_audio, create_video, credential
 from defs.bilibili_download import (
+    audio_download,
+    gen_audio_caption,
+    gen_video_caption,
     go_download,
     go_upload,
-    audio_download,
-    gen_video_caption,
-    gen_audio_caption,
 )
-from defs.glover import bilifav_id, bilifav_channel
+from defs.glover import bilifav_channel, bilifav_id
+from init import bot, logger
 from models.models.bilifav import BiliFav
 from models.services.bilifav import BiliFavAction
-from init import logger, bot
 
 fav = FavoriteList(media_id=bilifav_id, credential=credential)
 
@@ -38,9 +37,9 @@ class Media(BaseModel):
     bvid: str
     type: MediaType
     title: str
-    cover: Optional[str]
+    cover: str | None
     """ 封面 """
-    intro: Optional[str]
+    intro: str | None
     """ 简介 """
 
 

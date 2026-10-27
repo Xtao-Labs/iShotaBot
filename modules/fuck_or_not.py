@@ -1,4 +1,4 @@
-from pyrogram import Client, filters, ContinuePropagation
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
@@ -27,8 +27,7 @@ async def fuck_or_not(_: Client, message: Message):
                 f"<b>{d.text} ({d.rating}/10)</b>\n"
                 f"<blockquote>{d.explanation}</blockquote>",
                 parse_mode=ParseMode.HTML,
-                quote=True,
             )
         except Exception as e:
-            await message.reply(f"模型请求失败：{str(e)}", quote=True)
+            await message.reply(f"模型请求失败：{e!s}")
     raise ContinuePropagation

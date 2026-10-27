@@ -1,5 +1,5 @@
 import pickle
-from os import sep, mkdir
+from os import mkdir, sep
 from os.path import exists
 
 

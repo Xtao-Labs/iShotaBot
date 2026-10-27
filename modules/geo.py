@@ -14,9 +14,5 @@ async def geo_command(_: Client, message: Message):
     if lat is None or lon is None or formatted_address is None:
         await message.reply("无法解析地址或经纬度 ...")
         return
-    msg = await message.reply_location(
-        longitude=float(lat), latitude=float(lon), quote=True
-    )
-    await msg.reply(
-        f"坐标：`{lat},{lon}`\n地址：<b>{formatted_address}</b>", quote=True
-    )
+    msg = await message.reply_location(longitude=float(lat), latitude=float(lon))
+    await msg.reply(f"坐标：`{lat},{lon}`\n地址：<b>{formatted_address}</b>")

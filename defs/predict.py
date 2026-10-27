@@ -1,14 +1,13 @@
 import io
 import time
 import traceback
-from typing import Tuple, List, Optional, BinaryIO
+from typing import BinaryIO
 
 import httpx
+from PIL import Image, ImageDraw
 from pydantic import BaseModel
 
-from defs.glover import predict_url, predict_token
-
-from PIL import Image, ImageDraw
+from defs.glover import predict_token, predict_url
 
 headers = {"x-token": predict_token}
 request = httpx.AsyncClient(timeout=60.0, headers=headers, verify=False)
@@ -19,15 +18,15 @@ class FacialAreaRegion(BaseModel):
     y: float
     w: float
     h: float
-    left_eye: Tuple[int, int]
-    right_eye: Tuple[int, int]
+    left_eye: tuple[int, int]
+    right_eye: tuple[int, int]
     confidence: float
 
 
 class Result(BaseModel):
     code: int
     msg: str
-    faces: List[FacialAreaRegion] = []
+    faces: list[FacialAreaRegion] = []
 
 
 class Face(BaseModel):
@@ -35,7 +34,7 @@ class Face(BaseModel):
     draw_time: float
 
 
-async def predict_photo(img_byte_arr: BinaryIO) -> Optional[Result]:
+async def predict_photo(img_byte_arr: BinaryIO) -> Result | None:
     files = {"file": ("image.png", img_byte_arr, "image/png")}
     try:
         req = await request.post(predict_url, files=files, headers=headers)
@@ -45,7 +44,7 @@ async def predict_photo(img_byte_arr: BinaryIO) -> Optional[Result]:
         return None
 
 
-async def predict(file: BinaryIO) -> Tuple[Optional[Face], Optional[BinaryIO]]:
+async def predict(file: BinaryIO) -> tuple[Face | None, BinaryIO | None]:
     image = Image.open(file)
     file.seek(0)  # 重置指针到开始位置
     time1 = time.time()

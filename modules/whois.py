@@ -1,16 +1,16 @@
 from urllib.parse import urlparse
 
-from defs.whois import get_whois_info, format_whois_result
-
 from pyrogram import Client, filters
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import (
-    Message,
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    LinkPreviewOptions,
+    Message,
 )
 
+from defs.whois import format_whois_result, get_whois_info
 from init import bot
 
 
@@ -31,7 +31,7 @@ async def get_rep_text_from_msg(message: Message):
         return
     if not message.entities:
         return
-    for num in range(0, len(message.entities)):
+    for num in range(len(message.entities)):
         if message.entities[num].type is MessageEntityType.URL:
             url = message.text[
                 message.entities[num].offset : message.entities[num].offset
@@ -55,10 +55,14 @@ async def whois_command(_: Client, message: Message):
         await msg.edit("没有找到要查询的域名...")
     elif rep_text != "" and text != "":
         await msg.edit(
-            f"{rep_text}\n================\n{text}", disable_web_page_preview=True
+            f"{rep_text}\n================\n{text}",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
         )
     else:
-        await msg.edit(f"{rep_text}{text}", disable_web_page_preview=True)
+        await msg.edit(
+            f"{rep_text}{text}",
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
+        )
 
 
 @bot.on_message(filters.incoming & filters.command(["whois_raw"]))
@@ -70,7 +74,7 @@ async def whois_raw_command(_: Client, message: Message):
         text = f"<blockquote expandable>{t}</blockquote>"
     if not text:
         text = "没有找到要查询的域名..."
-    await msg.edit(text, disable_web_page_preview=True)
+    await msg.edit(text, link_preview_options=LinkPreviewOptions(is_disabled=True))
 
 
 @bot.on_inline_query(filters.regex("^whois"))

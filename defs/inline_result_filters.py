@@ -1,19 +1,18 @@
 import re
 from re import Pattern
-from typing import Union
 
 from pyrogram.filters import create
 from pyrogram.types import (
-    Message,
     CallbackQuery,
-    InlineQuery,
-    PreCheckoutQuery,
     ChosenInlineResult,
+    InlineQuery,
+    Message,
+    PreCheckoutQuery,
     Update,
 )
 
 
-def regex(pattern: Union[str, Pattern], flags: int = 0):
+def regex(pattern: str | Pattern, flags: int = 0):
     async def func(flt, _, update: Update):
         if isinstance(update, Message):
             value = update.text or update.caption

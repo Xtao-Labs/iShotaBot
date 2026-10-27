@@ -2,20 +2,20 @@ import re
 from io import BytesIO
 
 from bilibili_api import ResponseCodeException
-from pyrogram import Client, filters, ContinuePropagation
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.types import Message
 
 from defs.bilibili import (
     b23_extract,
-    video_info_get,
     binfo_image_create,
-    get_dynamic_screenshot_pc,
     check_and_refresh_credential,
+    get_dynamic_screenshot_pc,
+    video_info_get,
 )
-from defs.button import gen_button, Button
-from defs.glover import bili_auth_user, bili_auth_chat
+from defs.button import Button, gen_button
+from defs.glover import bili_auth_chat, bili_auth_user
 from init import bot
-from scheduler import scheduler, add_delete_message_job
+from scheduler import add_delete_message_job, scheduler
 
 
 @bot.on_message(
@@ -41,7 +41,7 @@ async def bili_resolve(_: Client, message: Message):
         video_info = await video_info_get(video_number) if video_number else None
     except ResponseCodeException as e:
         text = f"视频解析失败：[{e.code}] {e.msg}"
-        reply = await message.reply(text, quote=True)
+        reply = await message.reply(text)
         add_delete_message_job(reply)
         raise ContinuePropagation
     if video_info:
@@ -53,7 +53,6 @@ async def bili_resolve(_: Client, message: Message):
             buttons.append(Button(1, "Download", "download_" + video_info["bvid"]))
         await message.reply_photo(
             image,
-            quote=True,
             reply_markup=gen_button(buttons),
         )
     raise ContinuePropagation
@@ -75,7 +74,6 @@ async def bili_dynamic(_: Client, message: Message):
             photo.name = "screenshot.png"
             await message.reply_photo(
                 photo,
-                quote=True,
                 reply_markup=gen_button(
                     [Button(0, "Link", f"https://t.bilibili.com/{dynamic_id}")]
                 ),

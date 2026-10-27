@@ -1,15 +1,15 @@
 import re
 import time
 
-from pyrogram import filters, Client, ContinuePropagation
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.types import Message
 
-from defs.bilibili import b23_extract, create_video, create_audio
-from defs.bilibili_download import go_download, go_upload, audio_download
+from defs.bilibili import b23_extract, create_audio, create_video
+from defs.bilibili_download import audio_download, go_download, go_upload
 from defs.bilibili_fav import (
     check_update,
-    process_video_from_cache,
     process_audio_from_cache,
+    process_video_from_cache,
 )
 from defs.glover import admin, bilifav_channel
 from init import bot, logger
@@ -27,7 +27,7 @@ async def process_audio(video_number: str, message: Message):
         await process_audio_from_cache(audio, audio_db)
         return
     info = await audio.get_info()
-    m = await message.reply("开始获取音频数据", quote=True)
+    m = await message.reply("开始获取音频数据")
     msg = await audio_download(audio, m, push_id=bilifav_channel)
     if not msg:
         raise ContinuePropagation
@@ -57,7 +57,7 @@ async def process_video(video_number: str, p_num: int, message: Message):
     if not id_:
         await message.edit("未找到视频 AV 号")
         raise ContinuePropagation
-    m = await message.reply("开始获取视频数据", quote=True)
+    m = await message.reply("开始获取视频数据")
     await go_download(video, p_num, m, task=False)
     msg = await go_upload(video, p_num, m, push_id=bilifav_channel)
     if not msg:
@@ -83,7 +83,7 @@ async def process_video(video_number: str, p_num: int, message: Message):
 )
 async def bilibili_fav_parse(_: Client, message: Message):
     if len(message.command) <= 1:
-        m = await message.reply("正在获取收藏夹数据", quote=True)
+        m = await message.reply("正在获取收藏夹数据")
         await check_update(m)
         return
     if "b23.tv" in message.text:
@@ -98,7 +98,7 @@ async def bilibili_fav_parse(_: Client, message: Message):
     p_ = re.compile(r"p=(\d{1,3})")
     p_num = p_.search(message.text)
     p_num = int(p_num[0][2:]) if p_num else 0
-    m = await message.reply("开始获取数据", quote=True)
+    m = await message.reply("开始获取数据")
     try:
         if video_number.startswith("au"):
             await process_audio(video_number, m)

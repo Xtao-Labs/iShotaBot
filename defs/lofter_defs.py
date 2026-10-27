@@ -1,23 +1,21 @@
 import contextlib
-
-from typing import List, Tuple
 from urllib.parse import urlparse
-from bs4 import BeautifulSoup
 
+from bs4 import BeautifulSoup
+from lofter.client.lofter import LofterClient
 from pyrogram.types import (
-    InputMediaPhoto,
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
-    InputMediaDocument,
+    InlineKeyboardMarkup,
     InputMediaAnimation,
+    InputMediaDocument,
+    InputMediaPhoto,
+    LinkPreviewOptions,
     Message,
 )
 
 from defs.glover import lofter_channel_username
-from models.services.lofter import LofterPost as LofterPostModel
 from init import request
-
-from lofter.client.lofter import LofterClient
+from models.services.lofter import LofterPost as LofterPostModel
 
 client = LofterClient()
 
@@ -31,7 +29,7 @@ class LofterItem:
         username: str,
         name: str,
         comment: str,
-        tags: List[str],
+        tags: list[str],
         audio_link: str = None,
     ):
         self.url = url
@@ -59,14 +57,12 @@ class LofterItem:
             await message.reply_document(
                 self.file,
                 caption=self.text,
-                quote=True,
                 reply_markup=lofter_link(self.url, self.origin_url, self.username),
             )
         elif self.only_text:
             await message.reply_text(
                 self.text,
-                quote=True,
-                disable_web_page_preview=True,
+                link_preview_options=LinkPreviewOptions(is_disabled=True),
                 reply_markup=lofter_link(
                     self.audio_link, self.origin_url, self.username
                 ),
@@ -75,14 +71,12 @@ class LofterItem:
             await message.reply_animation(
                 self.file,
                 caption=self.text,
-                quote=True,
                 reply_markup=lofter_link(self.url, self.origin_url, self.username),
             )
         else:
             await message.reply_photo(
                 self.file,
                 caption=self.text,
-                quote=True,
                 reply_markup=lofter_link(self.url, self.origin_url, self.username),
             )
 
@@ -95,11 +89,11 @@ class LofterItem:
             return InputMediaPhoto(self.file, caption=self.text if first else None)
 
 
-async def input_media(img: List[LofterItem], static: bool = False):
+async def input_media(img: list[LofterItem], static: bool = False):
     return [(await img[ff].export(static, ff == 0)) for ff in range(len(img))]
 
 
-def get_username_and_post_id(url: str) -> Tuple[str, str]:
+def get_username_and_post_id(url: str) -> tuple[str, str]:
     try:
         u = urlparse(url)
         username = u.hostname.split(".")[0]
@@ -109,7 +103,7 @@ def get_username_and_post_id(url: str) -> Tuple[str, str]:
     return username, post_id
 
 
-async def get_loft(url: str) -> List[LofterItem]:
+async def get_loft(url: str) -> list[LofterItem]:
     username, post_id = get_username_and_post_id(url)
     if not username or not post_id:
         return []
@@ -150,7 +144,7 @@ async def get_loft(url: str) -> List[LofterItem]:
 def parse_loft_user(url: str, content: str):
     username = urlparse(url).hostname.split(".")[0]
     soup = BeautifulSoup(content, "lxml")
-    name, bio, avatar = "未知用户", "", None  # noqa
+    name, bio, avatar = "未知用户", "", None
     with contextlib.suppress(Exception):
         name = soup.find("title").getText().split("-")[-1].strip()
     with contextlib.suppress(Exception):

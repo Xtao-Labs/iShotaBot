@@ -1,14 +1,17 @@
 import re
-from typing import Tuple, Optional, Union
 
-from pyrogram.enums import ParseMode, ChatType
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.enums import ChatType, ParseMode
+from pyrogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    LinkPreviewOptions,
+    Message,
+)
 
 from headers import FANBOX_HEADERS
-from models.apis.fanbox import User as FanboxUser, Post as FanboxPost
-
-from init import request, bot
-
+from init import bot, request
+from models.apis.fanbox import Post as FanboxPost
+from models.apis.fanbox import User as FanboxUser
 
 FANBOX_USER_API = "https://api.fanbox.cc/creator.get"
 FANBOX_POST_API = "https://api.fanbox.cc/post.info"
@@ -32,7 +35,7 @@ async def get_fanbox_post(post_id: str) -> FanboxPost:
     return FanboxPost(**(req.json()["body"]))
 
 
-def parse_username_and_post(url: str) -> Tuple[Optional[str], Optional[str]]:
+def parse_username_and_post(url: str) -> tuple[str | None, str | None]:
     # https://www.fanbox.cc/@username/posts/post_id
     username, post_id = None, None
     if username_temp := re.findall(r"fanbox.cc/@(.+?)/", url):
@@ -47,7 +50,7 @@ def parse_username_and_post(url: str) -> Tuple[Optional[str], Optional[str]]:
     return username, post_id
 
 
-async def check_kemono_party(model: Union[FanboxPost, FanboxUser]) -> bool:
+async def check_kemono_party(model: FanboxPost | FanboxUser) -> bool:
     req = await request.get(model.kemono_url)
     return req.status_code == 200
 
@@ -102,9 +105,8 @@ async def parse_fanbox_post(url: str, message: Message):
         await message.reply_text(
             post.text,
             parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True,
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
             reply_markup=await gen_post_button(post),
-            quote=True,
         )
 
 
@@ -131,9 +133,8 @@ async def parse_fanbox_user(url: str, message: Message) -> None:
         await message.reply_text(
             user.text,
             parse_mode=ParseMode.HTML,
-            disable_web_page_preview=True,
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
             reply_markup=await gen_user_button(user),
-            quote=True,
         )
 
 

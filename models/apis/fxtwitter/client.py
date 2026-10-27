@@ -1,4 +1,3 @@
-from typing import Dict
 
 from httpx import AsyncClient
 
@@ -19,7 +18,7 @@ class FixTwitterClient:
         self.url = "https://api.fxtwitter.com/"
 
     @staticmethod
-    def gen_tweet(data: Dict) -> FixTweet:
+    def gen_tweet(data: dict) -> FixTweet:
         tweet = FixTweet(**data)
         if medias := data.get("media"):
             if all_media := medias.get("all"):

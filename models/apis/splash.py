@@ -1,6 +1,5 @@
 import re
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -13,8 +12,8 @@ class Splash(BaseModel):
     app_path: str
     online_ts: int
     offline_ts: int
-    game_id: Optional[int] = 0
-    file_id: Optional[str] = ""
+    game_id: int | None = 0
+    file_id: str | None = ""
 
     @property
     def online_time(self) -> datetime:

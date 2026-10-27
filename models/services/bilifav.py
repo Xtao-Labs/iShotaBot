@@ -1,4 +1,4 @@
-from typing import cast, Optional
+from typing import cast
 
 from sqlalchemy import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -9,7 +9,7 @@ from models.models.bilifav import BiliFav
 
 class BiliFavAction:
     @staticmethod
-    async def get_by_id(id_: int, fav: bool = False) -> Optional[BiliFav]:
+    async def get_by_id(id_: int, fav: bool = False) -> BiliFav | None:
         if not id_:
             return None
         async with sqlite.session() as session:
@@ -21,7 +21,7 @@ class BiliFavAction:
             return post[0] if (post := results.first()) else None
 
     @staticmethod
-    async def get_by_bv_id(bv_id: str, fav: bool = False) -> Optional[BiliFav]:
+    async def get_by_bv_id(bv_id: str, fav: bool = False) -> BiliFav | None:
         if not bv_id:
             return None
         async with sqlite.session() as session:

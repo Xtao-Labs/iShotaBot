@@ -1,14 +1,14 @@
 import contextlib
-from pyrogram import Client, filters, ContinuePropagation, errors
-from pyrogram.enums import ChatMemberStatus
-from pyrogram.types import Message
-from pyrogram.raw import types, functions
-from pyrogram.raw.base import Update
-
 from asyncio import sleep
 
-from defs.anti_channel import init, add, get_status, check_status, clean
-from init import logs, bot
+from pyrogram import Client, ContinuePropagation, errors, filters
+from pyrogram.enums import ChatMemberStatus
+from pyrogram.raw import functions, types
+from pyrogram.raw.base import Update
+from pyrogram.types import Message
+
+from defs.anti_channel import add, check_status, clean, get_status, init
+from init import bot, logs
 
 init()
 
@@ -71,7 +71,7 @@ async def anti_channel_msg(client: Client, update: Update, _, __: dict):
             await sleep(e.value)
         except errors.ChatAdminRequired as e:
             with contextlib.suppress(NameError):
-                clean(chat_id)  # noqa
+                clean(chat_id)
             raise ContinuePropagation from e
         except ContinuePropagation as e:
             raise ContinuePropagation from e

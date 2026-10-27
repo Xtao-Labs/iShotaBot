@@ -2,7 +2,6 @@ import contextlib
 from io import BytesIO
 
 import httpx
-
 from PIL import Image, ImageDraw, ImageFont
 
 from defs.glover import caiyun_weather

@@ -1,5 +1,4 @@
 import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -7,16 +6,15 @@ from pydantic import BaseModel
 class LiteUser(BaseModel):
     name: str
     userId: str
-    iconUrl: Optional[str]
+    iconUrl: str | None
 
 
 class User(BaseModel):
-    coverImageUrl: Optional[str]
+    coverImageUrl: str | None
     creatorId: str
     description: str
     hasAdultContent: bool
     user: LiteUser
-    ...
 
     @property
     def url(self) -> str:
@@ -42,7 +40,7 @@ class User(BaseModel):
 
 class Post(BaseModel):
     id: str
-    coverImageUrl: Optional[str]
+    coverImageUrl: str | None
     creatorId: str
     excerpt: str
     feeRequired: int
@@ -50,7 +48,6 @@ class Post(BaseModel):
     publishedDatetime: str
     title: str
     user: LiteUser
-    ...
 
     @property
     def url(self) -> str:

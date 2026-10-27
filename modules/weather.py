@@ -2,10 +2,10 @@ import traceback
 
 from pyrogram import Client, filters
 from pyrogram.types import (
-    Message,
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    Message,
 )
 
 from defs.geo import get_geo_data_from_message, get_geo_data_from_text
@@ -24,10 +24,10 @@ async def weather_command(_: Client, message: Message):
         return
     try:
         photo, text = await Weather.get_weather_photo(formatted_address, lat, lon)
-        await message.reply_photo(photo, caption=text, quote=True)
-    except Exception as exc:
+        await message.reply_photo(photo, caption=text)
+    except Exception:
         traceback.print_exc()
-        await message.reply("获取天气信息失败 ...", quote=True)
+        await message.reply("获取天气信息失败 ...")
 
 
 @bot.on_message(filters.incoming & filters.command(["weather_api"]))
@@ -41,10 +41,10 @@ async def weather_api_command(_: Client, message: Message):
         return
     try:
         text = await Weather.get_weather_text(formatted_address, lat, lon)
-        await message.reply_text(text, quote=True)
-    except Exception as exc:
+        await message.reply_text(text)
+    except Exception:
         traceback.print_exc()
-        await message.reply("获取天气信息失败 ...", quote=True)
+        await message.reply("获取天气信息失败 ...")
 
 
 @bot.on_inline_query(filters.regex("^weather"))
@@ -56,7 +56,7 @@ async def weather_api_inline(_: Client, inline_query: InlineQuery):
     else:
         try:
             text = await Weather.get_weather_text(formatted_address, lat, lon)
-        except Exception as exc:
+        except Exception:
             traceback.print_exc()
             text = None
     results = [

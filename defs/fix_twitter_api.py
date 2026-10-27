@@ -1,20 +1,18 @@
-from typing import Optional, List
 from urllib.parse import urlparse
 
 from pydantic import BaseModel
-
 from pyrogram.enums import ParseMode
 from pyrogram.types import (
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InputMediaAnimation,
     InputMediaPhoto,
     InputMediaVideo,
-    InputMediaAnimation,
 )
 
 from init import bot, logs
-from models.apis.fxtwitter.client import fix_twitter_client, FixTwitterError
-from models.apis.fxtwitter.model import User, FixTweet, FixTweetMedia
+from models.apis.fxtwitter.client import FixTwitterError, fix_twitter_client
+from models.apis.fxtwitter.model import FixTweet, FixTweetMedia, User
 
 
 def twitter_link(tweet: FixTweet):
@@ -46,7 +44,7 @@ def twitter_medias(tweet: FixTweet):
     return tweet_media_lists
 
 
-def twitter_media(tweet_media_lists: List[FixTweetMedia], text: str):
+def twitter_media(tweet_media_lists: list[FixTweetMedia], text: str):
     media_lists = []
     for idx, media in enumerate(tweet_media_lists):
         if len(media_lists) > 10:
@@ -116,7 +114,7 @@ def get_twitter_status(tweet: FixTweet):
     return final_text
 
 
-async def fetch_tweet(tweet_id: int) -> Optional[FixTweet]:
+async def fetch_tweet(tweet_id: int) -> FixTweet | None:
     try:
         return await fix_twitter_client.tweet_detail(tweet_id)
     except FixTwitterError as e:
@@ -124,7 +122,7 @@ async def fetch_tweet(tweet_id: int) -> Optional[FixTweet]:
         return None
 
 
-async def fetch_user(username: str) -> Optional[User]:
+async def fetch_user(username: str) -> User | None:
     try:
         user = await fix_twitter_client.user_by_screen_name(username)
     except FixTwitterError as e:
@@ -135,7 +133,7 @@ async def fetch_user(username: str) -> Optional[User]:
 
 class Reply(BaseModel):
     cid: int
-    mid: Optional[int] = None
+    mid: int | None = None
 
 
 async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, button):

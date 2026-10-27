@@ -1,10 +1,9 @@
 import contextlib
-from typing import Optional
 from urllib.parse import urlparse
 
 from pydantic import BaseModel
-from pyrogram import Client, filters, ContinuePropagation
-from pyrogram.enums import MessageEntityType, ChatType
+from pyrogram import Client, ContinuePropagation, filters
+from pyrogram.enums import ChatType, MessageEntityType
 from pyrogram.types import Message
 
 from defs.bsky import Timeline
@@ -13,7 +12,7 @@ from init import bot
 
 class Reply(BaseModel):
     cid: int
-    mid: Optional[int] = None
+    mid: int | None = None
 
 
 async def process_url(url: str, reply: Reply, override_hidden: bool):

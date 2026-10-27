@@ -1,12 +1,11 @@
 import contextlib
 
-from pyrogram import Client, filters, ContinuePropagation
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import ChatMemberUpdated, Message
 
 from init import bot
 from models.services.rank_update import RankUpdateAction
-
 
 TEXT = """#TITLE
 • 来自: {} [<code>{}</code>]

@@ -133,3 +133,4 @@ dmypy.json
 .pyre/
 config.ini
 bot.session*
+unknown_errors.txt

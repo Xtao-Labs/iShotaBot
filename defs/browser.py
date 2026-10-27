@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 @Author         : yanyongyu
 @Date           : 2021-03-12 13:42:43
@@ -11,10 +10,13 @@
 
 __author__ = "yanyongyu"
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from os import getcwd
-from typing import Optional, AsyncIterator, TYPE_CHECKING
-from playwright.async_api import Page, Browser, async_playwright, Error
+from typing import TYPE_CHECKING, Optional
+
+from playwright.async_api import Browser, Error, Page, async_playwright
+
 from init import logger
 
 if TYPE_CHECKING:
@@ -65,6 +67,7 @@ async def shutdown_browser():
 async def install_browser():
     logger.info("正在安装 chromium")
     import sys
+
     from playwright.__main__ import main
 
     sys.argv = ["", "install", "chromium"]

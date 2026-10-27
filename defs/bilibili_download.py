@@ -2,15 +2,14 @@ import contextlib
 import os
 import time
 import traceback
-from asyncio import create_subprocess_shell, subprocess, Lock
+from asyncio import Lock, create_subprocess_shell, subprocess
 from io import BytesIO
-from typing import Tuple, Dict, Union, Optional
 
 import aiofiles
 from bilibili_api import HEADERS
 from bilibili_api.audio import Audio
 from bilibili_api.video import Video, VideoDownloadURLDataDetecter, VideoQuality
-from httpx import AsyncClient, Response, URL
+from httpx import URL, AsyncClient, Response
 from pyrogram.enums import ParseMode
 from pyrogram.types import Message
 
@@ -23,8 +22,8 @@ FFMPEG_PATH = "ffmpeg"
 FFPROBE_PATH = "ffprobe"
 LOCK = Lock()
 EDIT_TEMP_SECONDS = 10.0
-MESSAGE_MAP: Dict[int, float] = {}
-UPLOAD_MESSAGE_MAP: Dict[int, int] = {}
+MESSAGE_MAP: dict[int, float] = {}
+UPLOAD_MESSAGE_MAP: dict[int, int] = {}
 CDN = [
     "",
     "upos-sz-mirroraliov.bilivideo.com",
@@ -77,7 +76,7 @@ def should_edit(m: Message) -> bool:
     return False
 
 
-def format_bytes(size: Union[int, float]) -> str:
+def format_bytes(size: float) -> str:
     """格式化文件大小"""
     power = 1024
     n = 0
@@ -85,12 +84,11 @@ def format_bytes(size: Union[int, float]) -> str:
     while size > power:
         size /= power
         n += 1
-    if n > 4:
-        n = 4
+    n = min(n, 4)
     return f"{round(size, 2)} {power_labels[n]}B"
 
 
-def format_seconds(seconds: Union[int, float]) -> str:
+def format_seconds(seconds: float) -> str:
     """格式化秒数"""
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
@@ -117,10 +115,10 @@ async def fail_edit(m: Message, text: str):
         await m.edit_text(text)
     except Exception:
         with contextlib.suppress(Exception):
-            await m.reply(text, quote=True)
+            await m.reply(text)
 
 
-async def execute(command: str) -> Tuple[str, int]:
+async def execute(command: str) -> tuple[str, int]:
     process = await create_subprocess_shell(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE
     )
@@ -229,7 +227,7 @@ async def get_video_duration(path: str) -> float:
     return round(float(video_duration.split("[")[0].strip()), 2)
 
 
-async def get_video_height_width(path: str) -> Tuple[int, int]:
+async def get_video_height_width(path: str) -> tuple[int, int]:
     """获取视频高度和宽度"""
     result, code = await execute(
         f"{FFPROBE_PATH} -v error -select_streams v:0 -show_entries stream=width,height "
@@ -241,7 +239,7 @@ async def get_video_height_width(path: str) -> Tuple[int, int]:
     return int(video_height), int(video_width)
 
 
-async def take_screenshot(info: Dict) -> Optional[BytesIO]:
+async def take_screenshot(info: dict) -> BytesIO | None:
     """获取视频封面"""
     try:
         pic_get = (await request.get(info["pic"])).content
@@ -253,7 +251,7 @@ async def take_screenshot(info: Dict) -> Optional[BytesIO]:
         return None
 
 
-def gen_audio_caption(a: Audio, info: Dict) -> str:
+def gen_audio_caption(a: Audio, info: dict) -> str:
     intro = info.get("intro", "")
     if intro:
         text = f"<b>{info['title']}</b>\n\n{intro}\n\nhttps://www.bilibili.com/audio/au{a.get_auid()}"
@@ -268,7 +266,7 @@ def gen_audio_caption(a: Audio, info: Dict) -> str:
 
 async def audio_download(
     a: Audio, m: Message, push_id: int = None
-) -> Optional[Message]:
+) -> Message | None:
     try:
         info = await a.get_info()
         download_url_data = await a.get_download_url()
@@ -336,7 +334,7 @@ async def go_download(v: Video, p_num: int, m: Message, task: bool = True):
         # 解析视频下载信息
         detector = VideoDownloadURLDataDetecter(data=download_url_data)
         streams = detector.detect_best_streams(
-            video_max_quality=VideoQuality._1080P_60,  # noqa
+            video_max_quality=VideoQuality._1080P_60,
         )
         if not streams:
             raise BilibiliDownloaderError("无法获取下载链接")
@@ -391,11 +389,11 @@ async def go_upload_progress(current: int, total: int, m: Message):
         t = UPLOAD_MESSAGE_MAP[m.id] if m.id in UPLOAD_MESSAGE_MAP else 0
         UPLOAD_MESSAGE_MAP[m.id] = current
         chunk = current - t
-        chunk = chunk if chunk > 0 else 0
+        chunk = max(0, chunk)
         await message_edit(total, current, chunk, chunk_time, m, "上传")
 
 
-def gen_video_caption(v: Video, info: Dict) -> str:
+def gen_video_caption(v: Video, info: dict) -> str:
     caption = (
         f"<b>{info['title']}</b>\n\n{info['desc']}\n\nhttps://b23.tv/{v.get_bvid()}"
     )
@@ -406,7 +404,7 @@ def gen_video_caption(v: Video, info: Dict) -> str:
 
 async def go_upload(
     v: Video, p_num: int, m: Message, push_id: int = None
-) -> Optional[Message]:
+) -> Message | None:
     video_path = cache_dir / f"{v.get_aid()}_{p_num}.mp4"
     if not video_path.exists():
         await fail_edit(m, "视频文件不存在")

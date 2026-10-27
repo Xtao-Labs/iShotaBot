@@ -1,11 +1,12 @@
 from pyrogram import Client, filters
 from pyrogram.types import (
-    Message,
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    Message,
 )
-from defs.button import gen_button, Button
+
+from defs.button import Button, gen_button
 from init import bot
 
 des = """本机器人特性：
@@ -29,7 +30,6 @@ async def start_command(_: Client, message: Message):
     """
     await message.reply(
         des,
-        quote=True,
         reply_markup=gen_button(
             [
                 Button(0, "Gitlab", "https://gitlab.com/Xtao-Labs/iShotaBot"),

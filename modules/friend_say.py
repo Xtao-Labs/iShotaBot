@@ -1,9 +1,9 @@
-import aiofiles
 from io import BytesIO
-from os import sep, makedirs
+from os import makedirs, sep
 from os.path import exists
 
-from pyrogram import Client, filters, ContinuePropagation
+import aiofiles
+from pyrogram import Client, ContinuePropagation, filters
 from pyrogram.types import Message
 
 from defs.friend_say import ImageUtil
@@ -17,7 +17,7 @@ async def friend_say(client: Client, message: Message):
     text = message.text[6:]
     if not text:
         raise ContinuePropagation
-    text = text[1:] if text.startswith("说") else text
+    text = text.removeprefix("说")
     # Get Gravatar
     avatar = None
     if message.reply_to_message.from_user.photo:

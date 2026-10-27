@@ -1,17 +1,16 @@
 from datetime import datetime, timedelta
-from typing import List, Optional
 
 from pydantic import BaseModel
 
 
 class VideoInfoVariant(BaseModel):
-    bitrate: Optional[int]
+    bitrate: int | None
     content_type: str
     url: str
 
 
 class VideoInfo(BaseModel):
-    variants: List[VideoInfoVariant]
+    variants: list[VideoInfoVariant]
 
     @property
     def best_variant(self) -> VideoInfoVariant:
@@ -31,7 +30,7 @@ class MediaItem(BaseModel):
     """ 类型 """
     url: str
     """ 短链接 """
-    video_info: Optional[VideoInfo]
+    video_info: VideoInfo | None
     """ 视频信息 """
 
     @property
@@ -45,7 +44,7 @@ class MediaItem(BaseModel):
 
 
 class ExtendedEntities(BaseModel):
-    media: Optional[List[MediaItem]]
+    media: list[MediaItem] | None
 
 
 class User(BaseModel):
@@ -59,7 +58,7 @@ class User(BaseModel):
     """ 正在关注 """
     location: str
     name: str
-    profile_banner_url: Optional[str] = None
+    profile_banner_url: str | None = None
     profile_image_url_https: str
     screen_name: str
     verified: bool = False
@@ -95,7 +94,7 @@ class Tweet(BaseModel):
     """ 书签次数 """
     created_at: str
     conversation_id_str: str
-    extended_entities: Optional[ExtendedEntities] = None
+    extended_entities: ExtendedEntities | None = None
     favorite_count: int
     """ 喜欢次数 """
     full_text: str

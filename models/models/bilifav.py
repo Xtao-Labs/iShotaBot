@@ -1,6 +1,5 @@
-from typing import Optional
 
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
 
 class BiliFav(SQLModel, table=True):
@@ -11,6 +10,6 @@ class BiliFav(SQLModel, table=True):
     type: int = Field(default=2)
     title: str = Field()
     cover: str = Field()
-    message_id: Optional[int] = Field(default=0, nullable=True)
+    message_id: int | None = Field(default=0, nullable=True)
     file_id: str = Field()
     timestamp: int = Field(default=0)

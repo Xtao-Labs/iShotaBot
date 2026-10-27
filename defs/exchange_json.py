@@ -1,5 +1,5 @@
 import traceback
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
@@ -26,7 +26,7 @@ class ExchangeDataTwitter(ExchangeData):
     data: ExchangeDataTwitterData
 
 
-def get_process_data(data: str) -> Optional[ExchangeData]:
+def get_process_data(data: str) -> ExchangeData | None:
     try:
         raw = ExchangeData.model_validate_json(data)
     except ValidationError:
@@ -45,11 +45,11 @@ async def process_data_twitter(data: ExchangeDataTwitter) -> None:
         reply = Reply(cid=data.data.cid)
         try:
             await process_status(reply, data.data.id)
-        except Exception as e:
+        except Exception:
             traceback.print_exc()
 
 
-async def process_data(data: str) -> Optional[ExchangeData]:
+async def process_data(data: str) -> ExchangeData | None:
     raw = get_process_data(data)
     if not raw:
         return None

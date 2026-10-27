@@ -1,6 +1,7 @@
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Optional, cast, List
+from typing import cast
+
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -49,14 +50,14 @@ class AuctionStatus(Enum):
 
 class UserName(BaseModel):
     name: str
-    now_price: Optional[Price]
-    end_time: Optional[datetime]
-    purchaser: Optional[str]
+    now_price: Price | None
+    end_time: datetime | None
+    purchaser: str | None
     status: AuctionStatus
 
     @property
     def end_human_time(self) -> str:
-        diff = self.end_time - datetime.now(timezone.utc)
+        diff = self.end_time - datetime.now(UTC)
         args = []
         if diff.days:
             args.append(f"{diff.days} 天")
@@ -118,7 +119,7 @@ class FragmentSub:
             await session.commit()
 
     @staticmethod
-    async def get_by_cid_and_username(cid: int, username: str) -> Optional[Fragment]:
+    async def get_by_cid_and_username(cid: int, username: str) -> Fragment | None:
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = (
@@ -130,7 +131,7 @@ class FragmentSub:
             return post[0] if (post := results.first()) else None
 
     @staticmethod
-    async def get_by_cid(cid: int) -> List[Fragment]:
+    async def get_by_cid(cid: int) -> list[Fragment]:
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(Fragment).where(Fragment.cid == cid)
@@ -138,7 +139,7 @@ class FragmentSub:
             return [item[0] for item in results.all()]
 
     @staticmethod
-    async def get_all() -> List[Fragment]:
+    async def get_all() -> list[Fragment]:
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             statement = select(Fragment)

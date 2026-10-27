@@ -1,9 +1,8 @@
-from typing import Optional
 
 from init import request
 
 
-async def get_whois_info(domain: str) -> Optional[dict]:
+async def get_whois_info(domain: str) -> dict | None:
     url = f"http://whois.4.cn/api/main?domain={domain}"
     try:
         response = await request.get(url, timeout=10)

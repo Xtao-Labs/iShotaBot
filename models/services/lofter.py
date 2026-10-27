@@ -1,4 +1,4 @@
-from typing import cast, Optional
+from typing import cast
 
 from sqlalchemy import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -9,7 +9,7 @@ from models.models.lofter import Lofter
 
 class LofterPost:
     @staticmethod
-    async def get_by_post_and_user_id(user_id: str, post_id: str) -> Optional[Lofter]:
+    async def get_by_post_and_user_id(user_id: str, post_id: str) -> Lofter | None:
         async with sqlite.session() as session:
             session = cast(AsyncSession, session)
             if user_id != "0":
@@ -21,7 +21,7 @@ class LofterPost:
             return post[0] if (post := results.first()) else None
 
     @staticmethod
-    async def get_by_post_id(post_id: str) -> Optional[Lofter]:
+    async def get_by_post_id(post_id: str) -> Lofter | None:
         return await LofterPost.get_by_post_and_user_id("0", post_id)
 
     @staticmethod

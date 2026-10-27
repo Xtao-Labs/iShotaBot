@@ -1,5 +1,5 @@
 import time
-from typing import cast, Optional
+from typing import cast
 
 from sqlalchemy import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -10,7 +10,7 @@ from models.models.rank_update import RankUpdate
 
 class RankUpdateAction:
     @staticmethod
-    async def get_by_chat_id(chat_id: int) -> Optional[RankUpdate]:
+    async def get_by_chat_id(chat_id: int) -> RankUpdate | None:
         if not chat_id:
             return None
         async with sqlite.session() as session:

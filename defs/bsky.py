@@ -1,18 +1,19 @@
 import asyncio
 import traceback
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from atproto_client.exceptions import BadRequestError
 from pyrogram.enums import ParseMode
 from pyrogram.errors import FloodWait
 from pyrogram.types import (
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
+    InlineKeyboardMarkup,
     InputMediaPhoto,
+    LinkPreviewOptions,
 )
 
 from init import bot, logs
-from models.models.bsky import HumanPost, HumanAuthor
+from models.models.bsky import HumanAuthor, HumanPost
 from models.services.bsky import bsky_client
 
 if TYPE_CHECKING:
@@ -122,7 +123,7 @@ class Timeline:
             return await bot.send_message(
                 reply.cid,
                 text,
-                disable_web_page_preview=True,
+                link_preview_options=LinkPreviewOptions(is_disabled=True),
                 reply_to_message_id=reply.mid,
                 parse_mode=ParseMode.HTML,
                 reply_markup=Timeline.get_button(post),
@@ -181,14 +182,14 @@ class Timeline:
             return await bot.send_message(
                 reply.cid,
                 text,
-                disable_web_page_preview=True,
+                link_preview_options=LinkPreviewOptions(is_disabled=True),
                 reply_to_message_id=reply.mid,
                 parse_mode=ParseMode.HTML,
                 reply_markup=Timeline.get_author_button(author),
             )
 
     @staticmethod
-    async def fetch_post(handle: str, cid: str) -> Optional[HumanPost]:
+    async def fetch_post(handle: str, cid: str) -> HumanPost | None:
         try:
             user = await Timeline.fetch_user(handle)
             uri = f"at://{user.did}/app.bsky.feed.post/{cid}"
@@ -199,7 +200,7 @@ class Timeline:
         return None
 
     @staticmethod
-    async def fetch_user(handle: str) -> Optional[HumanAuthor]:
+    async def fetch_user(handle: str) -> HumanAuthor | None:
         try:
             user = await bsky_client.client.get_profile(handle)
             return HumanAuthor.parse_detail(user)

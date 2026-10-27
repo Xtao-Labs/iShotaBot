@@ -1,12 +1,12 @@
 from configparser import RawConfigParser
-from typing import Union, List
+
 from distutils.util import strtobool
 
 # [pyrogram]
 api_id: int = 0
 api_hash: str = ""
 # [Basic]
-ipv6: Union[bool, str] = "False"
+ipv6: bool | str = "False"
 # [post]
 admin: int = 0
 lofter_channel: int = 0
@@ -46,11 +46,11 @@ amap_key = config.get("api", "amap_key", fallback=amap_key)
 bili_auth_user_str = config.get("api", "bili_auth_user", fallback=bili_auth_user_str)
 bili_auth_chat_str = config.get("api", "bili_auth_chat", fallback=bili_auth_chat_str)
 try:
-    bili_auth_user: List[int] = list(map(int, bili_auth_user_str.split(",")))
-    bili_auth_chat: List[int] = list(map(int, bili_auth_chat_str.split(",")))
+    bili_auth_user: list[int] = list(map(int, bili_auth_user_str.split(",")))
+    bili_auth_chat: list[int] = list(map(int, bili_auth_chat_str.split(",")))
 except ValueError:
-    bili_auth_user: List[int] = []
-    bili_auth_chat: List[int] = []
+    bili_auth_user: list[int] = []
+    bili_auth_chat: list[int] = []
 caiyun_weather = config.get("api", "caiyun_weather", fallback=caiyun_weather)
 # bsky
 bsky_username = config.get("bsky", "username", fallback="")

@@ -1,17 +1,16 @@
 import html
 import re
-from httpx import AsyncClient
 from html.parser import HTMLParser
-from typing import Optional
-from atproto import models
 
+from atproto import models
+from httpx import AsyncClient
 from pyrogram.parser import utils
 
 from init import logs
 
 
 class ParserModel(models.AppBskyRichtextFacet.Main):
-    index: Optional[str] = None
+    index: str | None = None
     offset: int
     length: int
 
@@ -97,7 +96,7 @@ class HTML:
     def __init__(self):
         self.client = AsyncClient()
 
-    async def resolve_peer(self, handle: str) -> Optional[str]:
+    async def resolve_peer(self, handle: str) -> str | None:
         try:
             req = await self.client.get(
                 "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",

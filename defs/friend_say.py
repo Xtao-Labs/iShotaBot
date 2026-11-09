@@ -70,9 +70,7 @@ class ImageUtil:
                     if self.width > self.font.getsize(plain_text)[0]
                     else self.font.getsize(plain_text)[1]
                 )
-                self.height = (
-                    max(self.font.getsize(plain_text)[1], self.height)
-                )
+                self.height = max(self.font.getsize(plain_text)[1], self.height)
             self.mark_image = Image.new(image_mode, (self.width, self.height), color)
             self.mark_image.convert(image_mode)
         else:

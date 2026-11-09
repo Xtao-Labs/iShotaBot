@@ -64,7 +64,7 @@ async def html_rec_command(_: Client, message: Message):
     p = message.reply_to_message.raw.media.payload
     html = widget_html(p)
 
-    file_stream = io.BytesIO(html.encode('utf-8'))
+    file_stream = io.BytesIO(html.encode("utf-8"))
     file_stream.name = "demo.html"
 
     await message.reply_document(file_stream)

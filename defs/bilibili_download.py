@@ -264,9 +264,7 @@ def gen_audio_caption(a: Audio, info: dict) -> str:
     return text
 
 
-async def audio_download(
-    a: Audio, m: Message, push_id: int = None
-) -> Message | None:
+async def audio_download(a: Audio, m: Message, push_id: int = None) -> Message | None:
     try:
         info = await a.get_info()
         download_url_data = await a.get_download_url()

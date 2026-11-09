@@ -9,9 +9,12 @@ from models.models.splash import Splash
 
 __all__ = ["BiliFav", "Fragment", "Lofter", "Splash", "Sqlite"]
 
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
-from sqlmodel.ext.asyncio.session import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    close_all_sessions,
+    create_async_engine,
+)
 
 DB_LOCK_PATH = Path("data") / "data.lock"
 
@@ -19,7 +22,7 @@ DB_LOCK_PATH = Path("data") / "data.lock"
 class Sqlite:
     def __init__(self):
         self.engine = create_async_engine("sqlite+aiosqlite:///data/data.db")
-        self.session = sessionmaker(bind=self.engine, class_=AsyncSession)
+        self.session = async_sessionmaker(bind=self.engine, class_=AsyncSession)
 
     @staticmethod
     def need_create_db() -> bool:
@@ -36,5 +39,5 @@ class Sqlite:
             await session.run_sync(SQLModel.metadata.create_all)
         self.create_db_lock()
 
-    def stop(self):
-        self.session.close_all()
+    async def stop(self):
+        await close_all_sessions()

@@ -16,7 +16,7 @@ async def main():
     logs.info(f"@{bot.me.username} 运行成功！")
     await idle()
     await bot.stop()
-    sqlite.stop()
+    await sqlite.stop()
     scheduler.shutdown()
     await browser.shutdown_browser()
 

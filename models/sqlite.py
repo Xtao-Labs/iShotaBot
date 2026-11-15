@@ -1,6 +1,9 @@
+import contextlib
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 from sqlmodel import SQLModel
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from models.models.bilifav import BiliFav
 from models.models.fragment import Fragment
@@ -10,7 +13,6 @@ from models.models.splash import Splash
 __all__ = ["BiliFav", "Fragment", "Lofter", "Splash", "Sqlite"]
 
 from sqlalchemy.ext.asyncio import (
-    AsyncSession,
     async_sessionmaker,
     close_all_sessions,
     create_async_engine,
@@ -22,7 +24,11 @@ DB_LOCK_PATH = Path("data") / "data.lock"
 class Sqlite:
     def __init__(self):
         self.engine = create_async_engine("sqlite+aiosqlite:///data/data.db")
-        self.session = async_sessionmaker(bind=self.engine, class_=AsyncSession)
+        self.Session = async_sessionmaker(bind=self.engine, class_=AsyncSession)
+
+    @contextlib.asynccontextmanager
+    async def session(self) -> AsyncIterator[AsyncSession]:
+        yield self.Session()
 
     @staticmethod
     def need_create_db() -> bool:

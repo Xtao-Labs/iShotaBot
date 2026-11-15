@@ -8,6 +8,7 @@ from pyrogram.types import (
     InputMediaAnimation,
     InputMediaPhoto,
     InputMediaVideo,
+    ReplyParameters,
 )
 
 from init import bot, logs
@@ -143,7 +144,7 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
             media.url,
             caption=text,
             reply_markup=button,
-            reply_to_message_id=reply.mid,
+            reply_parameters=ReplyParameters(message_id=reply.mid),
         )
     elif media.type == "video":
         await bot.send_video(
@@ -151,7 +152,7 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
             media.url,
             caption=text,
             reply_markup=button,
-            reply_to_message_id=reply.mid,
+            reply_parameters=ReplyParameters(message_id=reply.mid),
         )
     elif media.type == "gif":
         await bot.send_animation(
@@ -159,7 +160,7 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
             media.url,
             caption=text,
             reply_markup=button,
-            reply_to_message_id=reply.mid,
+            reply_parameters=ReplyParameters(message_id=reply.mid),
         )
     else:
         await bot.reply_document(
@@ -167,7 +168,7 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
             media.url,
             caption=text,
             reply_markup=button,
-            reply_to_message_id=reply.mid,
+            reply_parameters=ReplyParameters(message_id=reply.mid),
         )
 
 
@@ -191,14 +192,14 @@ async def process_status(reply: Reply, status: str):
         await bot.send_media_group(
             reply.cid,
             media_lists,
-            reply_to_message_id=reply.mid,
+            reply_parameters=ReplyParameters(message_id=reply.mid),
         )
     else:
         await bot.send_message(
             reply.cid,
             text,
+            reply_parameters=ReplyParameters(message_id=reply.mid),
             reply_markup=button,
-            reply_to_message_id=reply.mid,
         )
 
 
@@ -213,7 +214,7 @@ async def process_user(reply: Reply, username: str):
         user.icon,
         caption=text,
         reply_markup=button,
-        reply_to_message_id=reply.mid,
+        reply_parameters=ReplyParameters(message_id=reply.mid),
     )
 
 

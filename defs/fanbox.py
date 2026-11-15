@@ -6,6 +6,7 @@ from pyrogram.types import (
     InlineKeyboardMarkup,
     LinkPreviewOptions,
     Message,
+    ReplyParameters,
 )
 
 from headers import FANBOX_HEADERS
@@ -98,7 +99,7 @@ async def parse_fanbox_post(url: str, message: Message):
             caption=post.text,
             parse_mode=ParseMode.HTML,
             reply_markup=await gen_post_button(post),
-            reply_to_message_id=message.id,
+            reply_parameters=ReplyParameters(message_id=message.id),
             has_spoiler=group,
         )
     else:
@@ -126,7 +127,7 @@ async def parse_fanbox_user(url: str, message: Message) -> None:
             caption=user.text,
             parse_mode=ParseMode.HTML,
             reply_markup=await gen_user_button(user),
-            reply_to_message_id=message.id,
+            reply_parameters=ReplyParameters(message_id=message.mid),
             has_spoiler=group and user.hasAdultContent,
         )
     else:

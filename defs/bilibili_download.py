@@ -11,7 +11,7 @@ from bilibili_api.audio import Audio
 from bilibili_api.video import Video, VideoDownloadURLDataDetecter, VideoQuality
 from httpx import URL, AsyncClient, Response
 from pyrogram.enums import ParseMode
-from pyrogram.types import Message
+from pyrogram.types import Message, ReplyParameters
 
 from defs.request import cache_dir
 from init import bot, logger, request
@@ -289,7 +289,9 @@ async def audio_download(a: Audio, m: Message, push_id: int = None) -> Message |
             audio=media,
             caption=caption,
             parse_mode=ParseMode.HTML,
-            reply_to_message_id=m.reply_to_message_id if not push_id else None,
+            reply_parameters=ReplyParameters(message_id=m.reply_to_message_id)
+            if not push_id
+            else None,
             thumb=thumb,
             title=info.get("title"),
             duration=info.get("duration"),
@@ -431,7 +433,9 @@ async def go_upload(
             supports_streaming=True,
             progress=go_upload_progress,
             progress_args=(m,),
-            reply_to_message_id=m.reply_to_message_id if not push_id else None,
+            reply_parameters=ReplyParameters(message_id=m.reply_to_message_id)
+            if not push_id
+            else None,
         )
         if (
             (not await BiliFavAction.get_by_bv_id(v.get_bvid()))

@@ -10,6 +10,7 @@ from pyrogram.types import (
     InlineKeyboardMarkup,
     InputMediaPhoto,
     LinkPreviewOptions,
+    ReplyParameters,
 )
 
 from init import bot, logs
@@ -103,7 +104,7 @@ class Timeline:
                 reply.cid,
                 post.gif,
                 caption=text,
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 has_spoiler=need_spoiler,
                 reply_markup=Timeline.get_button(post),
@@ -114,7 +115,7 @@ class Timeline:
                 post.video,
                 caption=text,
                 thumb=post.video_thumbnail,
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 has_spoiler=need_spoiler,
                 reply_markup=Timeline.get_button(post),
@@ -124,7 +125,7 @@ class Timeline:
                 reply.cid,
                 text,
                 link_preview_options=LinkPreviewOptions(is_disabled=True),
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 reply_markup=Timeline.get_button(post),
             )
@@ -133,7 +134,7 @@ class Timeline:
                 reply.cid,
                 post.images[0],
                 caption=text,
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 has_spoiler=need_spoiler,
                 reply_markup=Timeline.get_button(post),
@@ -142,7 +143,7 @@ class Timeline:
             await bot.send_media_group(
                 reply.cid,
                 Timeline.get_media_group(text, post, need_spoiler),
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
             )
 
     @staticmethod
@@ -174,7 +175,7 @@ class Timeline:
                 reply.cid,
                 author.avatar_img,
                 caption=text,
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 reply_markup=Timeline.get_author_button(author),
             )
@@ -183,7 +184,7 @@ class Timeline:
                 reply.cid,
                 text,
                 link_preview_options=LinkPreviewOptions(is_disabled=True),
-                reply_to_message_id=reply.mid,
+                reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 reply_markup=Timeline.get_author_button(author),
             )

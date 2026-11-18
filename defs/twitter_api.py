@@ -2,7 +2,6 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    InputMediaAnimation,
     InputMediaPhoto,
     InputMediaVideo,
 )
@@ -51,14 +50,6 @@ def twitter_media(tweet_media_lists: list[MediaItem], text: str):
         if media.type == "photo":
             media_lists.append(
                 InputMediaPhoto(
-                    media.media_url,
-                    caption=text if idx == 0 else None,
-                    parse_mode=ParseMode.HTML,
-                )
-            )
-        elif media.type == "gif":
-            media_lists.append(
-                InputMediaAnimation(
                     media.media_url,
                     caption=text if idx == 0 else None,
                     parse_mode=ParseMode.HTML,

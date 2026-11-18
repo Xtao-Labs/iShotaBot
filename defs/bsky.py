@@ -13,6 +13,7 @@ from pyrogram.types import (
     ReplyParameters,
 )
 
+from defs.media_cache import get_media_stream, get_media_streams
 from init import bot, logs
 from models.models.bsky import HumanAuthor, HumanPost
 from models.services.bsky import bsky_client
@@ -30,9 +31,9 @@ def flood_wait():
                 logs.warning(f"遇到 FloodWait，等待 {e.value} 秒后重试！")
                 await asyncio.sleep(e.value + 1)
                 return await wrapper(*args, **kwargs)
-            except Exception as e:
+            except Exception:
                 traceback.print_exc()
-                raise e
+                raise
 
         return wrapper
 
@@ -61,16 +62,16 @@ class Timeline:
         )
 
     @staticmethod
-    def get_media_group(
+    async def get_media_group(
         text: str, post: HumanPost, has_spoiler: bool
     ) -> list[InputMediaPhoto]:
+        streams = await get_media_streams(post.images or [])
         data = []
-        images = post.images
-        for idx, image in enumerate(images):
+        for idx, stream in enumerate(streams):
             data.append(
                 InputMediaPhoto(
-                    image,
-                    caption=text if idx == 0 else None,
+                    stream,
+                    caption=text if idx == 0 else "",
                     parse_mode=ParseMode.HTML,
                     has_spoiler=has_spoiler,
                 )
@@ -100,9 +101,10 @@ class Timeline:
         if need_spoiler and override_hidden:
             need_spoiler = False
         if post.gif:
+            stream = await get_media_stream(post.gif)
             return await bot.send_animation(
                 reply.cid,
-                post.gif,
+                stream,
                 caption=text,
                 reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
@@ -110,11 +112,17 @@ class Timeline:
                 reply_markup=Timeline.get_button(post),
             )
         elif post.video:
+            stream = await get_media_stream(post.video)
+            thumb = (
+                await get_media_stream(post.video_thumbnail)
+                if post.video_thumbnail
+                else None
+            )
             return await bot.send_video(
                 reply.cid,
-                post.video,
+                stream,
                 caption=text,
-                thumb=post.video_thumbnail,
+                thumb=thumb,
                 reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
                 has_spoiler=need_spoiler,
@@ -130,9 +138,10 @@ class Timeline:
                 reply_markup=Timeline.get_button(post),
             )
         elif len(post.images) == 1:
+            stream = await get_media_stream(post.images[0])
             return await bot.send_photo(
                 reply.cid,
-                post.images[0],
+                stream,
                 caption=text,
                 reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,
@@ -142,7 +151,7 @@ class Timeline:
         else:
             await bot.send_media_group(
                 reply.cid,
-                Timeline.get_media_group(text, post, need_spoiler),
+                await Timeline.get_media_group(text, post, need_spoiler),
                 reply_parameters=ReplyParameters(message_id=reply.mid),
             )
 
@@ -171,9 +180,10 @@ class Timeline:
     async def send_user(reply: "Reply", author: HumanAuthor):
         text = Timeline.get_author_text(author)
         if author.avatar_img:
+            stream = await get_media_stream(author.avatar_img)
             return await bot.send_photo(
                 reply.cid,
-                author.avatar_img,
+                stream,
                 caption=text,
                 reply_parameters=ReplyParameters(message_id=reply.mid),
                 parse_mode=ParseMode.HTML,

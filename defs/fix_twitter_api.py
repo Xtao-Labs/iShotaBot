@@ -5,12 +5,13 @@ from pyrogram.enums import ParseMode
 from pyrogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
-    InputMediaAnimation,
+    InputMediaDocument,
     InputMediaPhoto,
     InputMediaVideo,
     ReplyParameters,
 )
 
+from defs.media_cache import get_media_stream, get_media_streams
 from init import bot, logs
 from models.apis.fxtwitter.client import FixTwitterError, fix_twitter_client
 from models.apis.fxtwitter.model import FixTweet, FixTweetMedia, User
@@ -45,34 +46,43 @@ def twitter_medias(tweet: FixTweet):
     return tweet_media_lists
 
 
-def twitter_media(tweet_media_lists: list[FixTweetMedia], text: str):
+async def twitter_media(tweet_media_lists: list[FixTweetMedia], text: str):
+    selected = tweet_media_lists[:10]
+    urls: list[str] = []
+    for media in selected:
+        if media.type in ("photo", "video", "gif"):
+            urls.append(media.url)
+            if media.type in ("video", "gif") and media.thumbnail_url:
+                urls.append(media.thumbnail_url)
+    unique_urls = list(dict.fromkeys(urls))
+    streams = dict(zip(unique_urls, await get_media_streams(unique_urls)))
+
     media_lists = []
-    for idx, media in enumerate(tweet_media_lists):
-        if len(media_lists) > 10:
-            break
+    for idx, media in enumerate(selected):
         if media.type == "photo":
             media_lists.append(
                 InputMediaPhoto(
-                    media.url,
-                    caption=text if idx == 0 else None,
+                    streams[media.url],
+                    caption=text if idx == 0 else "",
                     parse_mode=ParseMode.HTML,
                 )
             )
         elif media.type == "gif":
             media_lists.append(
-                InputMediaAnimation(
-                    media.url,
-                    caption=text if idx == 0 else None,
+                InputMediaDocument(
+                    streams[media.url],
+                    caption=text if idx == 0 else "",
                     parse_mode=ParseMode.HTML,
                 )
             )
-        elif media.type == "video":
+        elif media.type == "video" or media.type == "gif":
+            thumb = streams.get(media.thumbnail_url) if media.thumbnail_url else None
             media_lists.append(
                 InputMediaVideo(
-                    media.url,
-                    thumb=media.thumbnail_url,
+                    streams[media.url],
+                    video_cover=thumb,
                     duration=int(media.duration),
-                    caption=text if idx == 0 else None,
+                    caption=text if idx == 0 else "",
                     parse_mode=ParseMode.HTML,
                 )
             )
@@ -138,18 +148,23 @@ class Reply(BaseModel):
 
 
 async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, button):
+    stream = await get_media_stream(media.url)
     if media.type == "photo":
         await bot.send_photo(
             reply.cid,
-            media.url,
+            stream,
             caption=text,
             reply_markup=button,
             reply_parameters=ReplyParameters(message_id=reply.mid),
         )
     elif media.type == "video":
+        thumb = (
+            await get_media_stream(media.thumbnail_url) if media.thumbnail_url else None
+        )
         await bot.send_video(
             reply.cid,
-            media.url,
+            stream,
+            thumb=thumb,
             caption=text,
             reply_markup=button,
             reply_parameters=ReplyParameters(message_id=reply.mid),
@@ -157,7 +172,7 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
     elif media.type == "gif":
         await bot.send_animation(
             reply.cid,
-            media.url,
+            stream,
             caption=text,
             reply_markup=button,
             reply_parameters=ReplyParameters(message_id=reply.mid),
@@ -165,7 +180,7 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
     else:
         await bot.reply_document(
             reply.cid,
-            media.url,
+            stream,
             caption=text,
             reply_markup=button,
             reply_parameters=ReplyParameters(message_id=reply.mid),
@@ -187,7 +202,7 @@ async def process_status(reply: Reply, status: str):
         media = medias[0]
         await send_single_tweet(reply, media, text, button)
         return
-    media_lists = twitter_media(medias, text)
+    media_lists = await twitter_media(medias, text)
     if media_lists:
         await bot.send_media_group(
             reply.cid,
@@ -209,9 +224,10 @@ async def process_user(reply: Reply, username: str):
         return
     text = get_twitter_user(user)
     button = twitter_user_link(user)
+    stream = await get_media_stream(user.icon)
     await bot.send_photo(
         reply.cid,
-        user.icon,
+        stream,
         caption=text,
         reply_markup=button,
         reply_parameters=ReplyParameters(message_id=reply.mid),

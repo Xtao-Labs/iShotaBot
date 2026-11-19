@@ -84,6 +84,8 @@ async def twitter_media(tweet_media_lists: list[FixTweetMedia], text: str):
                     duration=int(media.duration),
                     caption=text if idx == 0 else "",
                     parse_mode=ParseMode.HTML,
+                    width=media.width,
+                    height=media.height,
                 )
             )
     return media_lists
@@ -168,6 +170,8 @@ async def send_single_tweet(reply: Reply, media: FixTweetMedia, text: str, butto
             caption=text,
             reply_markup=button,
             reply_parameters=ReplyParameters(message_id=reply.mid),
+            width=media.width,
+            height=media.height,
         )
     elif media.type == "gif":
         await bot.send_animation(
